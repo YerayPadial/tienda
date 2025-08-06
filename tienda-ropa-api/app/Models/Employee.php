@@ -1,25 +1,23 @@
 <?php
 
-use Illuminate\Database\Migrations\Migration;
-use Illuminate\Database\Schema\Blueprint;
-use Illuminate\Support\Facades\Schema;
+namespace App\Models;
 
-return new class extends Migration {
-    public function up(): void
-    {
-        Schema::create('employees', function (Blueprint $table) {
-            $table->id();
-            $table->string('name');
-            $table->string('email')->unique();
-            $table->string('password');
-            $table->string('rol')->default('admin'); 
-            $table->rememberToken();
-            $table->timestamps();
-        });
-    }
+use Illuminate\Foundation\Auth\User as Authenticatable;
+use Illuminate\Notifications\Notifiable;
 
-    public function down(): void
-    {
-        Schema::dropIfExists('employees');
-    }
-};
+class Employee extends Authenticatable
+{
+    use Notifiable;
+
+    protected $fillable = [
+        'name',
+        'email',
+        'password',
+        'rol',
+    ];
+
+    protected $hidden = [
+        'password',
+        'remember_token',
+    ];
+}
