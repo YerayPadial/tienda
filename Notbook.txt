@@ -1,1 +1,9 @@
-Prueba
+Lo 1 que hare es ejecutar un migrate pero en 
+que orden debo de hacerlo pq en ocasiones me sale 
+un error pq algunas migraciones se ejecutan antes
+ que otras y da error,como lo hare? 
+ Lo 2 que hare es ajustar las relaciones 
+ en los modelos eloquent. Lo 3 que hare es 
+ poblar de datos de ejemplo con seeders, 
+ y lo 4 Empezar con controladores 
+ y rutas de la api antes de seguir con elproyecto.
