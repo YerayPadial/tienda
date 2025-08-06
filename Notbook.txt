@@ -1,9 +1,7 @@
-Lo 1 que hare es ejecutar un migrate pero en 
-que orden debo de hacerlo pq en ocasiones me sale 
-un error pq algunas migraciones se ejecutan antes
- que otras y da error,como lo hare? 
- Lo 2 que hare es ajustar las relaciones 
- en los modelos eloquent. Lo 3 que hare es 
- poblar de datos de ejemplo con seeders, 
- y lo 4 Empezar con controladores 
- y rutas de la api antes de seguir con elproyecto.
+-> Proteger rutas y controlar accesos con Sactum
+
+1. Crear un controlador de autenticación básico:
+2. Crear controlador de autenticación:
+ AuthController.php
+3. Agregar rutas de autenticación:
+4. Configurar Sanctum en los modelos User y Employee:
