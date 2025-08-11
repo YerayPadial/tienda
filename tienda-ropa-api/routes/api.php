@@ -9,6 +9,7 @@ use App\Http\Controllers\OrderController;
 use App\Http\Controllers\OrderProductController;
 use App\Http\Controllers\EmployeeController;
 use App\Http\Controllers\UserController;
+use App\Http\Controllers\AuthController;
 
 Route::apiResource('products', ProductController::class);
 Route::apiResource('sizes', SizeController::class);
@@ -18,3 +19,5 @@ Route::apiResource('orders', OrderController::class);
 Route::apiResource('order-products', OrderProductController::class);
 Route::apiResource('employees', EmployeeController::class);
 Route::apiResource('users', UserController::class);
+Route::post('/login', [AuthController::class, 'login']);
+Route::post('/register', [AuthController::class, 'register']);

@@ -5,3 +5,7 @@
  AuthController.php
 3. Agregar rutas de autenticación:
 4. Configurar Sanctum en los modelos User y Employee:
+
+
+Si más adelante añado JWT/Sanctum, 
+solo tendre que modificar la lógica para usar el token en las peticiones protegidas.
