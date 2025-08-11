@@ -60,7 +60,7 @@ const Login: React.FC = () => {
 
     try {
       const response = await login(email, password)
-      // Guarda el usuario o token según tu backend (ajusta esto)
+      // Guarda el usuario
       localStorage.setItem('user', JSON.stringify(response.data.user))
 
       // Mostrar alert de éxito
@@ -70,7 +70,8 @@ const Login: React.FC = () => {
       setEmail('')
       setPassword('')
 
-      // Redirige, muestra mensaje, etc.
+      // Redirige al menú de usuario
+      navigate('/usuario')
     } catch (err: any) {
       if (err.response?.status === 422) {
         // Errores de validación del backend
@@ -135,14 +136,14 @@ const Login: React.FC = () => {
         </button>
 
         {error && <p className="text-red-600 text-center">{error}</p>}
-        
+
         {/* Separador */}
         <div className="flex items-center my-4">
           <div className="flex-grow h-px bg-gray-300"></div>
           <span className="px-3 text-gray-500 text-sm">o</span>
           <div className="flex-grow h-px bg-gray-300"></div>
         </div>
-        
+
         {/* Botón de registro */}
         <button
           type="button"

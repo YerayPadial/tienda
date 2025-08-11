@@ -72,8 +72,19 @@ const Register: React.FC = () => {
     setValidationErrors({})
 
     try {
-      await register(name, email, password, passwordConfirmation)
-      setSuccess('¡Registro exitoso! Ya puedes iniciar sesión')
+      const response = await register(name, email, password, passwordConfirmation)
+
+      // Guarda el usuario si tu backend lo devuelve (ajusta si solo tienes mensaje de éxito)
+      if (response.data.user) {
+        localStorage.setItem('user', JSON.stringify(response.data.user))
+        // Mostrar alert de éxito
+        alert(`¡Bienvenido/a ${response.data.user.name}! Registro exitoso.`)
+        // Redirige al menú de usuario
+        navigate('/usuario')
+      } else {
+        setSuccess('¡Registro exitoso! Ya puedes iniciar sesión')
+      }
+
       // Limpiar formulario
       setName('')
       setEmail('')
