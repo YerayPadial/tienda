@@ -10,16 +10,21 @@ class AuthController extends Controller
 {
     public function login(Request $request)
     {
-        // Validamos los datos
+        // Validamos los datos con mensajes personalizados
         $request->validate([
             'email' => 'required|email',
-            'password' => 'required'
+            'password' => 'required|string|min:1'
+        ], [
+            'email.required' => 'El email es obligatorio',
+            'email.email' => 'Debe ser un email válido',
+            'password.required' => 'La contraseña es obligatoria',
+            'password.min' => 'La contraseña no puede estar vacía',
         ]);
 
         // Intentamos autenticar
         if (!Auth::attempt($request->only('email', 'password'))) {
             return response()->json([
-                'message' => 'Credenciales incorrectas'
+                'message' => 'Email o contraseña incorrectos'
             ], 401);
         }
 
@@ -28,6 +33,7 @@ class AuthController extends Controller
         // Devolver el usuario, y más adelante añadir un token
         return response()->json([
             'user' => $user,
+            'message' => 'Login exitoso'
         ]);
     }
 
