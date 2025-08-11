@@ -1,0 +1,16 @@
+import { Routes, Route } from 'react-router-dom'
+import Home from '../pages/Home'
+import Products from '../pages/Products'
+import Login from '../pages/Login'
+import Register from '../pages/Register'
+
+const AppRoutes: React.FC = () => (
+  <Routes>
+    <Route path="/" element={<Home />} />
+    <Route path="/productos" element={<Products />} />
+    <Route path="/login" element={<Login />} />
+    <Route path="/registro" element={<Register />} />
+  </Routes>
+)
+
+export default AppRoutes
