@@ -23,6 +23,3 @@ export const register = (name: string, email: string, password: string, password
     password,
     password_confirmation: passwordConfirmation
   })
-
-export const logout = () =>
-  api.post('/logout')

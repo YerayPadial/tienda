@@ -16,6 +16,7 @@ const getCurrentUser = () => {
 
 const AppRoutes: React.FC = () => {
   const user = getCurrentUser()
+
   return (
     <Routes>
       <Route path="/" element={<Home />} />

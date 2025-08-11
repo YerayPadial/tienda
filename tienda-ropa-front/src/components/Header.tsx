@@ -1,16 +1,50 @@
-import { Link } from 'react-router-dom'
+import { Link, useNavigate } from 'react-router-dom'
+import { FaSignOutAlt } from 'react-icons/fa'
 
-const Header: React.FC = () => (
-  <header className="bg-white shadow">
-    <nav className="container mx-auto px-4 py-4 flex items-center justify-between">
-      <Link to="/" className="text-2xl font-bold text-blue-600">Tienda Ropa</Link>
-      <div className="flex gap-4">
-        <Link to="/" className="hover:text-blue-600">Inicio</Link>
-        <Link to="/productos" className="hover:text-blue-600">Productos</Link>
-        <Link to="/login" className="hover:text-blue-600">Login</Link>
-      </div>
-    </nav>
-  </header>
-)
+const getCurrentUser = () => {
+  const userStr = localStorage.getItem('user')
+  try {
+    return userStr ? JSON.parse(userStr) : null
+  } catch {
+    return null
+  }
+}
+
+const Header: React.FC = () => {
+  const user = getCurrentUser()
+  const navigate = useNavigate()
+
+  const handleLogout = () => {
+    localStorage.removeItem('user')
+    navigate('/')
+  }
+
+  return (
+    <header className="flex items-center justify-between px-6 py-4 bg-blue-600 text-white shadow">
+      <Link to="/" className="text-2xl font-bold hover:underline">Tienda Ropa</Link>
+      <nav className="flex items-center gap-6">
+        <Link to="/productos" className="font-semibold text-lg hover:underline">Productos</Link>
+        {user ? (
+          <>
+            <Link to="/usuario" className="font-semibold text-lg hover:underline">
+              Perfil
+            </Link>
+            <button
+              onClick={handleLogout}
+              className="items-center gap-2 px-4 py-2 bg-red-500 text-white rounded-lg hover:bg-red-600 transition-colors"
+            >
+               <FaSignOutAlt />
+              
+            </button>
+          </>
+        ) : (
+          <>
+            <Link to="/login" className="font-semibold text-lg hover:underline">Iniciar sesión</Link>
+          </>
+        )}
+      </nav>
+    </header>
+  )
+}
 
 export default Header

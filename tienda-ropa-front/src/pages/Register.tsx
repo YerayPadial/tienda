@@ -16,7 +16,6 @@ const Register: React.FC = () => {
   const validateForm = () => {
     const errors: { [key: string]: string } = {}
 
-    // Validar campos vacíos
     if (!name.trim()) {
       errors.name = 'El nombre es obligatorio'
     } else if (name.trim().length < 2) {
@@ -48,7 +47,6 @@ const Register: React.FC = () => {
     return Object.keys(errors).length === 0
   }
 
-  // Función para limpiar errores específicos cuando el usuario empiece a escribir
   const clearFieldError = (fieldName: string) => {
     if (validationErrors[fieldName]) {
       setValidationErrors(prev => {
@@ -61,10 +59,7 @@ const Register: React.FC = () => {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
-
-    if (!validateForm()) {
-      return
-    }
+    if (!validateForm()) return
 
     setLoading(true)
     setError('')
@@ -73,31 +68,23 @@ const Register: React.FC = () => {
 
     try {
       const response = await register(name, email, password, passwordConfirmation)
-
-      // Guarda el usuario si tu backend lo devuelve (ajusta si solo tienes mensaje de éxito)
       if (response.data.user) {
         localStorage.setItem('user', JSON.stringify(response.data.user))
-        // Mostrar alert de éxito
-        alert(`¡Bienvenido/a ${response.data.user.name}! Registro exitoso.`)
-        // Redirige al menú de usuario
         navigate('/usuario')
       } else {
         setSuccess('¡Registro exitoso! Ya puedes iniciar sesión')
       }
-
-      // Limpiar formulario
       setName('')
       setEmail('')
       setPassword('')
       setPasswordConfirmation('')
     } catch (err: any) {
       if (err.response?.status === 422) {
-        // Errores de validación del backend
         const backendErrors = err.response.data.errors
         if (backendErrors) {
           const errorMessages: { [key: string]: string } = {}
           Object.keys(backendErrors).forEach(key => {
-            errorMessages[key] = backendErrors[key][0] // Primer error de cada campo
+            errorMessages[key] = backendErrors[key][0]
           })
           setValidationErrors(errorMessages)
         }
@@ -120,7 +107,7 @@ const Register: React.FC = () => {
             placeholder="Nombre"
             value={name}
             onChange={e => {
-              setName(e.target.value.trimStart()) // Evitar espacios al inicio
+              setName(e.target.value.trimStart())
               clearFieldError('name')
             }}
           />
@@ -128,7 +115,6 @@ const Register: React.FC = () => {
             <p className="text-red-500 text-sm mt-1">{validationErrors.name}</p>
           )}
         </div>
-
         <div>
           <input
             className={`border rounded px-3 py-2 w-full ${validationErrors.email ? 'border-red-500' : ''}`}
@@ -136,7 +122,7 @@ const Register: React.FC = () => {
             placeholder="Correo electrónico"
             value={email}
             onChange={e => {
-              setEmail(e.target.value.trim()) // Eliminar espacios
+              setEmail(e.target.value.trim())
               clearFieldError('email')
             }}
           />
@@ -144,7 +130,6 @@ const Register: React.FC = () => {
             <p className="text-red-500 text-sm mt-1">{validationErrors.email}</p>
           )}
         </div>
-
         <div>
           <input
             className={`border rounded px-3 py-2 w-full ${validationErrors.password ? 'border-red-500' : ''}`}
@@ -160,7 +145,6 @@ const Register: React.FC = () => {
             <p className="text-red-500 text-sm mt-1">{validationErrors.password}</p>
           )}
         </div>
-
         <div>
           <input
             className={`border rounded px-3 py-2 w-full ${validationErrors.passwordConfirmation ? 'border-red-500' : ''}`}
@@ -176,7 +160,6 @@ const Register: React.FC = () => {
             <p className="text-red-500 text-sm mt-1">{validationErrors.passwordConfirmation}</p>
           )}
         </div>
-
         <button
           type="submit"
           className="bg-blue-600 text-white py-2 rounded hover:bg-blue-700 disabled:bg-gray-400"
@@ -184,18 +167,13 @@ const Register: React.FC = () => {
         >
           {loading ? 'Registrando...' : 'Crear cuenta'}
         </button>
-
         {error && <p className="text-red-600 text-center">{error}</p>}
         {success && <p className="text-green-600 text-center">{success}</p>}
-
-        {/* Separador */}
         <div className="flex items-center my-4">
           <div className="flex-grow h-px bg-gray-300"></div>
           <span className="px-3 text-gray-500 text-sm">o</span>
           <div className="flex-grow h-px bg-gray-300"></div>
         </div>
-
-        {/* Botón de login */}
         <button
           type="button"
           className="border border-blue-600 text-blue-600 py-2 rounded hover:bg-blue-50 transition-colors"
