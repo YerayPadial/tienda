@@ -1,7 +1,9 @@
 import React, { useState } from 'react'
+import { useNavigate } from 'react-router-dom'
 import { register } from '../services/api'
 
 const Register: React.FC = () => {
+  const navigate = useNavigate()
   const [name, setName] = useState('')
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
@@ -174,6 +176,22 @@ const Register: React.FC = () => {
 
         {error && <p className="text-red-600 text-center">{error}</p>}
         {success && <p className="text-green-600 text-center">{success}</p>}
+
+        {/* Separador */}
+        <div className="flex items-center my-4">
+          <div className="flex-grow h-px bg-gray-300"></div>
+          <span className="px-3 text-gray-500 text-sm">o</span>
+          <div className="flex-grow h-px bg-gray-300"></div>
+        </div>
+
+        {/* Botón de login */}
+        <button
+          type="button"
+          className="border border-blue-600 text-blue-600 py-2 rounded hover:bg-blue-50 transition-colors"
+          onClick={() => navigate('/login')}
+        >
+          ¿Ya tienes cuenta? Inicia sesión aquí
+        </button>
       </form>
     </section>
   )
