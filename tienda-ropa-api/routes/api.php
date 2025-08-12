@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\ProfileController;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\ProductController;
 use App\Http\Controllers\SizeController;
@@ -21,3 +22,9 @@ Route::apiResource('employees', EmployeeController::class);
 Route::apiResource('users', UserController::class);
 Route::post('/login', [AuthController::class, 'login']);
 Route::post('/register', [AuthController::class, 'register']);
+
+Route::get('/profile', [ProfileController::class, 'show']);
+Route::put('/profile', [ProfileController::class, 'update']); // Editar nombre y email juntos
+Route::put('/profile/name', [ProfileController::class, 'updateName']); // Editar solo nombre
+Route::put('/profile/email', [ProfileController::class, 'updateEmail']); // Editar solo email
+Route::put('/profile/password', [ProfileController::class, 'changePassword']); // Cambiar contraseña

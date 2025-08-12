@@ -57,7 +57,7 @@ const getStatusColor = (status: string) => {
   }
 }
 
-const Pedidos: React.FC = () => {
+const Order: React.FC = () => {
   const navigate = useNavigate()
   const user = getCurrentUser()
 
@@ -171,4 +171,4 @@ const Pedidos: React.FC = () => {
   )
 }
 
-export default Pedidos
+export default Order

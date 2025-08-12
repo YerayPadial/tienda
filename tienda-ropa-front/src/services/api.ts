@@ -23,3 +23,9 @@ export const register = (name: string, email: string, password: string, password
     password,
     password_confirmation: passwordConfirmation
   })
+
+export const updateProfile = (name: string, email: string, id: string | number) =>
+  api.put('/profile', { id, name, email })
+
+export const changePassword = (currentPassword: string, newPassword: string, id: string | number) =>
+  api.put('/profile/password', { id, currentPassword, newPassword })
