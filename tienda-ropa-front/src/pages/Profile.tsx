@@ -53,6 +53,13 @@ const Profile: React.FC = () => {
         let valid = true
         setEditNameError('')
         setEditEmailError('')
+        
+        // Validar que no se guarden cambios sin hacer modificaciones
+        if (editName.trim() === user.name && editEmail.trim() === user.email) {
+            setError('No se han realizado cambios en el perfil')
+            return false
+        }
+        
         if (editName.trim().length < 2) {
             setEditNameError('El nombre debe tener al menos 2 caracteres')
             valid = false
@@ -99,7 +106,22 @@ const Profile: React.FC = () => {
             setSuccess('Perfil actualizado correctamente')
             setEditingField(null)
         } catch (err: any) {
-            setError(err.response?.data?.message || 'Error al actualizar perfil')
+            // Manejar errores específicos de validación del backend
+            if (err.response?.status === 422 && err.response?.data?.errors) {
+                const errors = err.response.data.errors
+                
+                // Error específico para email ya existente
+                if (errors.email) {
+                    setEditEmailError(errors.email[0])
+                }
+                
+                // Error para nombre
+                if (errors.name) {
+                    setEditNameError(errors.name[0])
+                }
+            } else {
+                setError(err.response?.data?.message || 'Error al actualizar perfil')
+            }
         } finally {
             setLoading(false)
         }
@@ -123,7 +145,21 @@ const Profile: React.FC = () => {
             setNewPassword('')
             setRepeatPassword('')
         } catch (err: any) {
-            setPasswordError(err.response?.data?.message || 'Error al cambiar la contraseña')
+            // Manejar errores específicos del cambio de contraseña
+            if (err.response?.status === 400) {
+                setPasswordError(err.response.data.message || 'La contraseña actual es incorrecta')
+            } else if (err.response?.status === 422 && err.response?.data?.errors) {
+                const errors = err.response.data.errors
+                if (errors.currentPassword) {
+                    setPasswordError(errors.currentPassword[0])
+                } else if (errors.newPassword) {
+                    setPasswordError(errors.newPassword[0])
+                } else {
+                    setPasswordError('Error de validación en el cambio de contraseña')
+                }
+            } else {
+                setPasswordError(err.response?.data?.message || 'Error al cambiar la contraseña')
+            }
         } finally {
             setLoading(false)
         }

@@ -36,6 +36,12 @@ class ProfileController extends Controller
                 'email',
                 Rule::unique('users')->ignore($user->id),
             ],
+        ], [
+            'name.required' => 'El nombre es obligatorio',
+            'name.min' => 'El nombre debe tener al menos 2 caracteres',
+            'email.required' => 'El email es obligatorio',
+            'email.email' => 'Debe ser un email válido',
+            'email.unique' => 'Este email ya está registrado por otro usuario',
         ]);
 
         $user->name = $request->name;
@@ -59,6 +65,9 @@ class ProfileController extends Controller
 
         $request->validate([
             'name' => ['required', 'string', 'min:2'],
+        ], [
+            'name.required' => 'El nombre es obligatorio',
+            'name.min' => 'El nombre debe tener al menos 2 caracteres',
         ]);
 
         $user->name = $request->name;
@@ -85,6 +94,10 @@ class ProfileController extends Controller
                 'email',
                 Rule::unique('users')->ignore($user->id),
             ],
+        ], [
+            'email.required' => 'El email es obligatorio',
+            'email.email' => 'Debe ser un email válido',
+            'email.unique' => 'Este email ya está registrado por otro usuario',
         ]);
 
         $user->email = $request->email;
@@ -108,6 +121,10 @@ class ProfileController extends Controller
         $request->validate([
             'currentPassword' => 'required',
             'newPassword' => 'required|string|min:8',
+        ], [
+            'currentPassword.required' => 'La contraseña actual es obligatoria',
+            'newPassword.required' => 'La nueva contraseña es obligatoria',
+            'newPassword.min' => 'La nueva contraseña debe tener al menos 8 caracteres',
         ]);
 
         // Verifica la contraseña actual
