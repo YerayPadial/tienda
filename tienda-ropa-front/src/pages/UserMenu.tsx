@@ -11,23 +11,23 @@ type UserMenuProps = {
     user: User
 }
 
-const cards = [
-    {
-        title: 'Perfil',
-        description: 'Edita tu información personal.',
-        icon: <FaUserCircle className="text-blue-500 text-6xl mb-4" />,
-        // onClick: () => { ... } // Redirección futura
-    },
-    {
-        title: 'Pedidos',
-        description: 'Consulta y gestiona tus pedidos.',
-        icon: <FaBoxOpen className="text-green-500 text-6xl mb-4" />,
-        // onClick: () => { ... } // Redirección futura
-    },
-]
-
 const UserMenu: React.FC<UserMenuProps> = ({ user }) => {
     const navigate = useNavigate()
+
+    const cards = [
+        {
+            title: 'Perfil',
+            description: 'Edita tu información personal.',
+            icon: <FaUserCircle className="text-blue-500 text-6xl mb-4" />,
+            onClick: () => navigate('/perfil')
+        },
+        {
+            title: 'Pedidos',
+            description: 'Consulta y gestiona tus pedidos.',
+            icon: <FaBoxOpen className="text-green-500 text-6xl mb-4" />,
+            onClick: () => navigate('/pedidos')
+        },
+    ]
     /* 
        const handleLogout = async () => {
             // Limpiar datos del usuario del localStorage
@@ -46,6 +46,7 @@ const UserMenu: React.FC<UserMenuProps> = ({ user }) => {
                         <div
                             key={card.title}
                             className="flex-1 bg-gray-50 rounded-xl shadow-md hover:shadow-xl transition cursor-pointer p-6 flex flex-col items-center hover:bg-blue-100"
+                            onClick={card.onClick}
                         >
                             {card.icon}
                             <h2 className="text-xl font-semibold mb-2">{card.title}</h2>
