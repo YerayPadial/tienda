@@ -29,3 +29,8 @@ export const updateProfile = (name: string, email: string, id: string | number) 
 
 export const changePassword = (currentPassword: string, newPassword: string, id: string | number) =>
   api.put('/profile/password', { id, currentPassword, newPassword })
+
+export const fetchUserOrders = async (userId: string | number) => {
+  const response = await api.get('/user-orders', { params: { user_id: userId } });
+  return response.data.orders;
+}

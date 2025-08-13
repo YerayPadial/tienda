@@ -31,4 +31,9 @@ class Order extends Model
             ->withPivot(['size_id', 'color_id', 'quantity'])
             ->withTimestamps();
     }
+
+    public function items()
+    {
+        return $this->hasMany(OrderProduct::class);
+    }
 }

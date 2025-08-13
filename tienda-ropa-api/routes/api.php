@@ -28,3 +28,7 @@ Route::put('/profile', [ProfileController::class, 'update']); // Editar nombre y
 Route::put('/profile/name', [ProfileController::class, 'updateName']); // Editar solo nombre
 Route::put('/profile/email', [ProfileController::class, 'updateEmail']); // Editar solo email
 Route::put('/profile/password', [ProfileController::class, 'changePassword']); // Cambiar contraseña
+
+// Orders
+Route::get('/user-orders', [OrderController::class, 'userOrders']);
+Route::get('/orders/{order}', [OrderController::class, 'show']);

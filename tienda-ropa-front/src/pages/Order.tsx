@@ -1,6 +1,7 @@
-import React from 'react'
+import React, { useEffect, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { FaArrowLeft, FaBox, FaCalendar, FaMapMarkerAlt, FaCreditCard } from 'react-icons/fa'
+import { FaArrowLeft, FaBox, FaCalendar, FaMapMarkerAlt, FaCreditCard, FaTag } from 'react-icons/fa'
+import { fetchUserOrders } from '../services/api'
 
 const getCurrentUser = () => {
   const userStr = localStorage.getItem('user')
@@ -10,39 +11,6 @@ const getCurrentUser = () => {
     return null
   }
 }
-
-// Datos de ejemplo de pedidos (en el futuro vendrían de la API)
-const mockOrders = [
-  {
-    id: 1,
-    date: '2025-08-10',
-    status: 'Entregado',
-    total: 89.99,
-    items: [
-      { name: 'Camiseta Básica', quantity: 2, price: 25.99 },
-      { name: 'Jeans Slim Fit', quantity: 1, price: 59.99 }
-    ]
-  },
-  {
-    id: 2,
-    date: '2025-08-08',
-    status: 'En camino',
-    total: 129.99,
-    items: [
-      { name: 'Sudadera con Capucha', quantity: 1, price: 45.99 },
-      { name: 'Pantalones Deportivos', quantity: 2, price: 42.00 }
-    ]
-  },
-  {
-    id: 3,
-    date: '2025-08-05',
-    status: 'Procesando',
-    total: 75.99,
-    items: [
-      { name: 'Vestido de Verano', quantity: 1, price: 75.99 }
-    ]
-  }
-]
 
 const getStatusColor = (status: string) => {
   switch (status) {
@@ -60,12 +28,24 @@ const getStatusColor = (status: string) => {
 const Order: React.FC = () => {
   const navigate = useNavigate()
   const user = getCurrentUser()
+  const [orders, setOrders] = useState<any[]>([])
+  const [loading, setLoading] = useState(true)
+  const [error, setError] = useState('')
+
+  useEffect(() => {
+    if (user) {
+      fetchUserOrders(user.id)
+        .then(setOrders)
+        .catch(() => setError('Error al cargar los pedidos'))
+        .finally(() => setLoading(false))
+    }
+  }, [user])
 
   if (!user) {
     return (
       <div className="p-8 text-center">
         <p className="text-xl text-gray-600 mb-4">Debes iniciar sesión para ver tus pedidos</p>
-        <button 
+        <button
           onClick={() => navigate('/login')}
           className="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600"
         >
@@ -95,66 +75,85 @@ const Order: React.FC = () => {
         <p className="text-gray-600">Consulta el estado de tus compras</p>
       </div>
 
+      {/* Estado de carga */}
+      {loading && (
+        <div className="text-center py-12 text-gray-500">Cargando pedidos...</div>
+      )}
+
+      {/* Error */}
+      {error && (
+        <div className="text-center py-12 text-red-500">{error}</div>
+      )}
+
       {/* Lista de pedidos */}
-      <div className="space-y-6">
-        {mockOrders.map(order => (
-          <div key={order.id} className="bg-white shadow-lg rounded-xl p-6">
-            {/* Encabezado del pedido */}
-            <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-4">
-              <div className="flex items-center gap-4 mb-2 sm:mb-0">
-                <h3 className="text-lg font-semibold">Pedido #{order.id}</h3>
-                <span className={`px-3 py-1 rounded-full text-sm font-medium ${getStatusColor(order.status)}`}>
-                  {order.status}
-                </span>
+      {!loading && orders && orders.length > 0 && (
+        <div className="space-y-6">
+          {orders.map(order => (
+            <div key={order.id} className="bg-white shadow-lg rounded-xl p-6">
+              {/* Encabezado del pedido */}
+              <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-4">
+                <div className="flex items-center gap-4 mb-2 sm:mb-0">
+                  <h3 className="text-lg font-semibold">Pedido #{order.id}</h3>
+                  <span className={`px-3 py-1 rounded-full text-sm font-medium ${getStatusColor(order.status)}`}>
+                    {order.status}
+                  </span>
+                </div>
+                <div className="text-sm text-gray-500 flex items-center gap-2">
+                  <FaCalendar />
+                  {new Date(order.created_at).toLocaleDateString('es-ES')}
+                </div>
               </div>
-              <div className="text-sm text-gray-500 flex items-center gap-2">
-                <FaCalendar />
-                {new Date(order.date).toLocaleDateString('es-ES')}
-              </div>
-            </div>
 
-            {/* Productos del pedido */}
-            <div className="border-t border-b py-4 my-4">
-              <h4 className="font-medium text-gray-700 mb-3">Productos:</h4>
-              <div className="space-y-2">
-                {order.items.map((item, index) => (
-                  <div key={index} className="flex justify-between items-center">
-                    <div>
-                      <span className="text-gray-800">{item.name}</span>
-                      <span className="text-gray-500 ml-2">x{item.quantity}</span>
+              {/* Productos del pedido */}
+              <div className="border-t border-b py-4 my-4">
+                <h4 className="font-medium text-gray-700 mb-3">Productos:</h4>
+                <div className="space-y-2">
+                  {order.items.map((item: any, index: number) => (
+                    <div key={index} className="flex justify-between items-center">
+                      <div>
+                        <span className="text-gray-800 font-medium flex items-center gap-2">
+                          <FaTag className="text-gray-400" />
+                          {item.product?.name ?? 'Producto'}
+                        </span>
+                        <span className="text-gray-500 ml-2">x{item.quantity}</span>
+                        {item.size && <span className="text-xs ml-2 text-gray-500">Talla: {item.size.name}</span>}
+                        {item.color && <span className="text-xs ml-2 text-gray-500">Color: {item.color.name}</span>}
+                      </div>
+                      <span className="font-medium">
+                        ${item.product?.price ? Number(item.product.price).toFixed(2) : '--'}
+                      </span>
                     </div>
-                    <span className="font-medium">${item.price.toFixed(2)}</span>
-                  </div>
-                ))}
+                  ))}
+                </div>
               </div>
-            </div>
 
-            {/* Total y acciones */}
-            <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between">
-              <div className="flex items-center gap-2 mb-2 sm:mb-0">
-                <FaCreditCard className="text-gray-500" />
-                <span className="text-xl font-bold text-gray-800">
-                  Total: ${order.total.toFixed(2)}
-                </span>
-              </div>
-              <div className="flex gap-2">
-                <button className="px-4 py-2 border border-blue-600 text-blue-600 rounded hover:bg-blue-50 transition-colors">
-                  Ver Detalles
-                </button>
-                {order.status !== 'Entregado' && (
-                  <button className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 transition-colors">
-                    <FaMapMarkerAlt className="inline mr-2" />
-                    Rastrear
+              {/* Total y acciones */}
+              <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between">
+                <div className="flex items-center gap-2 mb-2 sm:mb-0">
+                  <FaCreditCard className="text-gray-500" />
+                  <span className="text-xl font-bold text-gray-800">
+                    Total: ${order.items.reduce((total: number, item: any) => total + ((item.product?.price ?? 0) * item.quantity), 0).toFixed(2)}
+                  </span>
+                </div>
+                <div className="flex gap-2">
+                  <button className="px-4 py-2 border border-blue-600 text-blue-600 rounded hover:bg-blue-50 transition-colors">
+                    Ver Detalles
                   </button>
-                )}
+                  {order.status !== 'Entregado' && (
+                    <button className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 transition-colors">
+                      <FaMapMarkerAlt className="inline mr-2" />
+                      Rastrear
+                    </button>
+                  )}
+                </div>
               </div>
             </div>
-          </div>
-        ))}
-      </div>
+          ))}
+        </div>
+      )}
 
       {/* Mensaje si no hay pedidos */}
-      {mockOrders.length === 0 && (
+      {!loading && orders.length === 0 && (
         <div className="text-center py-12">
           <FaBox className="text-gray-300 text-6xl mx-auto mb-4" />
           <h3 className="text-xl font-semibold text-gray-600 mb-2">No tienes pedidos aún</h3>

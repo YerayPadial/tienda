@@ -34,4 +34,25 @@ class OrderController extends Controller
         $order->delete();
         return response()->json(null, 204);
     }
+
+    // Obtener todos los pedidos de un usuario concreto
+    public function userOrders(Request $request)
+    {
+        $userId = $request->query('user_id') ?? $request->input('user_id');
+        if (!$userId) {
+            return response()->json(['message' => 'Falta el parámetro user_id'], 400);
+        }
+
+        // Carga las relaciones de productos y sus detalles
+        $orders = Order::where('user_id', $userId)
+            ->with([
+                'items.product',    
+                'items.size',       
+                'items.color'     
+            ])
+            ->orderBy('created_at', 'desc')
+            ->get();
+
+        return response()->json(['orders' => $orders]);
+    }
 }
