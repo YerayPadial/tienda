@@ -31,4 +31,4 @@ Route::put('/profile/password', [ProfileController::class, 'changePassword']); /
 
 // Orders
 Route::get('/user-orders', [OrderController::class, 'userOrders']);
-Route::get('/orders/{order}', [OrderController::class, 'show']);
+Route::get('/orders/{order}', [OrderController::class, 'orderDetail']);

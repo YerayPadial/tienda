@@ -46,13 +46,26 @@ class OrderController extends Controller
         // Carga las relaciones de productos y sus detalles
         $orders = Order::where('user_id', $userId)
             ->with([
-                'items.product',    
-                'items.size',       
-                'items.color'     
+                'items.product',
+                'items.size',
+                'items.color'
             ])
             ->orderBy('created_at', 'desc')
             ->get();
 
         return response()->json(['orders' => $orders]);
+    }
+
+    public function orderDetail(Order $order)
+    {
+        // Carga los productos, tallas y colores
+        $order->load([
+            'items.product',
+            'items.size',
+            'items.color',
+            'user'
+        ]);
+
+        return response()->json(['order' => $order]);
     }
 }

@@ -14,8 +14,8 @@ class OrderSeeder extends Seeder
         Order::create([
             'user_id' => $user->id,
             'status' => 'pendiente',
-            'shipping_type' => 'domicilio',
-            'shipping_data' => json_encode(['direccion' => 'Calle Ejemplo 123, Ciudad']),
+            'shipping_type' => 'Domicilio',
+            'shipping_data' => ['Direccion' => 'Calle Ejemplo, Nº9, Provincia Huelva, CP:21610'],
             'payment_completed' => false,
         ]);
     }

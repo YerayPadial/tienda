@@ -6,6 +6,7 @@ import Register from '../pages/Register'
 import UserMenu from '../pages/UserMenu'
 import Profile from '../pages/Profile'
 import Order from '../pages/Order'
+import OrderDetail from '../pages/OrderDetail'
 
 const getCurrentUser = () => {
   const userStr = localStorage.getItem('user')
@@ -49,7 +50,11 @@ const AppRoutes: React.FC = () => {
             : <div className="p-8 text-center text-xl">Debes iniciar sesión</div>
         }
       />
+      <Route
+        path="/detalles-pedido/:id"
+        element={<OrderDetail />} />
     </Routes>
+
   )
 }
 

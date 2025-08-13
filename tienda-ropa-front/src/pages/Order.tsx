@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { FaArrowLeft, FaBox, FaCalendar, FaMapMarkerAlt, FaCreditCard, FaTag } from 'react-icons/fa'
+import { FaArrowLeft, FaBox, FaCalendar, FaCreditCard, FaTag } from 'react-icons/fa'
 import { fetchUserOrders } from '../services/api'
 
 const getCurrentUser = () => {
@@ -136,15 +136,10 @@ const Order: React.FC = () => {
                   </span>
                 </div>
                 <div className="flex gap-2">
-                  <button className="px-4 py-2 border border-blue-600 text-blue-600 rounded hover:bg-blue-50 transition-colors">
+                  <button className="px-4 py-2 border border-blue-600 text-blue-600 rounded hover:bg-blue-50 transition-colors" onClick={() => navigate(`/detalles-pedido/${order.id}`)}>
+
                     Ver Detalles
                   </button>
-                  {order.status !== 'Entregado' && (
-                    <button className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 transition-colors">
-                      <FaMapMarkerAlt className="inline mr-2" />
-                      Rastrear
-                    </button>
-                  )}
                 </div>
               </div>
             </div>
