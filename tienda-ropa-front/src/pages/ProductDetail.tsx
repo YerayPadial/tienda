@@ -18,6 +18,53 @@ const ProductDetail: React.FC = () => {
         }
     }, [id])
 
+    // Funciones auxiliares para determinar disponibilidad
+    const getSizeAvailability = (sizeId: string) => {
+        if (!product || !product.stocks) return false
+        
+        const needsColor = product.colors.length > 1
+        
+        if (needsColor && selectedColor) {
+            // Si hay color seleccionado, verificar si existe stock para esta talla con ese color
+            return product.stocks.some((s: any) => 
+                s.size_id === sizeId && s.color_id === selectedColor && s.stock > 0
+            )
+        } else if (needsColor && !selectedColor) {
+            // Si no hay color seleccionado, verificar si existe stock para esta talla con cualquier color
+            return product.stocks.some((s: any) => 
+                s.size_id === sizeId && s.stock > 0
+            )
+        } else {
+            // Si no hay variación de colores, solo verificar stock para la talla
+            return product.stocks.some((s: any) => 
+                s.size_id === sizeId && s.stock > 0
+            )
+        }
+    }
+
+    const getColorAvailability = (colorId: string) => {
+        if (!product || !product.stocks) return false
+        
+        const needsSize = product.sizes.length > 1
+        
+        if (needsSize && selectedSize) {
+            // Si hay talla seleccionada, verificar si existe stock para este color con esa talla
+            return product.stocks.some((s: any) => 
+                s.color_id === colorId && s.size_id === selectedSize && s.stock > 0
+            )
+        } else if (needsSize && !selectedSize) {
+            // Si no hay talla seleccionada, verificar si existe stock para este color con cualquier talla
+            return product.stocks.some((s: any) => 
+                s.color_id === colorId && s.stock > 0
+            )
+        } else {
+            // Si no hay variación de tallas, solo verificar stock para el color
+            return product.stocks.some((s: any) => 
+                s.color_id === colorId && s.stock > 0
+            )
+        }
+    }
+
     useEffect(() => {
         // Solo busca el stock si están seleccionadas TODAS las opciones necesarias
         if (product && product.stocks) {
@@ -44,6 +91,21 @@ const ProductDetail: React.FC = () => {
         }
     }, [selectedSize, selectedColor, product])
 
+    // Efecto para resetear selecciones inválidas cuando cambian las opciones disponibles
+    useEffect(() => {
+        if (product && product.stocks) {
+            // Si hay una talla seleccionada pero ya no está disponible, resetearla
+            if (selectedSize && !getSizeAvailability(selectedSize)) {
+                setSelectedSize(null)
+            }
+            
+            // Si hay un color seleccionado pero ya no está disponible, reseteerlo
+            if (selectedColor && !getColorAvailability(selectedColor)) {
+                setSelectedColor(null)
+            }
+        }
+    }, [selectedSize, selectedColor, product])
+
     if (error) return <div>{error}</div>
     if (!product) return <div>Cargando...</div>
 
@@ -58,18 +120,55 @@ const ProductDetail: React.FC = () => {
             {product.sizes.length > 1 && (
                 <div className="mb-4">
                     <label className="font-semibold">Selecciona talla:</label>
-                    <div className="flex gap-2 mt-2">
-                        {product.sizes.map((size: any) => (
-                            <button
-                                key={size.id}
-                                className={`px-4 py-2 rounded border ${selectedSize === size.id ? 'bg-blue-500 text-white' : 'bg-gray-100'
+                    <div className="flex gap-2 mt-2 flex-wrap">
+                        {product.sizes.map((size: any) => {
+                            const isAvailable = getSizeAvailability(size.id)
+                            const isSelected = selectedSize === size.id
+                            
+                            return (
+                                <button
+                                    key={size.id}
+                                    className={`px-4 py-2 rounded border transition-all ${
+                                        isSelected 
+                                            ? 'bg-blue-500 text-white border-blue-500 hover:bg-blue-600' 
+                                            : isAvailable 
+                                                ? 'bg-gray-100 hover:bg-gray-200 border-gray-300' 
+                                                : 'bg-gray-50 text-gray-400 border-gray-200 cursor-not-allowed opacity-50 line-through'
                                     }`}
-                                onClick={() => setSelectedSize(size.id)}
-                            >
-                                {size.name}
-                            </button>
-                        ))}
+                                    onClick={() => {
+                                        if (isSelected) {
+                                            // Si ya está seleccionado, deseleccionar
+                                            setSelectedSize(null)
+                                        } else if (isAvailable) {
+                                            // Si está disponible, seleccionar
+                                            setSelectedSize(size.id)
+                                        }
+                                        // Si no está disponible, no hacer nada
+                                    }}
+                                    disabled={!isAvailable && !isSelected}
+                                    title={
+                                        isSelected 
+                                            ? 'Clic para deseleccionar' 
+                                            : !isAvailable 
+                                                ? 'Sin stock disponible' 
+                                                : 'Seleccionar talla'
+                                    }
+                                >
+                                    {size.name}
+                                </button>
+                            )
+                        })}
                     </div>
+                    {selectedSize && (
+                        <div className="mt-2 flex items-center justify-between">
+                            <button
+                                onClick={() => setSelectedSize(null)}
+                                className="text-xs text-gray-500 hover:text-gray-700 underline"
+                            >
+                                Limpiar selección
+                            </button>
+                        </div>
+                    )}
                 </div>
             )}
 
@@ -77,18 +176,55 @@ const ProductDetail: React.FC = () => {
             {product.colors.length > 1 && (
                 <div className="mb-4">
                     <label className="font-semibold">Selecciona color:</label>
-                    <div className="flex gap-2 mt-2">
-                        {product.colors.map((color: any) => (
-                            <button
-                                key={color.id}
-                                className={`px-4 py-2 rounded border ${selectedColor === color.id ? 'bg-blue-500 text-white' : 'bg-gray-100'
+                    <div className="flex gap-2 mt-2 flex-wrap">
+                        {product.colors.map((color: any) => {
+                            const isAvailable = getColorAvailability(color.id)
+                            const isSelected = selectedColor === color.id
+                            
+                            return (
+                                <button
+                                    key={color.id}
+                                    className={`px-4 py-2 rounded border transition-all ${
+                                        isSelected 
+                                            ? 'bg-blue-500 text-white border-blue-500 hover:bg-blue-600' 
+                                            : isAvailable 
+                                                ? 'bg-gray-100 hover:bg-gray-200 border-gray-300' 
+                                                : 'bg-gray-50 text-gray-400 border-gray-200 cursor-not-allowed opacity-50 line-through'
                                     }`}
-                                onClick={() => setSelectedColor(color.id)}
-                            >
-                                {color.name}
-                            </button>
-                        ))}
+                                    onClick={() => {
+                                        if (isSelected) {
+                                            // Si ya está seleccionado, deseleccionar
+                                            setSelectedColor(null)
+                                        } else if (isAvailable) {
+                                            // Si está disponible, seleccionar
+                                            setSelectedColor(color.id)
+                                        }
+                                        // Si no está disponible, no hacer nada
+                                    }}
+                                    disabled={!isAvailable && !isSelected}
+                                    title={
+                                        isSelected 
+                                            ? 'Clic para deseleccionar' 
+                                            : !isAvailable 
+                                                ? 'Sin stock disponible' 
+                                                : 'Seleccionar color'
+                                    }
+                                >
+                                    {color.name}
+                                </button>
+                            )
+                        })}
                     </div>
+                    {selectedColor && (
+                        <div className="mt-2 flex items-center justify-between">
+                            <button
+                                onClick={() => setSelectedColor(null)}
+                                className="text-xs text-gray-500 hover:text-gray-700 underline"
+                            >
+                                Limpiar selección
+                            </button>
+                        </div>
+                    )}
                 </div>
             )}
 
