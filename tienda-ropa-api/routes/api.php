@@ -12,10 +12,13 @@ use App\Http\Controllers\EmployeeController;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\AuthController;
 
+//Products
 Route::apiResource('products', ProductController::class);
 Route::apiResource('sizes', SizeController::class);
 Route::apiResource('colors', ColorController::class);
 Route::apiResource('product-stocks', ProductStockController::class);
+Route::get('/products/{product}', [ProductController::class, 'showDetail']);
+
 Route::apiResource('orders', OrderController::class);
 Route::apiResource('order-products', OrderProductController::class);
 Route::apiResource('employees', EmployeeController::class);
@@ -32,3 +35,4 @@ Route::put('/profile/password', [ProfileController::class, 'changePassword']); /
 // Orders
 Route::get('/user-orders', [OrderController::class, 'userOrders']);
 Route::get('/orders/{order}', [OrderController::class, 'orderDetail']);
+

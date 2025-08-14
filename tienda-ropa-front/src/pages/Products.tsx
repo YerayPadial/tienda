@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from 'react'
+import { useNavigate } from 'react-router-dom'
 import { api } from '../services/api'
 
 type Product = {
@@ -14,6 +15,7 @@ type Product = {
 const Products: React.FC = () => {
   const [products, setProducts] = useState<Product[]>([])
   const [loading, setLoading] = useState<boolean>(true)
+  const navigate = useNavigate()
 
   useEffect(() => {
     api.get('/products')
@@ -42,6 +44,12 @@ const Products: React.FC = () => {
               {product.images && product.images.length > 0 && (
                 <img src={product.images[0]} alt={product.name} className="mt-2 h-32 object-cover" />
               )}
+              <button
+                onClick={() => navigate(`/productos/${product.id}`)}
+                className="mt-4 px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 transition-colors"
+              >
+                Ver detalles
+              </button>
             </div>
           ))}
         </div>

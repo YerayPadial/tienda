@@ -27,12 +27,18 @@ class Product extends Model
 
     public function sizes()
     {
-        return $this->belongsToMany(Size::class, 'product_stocks');
+        return $this->belongsToMany(Size::class, 'product_stocks')
+            ->withPivot('stock', 'color_id')
+            ->wherePivot('stock', '>', 0)
+            ->groupBy('sizes.id');
     }
 
     public function colors()
     {
-        return $this->belongsToMany(Color::class, 'product_stocks');
+        return $this->belongsToMany(Color::class, 'product_stocks')
+            ->withPivot('stock', 'size_id')
+            ->wherePivot('stock', '>', 0)
+            ->groupBy('colors.id');
     }
 
     public function orders()

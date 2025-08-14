@@ -40,3 +40,8 @@ export const fetchOrderDetail = async (orderId: string | number) => {
   const response = await api.get(`/orders/${orderId}`);
   return response.data.order;
 }
+
+export const fetchProductDetail = async (productId: string | number) => {
+  const response = await api.get(`/products/${productId}`);
+  return response.data;
+}

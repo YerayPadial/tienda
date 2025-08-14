@@ -7,6 +7,7 @@ import UserMenu from '../pages/UserMenu'
 import Profile from '../pages/Profile'
 import Order from '../pages/Order'
 import OrderDetail from '../pages/OrderDetail'
+import ProductDetail from '../pages/ProductDetail'
 
 const getCurrentUser = () => {
   const userStr = localStorage.getItem('user')
@@ -53,6 +54,9 @@ const AppRoutes: React.FC = () => {
       <Route
         path="/detalles-pedido/:id"
         element={<OrderDetail />} />
+      <Route
+        path="/productos/:id"
+        element={<ProductDetail />} />
     </Routes>
 
   )
