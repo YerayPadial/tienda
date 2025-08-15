@@ -10,9 +10,10 @@ class EmployeeSeeder extends Seeder
 {
     public function run()
     {
-        Employee::create([
+        Employee::updateOrCreate([
             'name' => 'Admin',
             'email' => 'admin@empresa.com',
+        ], [
             'password' => Hash::make('password'),
             'rol' => 'admin',
         ]);

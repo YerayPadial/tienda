@@ -9,9 +9,16 @@ class SizeSeeder extends Seeder
 {
     public function run()
     {
-        $sizes = ['S', 'M', 'L', 'XL'];
+        $sizes = [
+            ['id' => 20, 'name' => 'XS'],
+            ['id' => 21, 'name' => 'S'],
+            ['id' => 22, 'name' => 'M'],
+            ['id' => 23, 'name' => 'L'],
+            ['id' => 24, 'name' => 'XL'],
+            ['id' => 25, 'name' => 'Única'],
+        ];
         foreach ($sizes as $size) {
-            Size::create(['name' => $size]);
+            Size::updateOrCreate(['id' => $size['id']], $size);
         }
     }
 }

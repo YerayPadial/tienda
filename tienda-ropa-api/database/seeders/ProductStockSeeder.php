@@ -3,40 +3,31 @@
 namespace Database\Seeders;
 
 use Illuminate\Database\Seeder;
-use App\Models\Product;
-use App\Models\Size;
-use App\Models\Color;
 use App\Models\ProductStock;
 
 class ProductStockSeeder extends Seeder
 {
     public function run()
     {
-        $products = Product::all();
-        $sizes = Size::all();
-        $colors = Color::all();
-
-        foreach ($products as $product) {
-            foreach ($sizes as $size) {
-                foreach ($colors as $color) {
-                    // Crear algunas combinaciones sin stock para probar la funcionalidad reactiva
-                    $stock = rand(0, 25);
-                    
-                    // Hacer que algunas combinaciones específicas tengan 0 stock para pruebas
-                    if (($size->id == 1 && $color->id == 1) || 
-                        ($size->id == 2 && $color->id == 3) || 
-                        (rand(1, 10) <= 2)) { // 20% de probabilidad de tener stock 0
-                        $stock = 0;
-                    }
-
-                    ProductStock::create([
-                        'product_id' => $product->id,
-                        'size_id' => $size->id,
-                        'color_id' => $color->id,
-                        'stock' => $stock,
-                    ]);
-                }
-            }
+        $stocks = [
+            // Sudadera Unisex
+            ['product_id' => 20, 'size_id' => 21, 'color_id' => 20, 'stock' => 10], // S Negro
+            ['product_id' => 20, 'size_id' => 21, 'color_id' => 21, 'stock' => 7],  // S Blanco
+            ['product_id' => 20, 'size_id' => 22, 'color_id' => 22, 'stock' => 8],  // M Azul
+            ['product_id' => 20, 'size_id' => 23, 'color_id' => 24, 'stock' => 9],  // L Verde
+            // Pantalón Deportivo
+            ['product_id' => 21, 'size_id' => 22, 'color_id' => 21, 'stock' => 5],  // M Blanco
+            ['product_id' => 21, 'size_id' => 22, 'color_id' => 20, 'stock' => 4],  // M Negro
+            // Vestido Elegante
+            ['product_id' => 22, 'size_id' => 25, 'color_id' => 23, 'stock' => 5],  // Única Rojo
+            ['product_id' => 22, 'size_id' => 25, 'color_id' => 22, 'stock' => 3],  // Única Azul
+        ];
+        foreach ($stocks as $stock) {
+            ProductStock::updateOrCreate([
+                'product_id' => $stock['product_id'],
+                'size_id' => $stock['size_id'],
+                'color_id' => $stock['color_id'],
+            ], $stock);
         }
     }
 }
