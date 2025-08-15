@@ -1,9 +1,11 @@
 import React, { useEffect, useState } from 'react'
-import { useParams } from 'react-router-dom'
+import { useParams, useNavigate } from 'react-router-dom'
+import { FaArrowLeft } from 'react-icons/fa'
 import { fetchProductDetail } from '../services/api'
 
 const ProductDetail: React.FC = () => {
     const { id } = useParams<{ id: string }>()
+    const navigate = useNavigate()
     const [product, setProduct] = useState<any>(null)
     const [selectedSize, setSelectedSize] = useState<string | null>(null)
     const [selectedColor, setSelectedColor] = useState<string | null>(null)
@@ -21,22 +23,22 @@ const ProductDetail: React.FC = () => {
     // Funciones auxiliares para determinar disponibilidad
     const getSizeAvailability = (sizeId: string) => {
         if (!product || !product.stocks) return false
-        
+
         const needsColor = product.colors.length > 1
-        
+
         if (needsColor && selectedColor) {
             // Si hay color seleccionado, verificar si existe stock para esta talla con ese color
-            return product.stocks.some((s: any) => 
+            return product.stocks.some((s: any) =>
                 s.size_id === sizeId && s.color_id === selectedColor && s.stock > 0
             )
         } else if (needsColor && !selectedColor) {
             // Si no hay color seleccionado, verificar si existe stock para esta talla con cualquier color
-            return product.stocks.some((s: any) => 
+            return product.stocks.some((s: any) =>
                 s.size_id === sizeId && s.stock > 0
             )
         } else {
             // Si no hay variación de colores, solo verificar stock para la talla
-            return product.stocks.some((s: any) => 
+            return product.stocks.some((s: any) =>
                 s.size_id === sizeId && s.stock > 0
             )
         }
@@ -44,22 +46,22 @@ const ProductDetail: React.FC = () => {
 
     const getColorAvailability = (colorId: string) => {
         if (!product || !product.stocks) return false
-        
+
         const needsSize = product.sizes.length > 1
-        
+
         if (needsSize && selectedSize) {
             // Si hay talla seleccionada, verificar si existe stock para este color con esa talla
-            return product.stocks.some((s: any) => 
+            return product.stocks.some((s: any) =>
                 s.color_id === colorId && s.size_id === selectedSize && s.stock > 0
             )
         } else if (needsSize && !selectedSize) {
             // Si no hay talla seleccionada, verificar si existe stock para este color con cualquier talla
-            return product.stocks.some((s: any) => 
+            return product.stocks.some((s: any) =>
                 s.color_id === colorId && s.stock > 0
             )
         } else {
             // Si no hay variación de tallas, solo verificar stock para el color
-            return product.stocks.some((s: any) => 
+            return product.stocks.some((s: any) =>
                 s.color_id === colorId && s.stock > 0
             )
         }
@@ -71,10 +73,10 @@ const ProductDetail: React.FC = () => {
             // Verificar si se necesita seleccionar talla y color
             const needsSize = product.sizes.length > 1
             const needsColor = product.colors.length > 1
-            
+
             // Solo calcular stock si todas las opciones necesarias están seleccionadas
             if (
-                (!needsSize || selectedSize) && 
+                (!needsSize || selectedSize) &&
                 (!needsColor || selectedColor)
             ) {
                 // Buscar el stock exacto para la combinación seleccionada
@@ -98,7 +100,7 @@ const ProductDetail: React.FC = () => {
             if (selectedSize && !getSizeAvailability(selectedSize)) {
                 setSelectedSize(null)
             }
-            
+
             // Si hay un color seleccionado pero ya no está disponible, reseteerlo
             if (selectedColor && !getColorAvailability(selectedColor)) {
                 setSelectedColor(null)
@@ -111,6 +113,15 @@ const ProductDetail: React.FC = () => {
 
     return (
         <div className="max-w-2xl mx-auto p-6 bg-white shadow-lg rounded-lg">
+            {/* Botón de volver */}
+            <button
+                onClick={() => navigate('/productos')}
+                className="flex items-center gap-2 mb-6 text-blue-600 hover:text-blue-800 transition-colors"
+            >
+                <FaArrowLeft />
+                Volver a productos
+            </button>
+
             <img src={product.image_url} alt={product.name} className="w-full h-64 object-cover mb-4" />
             <h1 className="text-2xl font-bold">{product.name}</h1>
             <p className="text-gray-700 mb-2">{product.description}</p>
@@ -124,17 +135,16 @@ const ProductDetail: React.FC = () => {
                         {product.sizes.map((size: any) => {
                             const isAvailable = getSizeAvailability(size.id)
                             const isSelected = selectedSize === size.id
-                            
+
                             return (
                                 <button
                                     key={size.id}
-                                    className={`px-4 py-2 rounded border transition-all ${
-                                        isSelected 
-                                            ? 'bg-blue-500 text-white border-blue-500 hover:bg-blue-600' 
-                                            : isAvailable 
-                                                ? 'bg-gray-100 hover:bg-gray-200 border-gray-300' 
-                                                : 'bg-gray-50 text-gray-400 border-gray-200 cursor-not-allowed opacity-50 line-through'
-                                    }`}
+                                    className={`px-4 py-2 rounded border transition-all ${isSelected
+                                        ? 'bg-blue-500 text-white border-blue-500 hover:bg-blue-600'
+                                        : isAvailable
+                                            ? 'bg-gray-100 hover:bg-gray-200 border-gray-300'
+                                            : 'bg-gray-50 text-gray-400 border-gray-200 cursor-not-allowed opacity-50 line-through'
+                                        }`}
                                     onClick={() => {
                                         if (isSelected) {
                                             // Si ya está seleccionado, deseleccionar
@@ -147,10 +157,10 @@ const ProductDetail: React.FC = () => {
                                     }}
                                     disabled={!isAvailable && !isSelected}
                                     title={
-                                        isSelected 
-                                            ? 'Clic para deseleccionar' 
-                                            : !isAvailable 
-                                                ? 'Sin stock disponible' 
+                                        isSelected
+                                            ? 'Clic para deseleccionar'
+                                            : !isAvailable
+                                                ? 'Sin stock disponible'
                                                 : 'Seleccionar talla'
                                     }
                                 >
@@ -180,17 +190,16 @@ const ProductDetail: React.FC = () => {
                         {product.colors.map((color: any) => {
                             const isAvailable = getColorAvailability(color.id)
                             const isSelected = selectedColor === color.id
-                            
+
                             return (
                                 <button
                                     key={color.id}
-                                    className={`px-4 py-2 rounded border transition-all ${
-                                        isSelected 
-                                            ? 'bg-blue-500 text-white border-blue-500 hover:bg-blue-600' 
-                                            : isAvailable 
-                                                ? 'bg-gray-100 hover:bg-gray-200 border-gray-300' 
-                                                : 'bg-gray-50 text-gray-400 border-gray-200 cursor-not-allowed opacity-50 line-through'
-                                    }`}
+                                    className={`px-4 py-2 rounded border transition-all ${isSelected
+                                        ? 'bg-blue-500 text-white border-blue-500 hover:bg-blue-600'
+                                        : isAvailable
+                                            ? 'bg-gray-100 hover:bg-gray-200 border-gray-300'
+                                            : 'bg-gray-50 text-gray-400 border-gray-200 cursor-not-allowed opacity-50 line-through'
+                                        }`}
                                     onClick={() => {
                                         if (isSelected) {
                                             // Si ya está seleccionado, deseleccionar
@@ -203,10 +212,10 @@ const ProductDetail: React.FC = () => {
                                     }}
                                     disabled={!isAvailable && !isSelected}
                                     title={
-                                        isSelected 
-                                            ? 'Clic para deseleccionar' 
-                                            : !isAvailable 
-                                                ? 'Sin stock disponible' 
+                                        isSelected
+                                            ? 'Clic para deseleccionar'
+                                            : !isAvailable
+                                                ? 'Sin stock disponible'
                                                 : 'Seleccionar color'
                                     }
                                 >
@@ -234,23 +243,25 @@ const ProductDetail: React.FC = () => {
                     const needsSize = product.sizes.length > 1
                     const needsColor = product.colors.length > 1
                     const allSelected = (!needsSize || selectedSize) && (!needsColor || selectedColor)
-                    
-                    if (!allSelected) {
-                        const missing = []
-                        if (needsSize && !selectedSize) missing.push('talla')
-                        if (needsColor && !selectedColor) missing.push('color')
-                        
-                        return (
-                            <span className="text-amber-600 italic">
-                                Selecciona {missing.join(' y ')} para ver el stock disponible
-                            </span>
-                        )
-                    } else {
-                        return (
-                            <span>
-                                <span className="font-semibold">Stock disponible:</span> {stock}
-                            </span>
-                        )
+                    const NoSelected = (selectedSize && !selectedColor) || (!selectedSize && selectedColor)
+                    if (NoSelected) {
+                        if (!allSelected) {
+                            const missing = []
+                            if (needsSize && !selectedSize) missing.push('talla')
+                            if (needsColor && !selectedColor) missing.push('color')
+
+                            return (
+                                <span className="text-amber-600 italic">
+                                    Selecciona {missing.join(' y ')} para ver el stock disponible
+                                </span>
+                            )
+                        } else {
+                            return (
+                                <span>
+                                    <span className="font-semibold">Stock disponible:</span> {stock}
+                                </span>
+                            )
+                        }
                     }
                 })()}
             </div>
