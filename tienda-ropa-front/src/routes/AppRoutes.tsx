@@ -8,18 +8,10 @@ import Profile from '../pages/Profile'
 import Order from '../pages/Order'
 import OrderDetail from '../pages/OrderDetail'
 import ProductDetail from '../pages/ProductDetail'
-
-const getCurrentUser = () => {
-  const userStr = localStorage.getItem('user')
-  try {
-    return userStr ? JSON.parse(userStr) : null
-  } catch {
-    return null
-  }
-}
+import { useUser } from '../context/UserContext'
 
 const AppRoutes: React.FC = () => {
-  const user = getCurrentUser()
+  const { user } = useUser()
 
   return (
     <Routes>

@@ -2,6 +2,7 @@ import { createContext, useContext, useState, useEffect } from 'react'
 import type { ReactNode } from 'react'
 
 type User = {
+    id: number
     name: string
     email: string
 }
@@ -18,7 +19,6 @@ export const UserProvider = ({ children }: { children: ReactNode }) => {
     const [user, setUser] = useState<User | null>(null)
 
     useEffect(() => {
-        // Persistencia con localStorage
         const stored = localStorage.getItem('user')
         if (stored) {
             setUser(JSON.parse(stored))
@@ -26,11 +26,13 @@ export const UserProvider = ({ children }: { children: ReactNode }) => {
     }, [])
 
     const login = (user: User) => {
+        console.log('UserContext - Login called with:', user)
         setUser(user)
         localStorage.setItem('user', JSON.stringify(user))
     }
 
     const logout = () => {
+        console.log('UserContext - Logout called')
         setUser(null)
         localStorage.removeItem('user')
     }

@@ -2,19 +2,11 @@ import React, { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { FaArrowLeft, FaUser, FaEnvelope, FaEdit, FaSave, FaTimes } from 'react-icons/fa'
 import { updateProfile, changePassword } from '../services/api'
-
-const getCurrentUser = () => {
-    const userStr = localStorage.getItem('user')
-    try {
-        return userStr ? JSON.parse(userStr) : null
-    } catch {
-        return null
-    }
-}
+import { useUser } from '../context/UserContext'
 
 const Profile: React.FC = () => {
     const navigate = useNavigate()
-    const user = getCurrentUser()
+    const { user, login } = useUser()
 
     // Edición de campos
     const [editingField, setEditingField] = useState<"name" | "email" | "both" | "password" | null>(null)
@@ -53,13 +45,13 @@ const Profile: React.FC = () => {
         let valid = true
         setEditNameError('')
         setEditEmailError('')
-        
+
         // Validar que no se guarden cambios sin hacer modificaciones
         if (editName.trim() === user.name && editEmail.trim() === user.email) {
             setError('No se han realizado cambios en el perfil')
             return false
         }
-        
+
         if (editName.trim().length < 2) {
             setEditNameError('El nombre debe tener al menos 2 caracteres')
             valid = false
@@ -101,20 +93,20 @@ const Profile: React.FC = () => {
         try {
             // Llamada al backend, enviando también el id del usuario
             const response = await updateProfile(editName, editEmail, user.id)
-            // Actualiza localStorage
-            localStorage.setItem('user', JSON.stringify(response.data.user))
+            // Actualiza el contexto global (que también actualiza localStorage)
+            login(response.data.user)
             setSuccess('Perfil actualizado correctamente')
             setEditingField(null)
         } catch (err: any) {
             // Manejar errores específicos de validación del backend
             if (err.response?.status === 422 && err.response?.data?.errors) {
                 const errors = err.response.data.errors
-                
+
                 // Error específico para email ya existente
                 if (errors.email) {
                     setEditEmailError(errors.email[0])
                 }
-                
+
                 // Error para nombre
                 if (errors.name) {
                     setEditNameError(errors.name[0])

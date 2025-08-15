@@ -2,15 +2,7 @@ import React, { useEffect, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { FaArrowLeft, FaBox, FaCalendar, FaCreditCard, FaTag } from 'react-icons/fa'
 import { fetchUserOrders } from '../services/api'
-
-const getCurrentUser = () => {
-  const userStr = localStorage.getItem('user')
-  try {
-    return userStr ? JSON.parse(userStr) : null
-  } catch {
-    return null
-  }
-}
+import { useUser } from '../context/UserContext'
 
 const getStatusColor = (status: string) => {
   switch (status) {
@@ -27,7 +19,7 @@ const getStatusColor = (status: string) => {
 
 const Order: React.FC = () => {
   const navigate = useNavigate()
-  const user = getCurrentUser()
+  const { user } = useUser()
   const [orders, setOrders] = useState<any[]>([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState('')

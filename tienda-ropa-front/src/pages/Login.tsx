@@ -1,9 +1,11 @@
 import React, { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { login } from '../services/api'
+import { useUser } from '../context/UserContext'
 
 const Login: React.FC = () => {
   const navigate = useNavigate()
+  const { login: loginUser } = useUser()
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [error, setError] = useState('')
@@ -50,10 +52,14 @@ const Login: React.FC = () => {
 
     try {
       const response = await login(email, password)
-      localStorage.setItem('user', JSON.stringify(response.data.user))
+      loginUser(response.data.user)
       setEmail('')
       setPassword('')
-      navigate('/usuario')
+
+      // Pequeño delay para asegurar que el contexto se actualice
+      setTimeout(() => {
+        navigate('/usuario')
+      }, 100)
     } catch (err: any) {
       if (err.response?.status === 422) {
         const backendErrors = err.response.data.errors

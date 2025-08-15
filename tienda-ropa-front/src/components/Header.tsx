@@ -1,21 +1,13 @@
 import { Link, useNavigate } from 'react-router-dom'
 import { FaSignOutAlt } from 'react-icons/fa'
-
-const getCurrentUser = () => {
-  const userStr = localStorage.getItem('user')
-  try {
-    return userStr ? JSON.parse(userStr) : null
-  } catch {
-    return null
-  }
-}
+import { useUser } from '../context/UserContext'
 
 const Header: React.FC = () => {
-  const user = getCurrentUser()
+  const { user, logout } = useUser()
   const navigate = useNavigate()
 
   const handleLogout = () => {
-    localStorage.removeItem('user')
+    logout()
     navigate('/')
   }
 
@@ -33,8 +25,8 @@ const Header: React.FC = () => {
               onClick={handleLogout}
               className="items-center gap-2 px-4 py-2 bg-red-500 text-white rounded-lg hover:bg-red-600 transition-colors"
             >
-               <FaSignOutAlt />
-              
+              <FaSignOutAlt />
+
             </button>
           </>
         ) : (

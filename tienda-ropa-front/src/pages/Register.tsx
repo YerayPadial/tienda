@@ -1,9 +1,11 @@
 import React, { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { register } from '../services/api'
+import { useUser } from '../context/UserContext'
 
 const Register: React.FC = () => {
   const navigate = useNavigate()
+  const { login: loginUser } = useUser()
   const [name, setName] = useState('')
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
@@ -69,8 +71,12 @@ const Register: React.FC = () => {
     try {
       const response = await register(name, email, password, passwordConfirmation)
       if (response.data.user) {
-        localStorage.setItem('user', JSON.stringify(response.data.user))
-        navigate('/usuario')
+        loginUser(response.data.user)
+
+        // Pequeño delay para asegurar que el contexto se actualice
+        setTimeout(() => {
+          navigate('/usuario')
+        }, 100)
       } else {
         setSuccess('¡Registro exitoso! Ya puedes iniciar sesión')
       }
