@@ -7,7 +7,7 @@ const isDevelopment = import.meta.env.MODE === 'development'
 // Configurar URL de API según el entorno
 const API_URL = import.meta.env.VITE_API_URL || (
   isLocal || isDevelopment
-  // Mismo enlace, pero configurado para posible cambios en futuro
+    // Mismo enlace, pero configurado para posible cambios en futuro
     ? 'https://padiyera.com/api-tienda/public/index.php/api'  // Desarrollo local
     : 'https://padiyera.com/api-tienda/public/index.php/api'  // Producción
 )
@@ -48,11 +48,21 @@ api.interceptors.response.use(
   (response) => response,
   (error) => {
     if (error.response?.status === 401) {
-      // Token expirado o inválido
-      localStorage.removeItem('token')
-      localStorage.removeItem('user')
-      // Redirigir al login si es necesario
-      window.location.href = '/login'
+      // Verificar si es un error de login/register
+      const url = error.config?.url
+      const isLoginAttempt = url?.includes('/login')
+      const isRegisterAttempt = url?.includes('/register')
+
+      if (!isLoginAttempt && !isRegisterAttempt) {
+        // Solo limpiar y redirigir si es un token expirado/inválido
+        localStorage.removeItem('token')
+        localStorage.removeItem('user')
+
+        // Solo redirigir si no estamos ya en la página de login
+        if (window.location.pathname !== '/login') {
+          window.location.href = '/login'
+        }
+      }
     }
     return Promise.reject(error)
   }

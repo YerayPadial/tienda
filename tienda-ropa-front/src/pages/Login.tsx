@@ -61,7 +61,9 @@ const Login: React.FC = () => {
         navigate('/usuario')
       }, 100)
     } catch (err: any) {
+
       if (err.response?.status === 422) {
+        // Errores de validación del backend
         const backendErrors = err.response.data.errors
         if (backendErrors) {
           const errorMessages: { [key: string]: string } = {}
@@ -70,8 +72,12 @@ const Login: React.FC = () => {
           })
           setValidationErrors(errorMessages)
         }
+      } else if (err.response?.status === 401) {
+        // Credenciales incorrectas
+        setError(err.response?.data?.message || 'Email o contraseña incorrectos')
       } else {
-        setError(err.response?.data?.message || 'Credenciales inválidas')
+        // Otros errores
+        setError(err.response?.data?.message || 'Error al iniciar sesión. Inténtalo de nuevo.')
       }
     } finally {
       setLoading(false)
