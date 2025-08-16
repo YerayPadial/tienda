@@ -5,7 +5,7 @@ import { UserProvider } from './context/UserContext'
 
 const App: React.FC = () => {
   return (
-    <BrowserRouter>
+    <BrowserRouter basename="/tienda">
       <UserProvider>
         <div className="bg-gray-50 min-h-screen">
           <Header />

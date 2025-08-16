@@ -1,0 +1,137 @@
+# Habilitar rewrite engine
+RewriteEngine On
+
+# Configurar la base para el subdirectorio
+RewriteBase /tienda/
+
+# Headers de seguridad
+<IfModule mod_headers.c>
+    # Prevenir clickjacking
+    Header always append X-Frame-Options SAMEORIGIN
+    
+    # Prevenir MIME type sniffing
+    Header always set X-Content-Type-Options nosniff
+    
+    # Habilitar XSS protection
+    Header always set X-XSS-Protection "1; mode=block"
+    
+    # Referrer Policy
+    Header always set Referrer-Policy "strict-origin-when-cross-origin"
+</IfModule>
+
+# Compresión GZIP
+<IfModule mod_deflate.c>
+    AddOutputFilterByType DEFLATE text/plain
+    AddOutputFilterByType DEFLATE text/html
+    AddOutputFilterByType DEFLATE text/xml
+    AddOutputFilterByType DEFLATE text/css
+    AddOutputFilterByType DEFLATE text/javascript
+    AddOutputFilterByType DEFLATE application/xml
+    AddOutputFilterByType DEFLATE application/xhtml+xml
+    AddOutputFilterByType DEFLATE application/rss+xml
+    AddOutputFilterByType DEFLATE application/javascript
+    AddOutputFilterByType DEFLATE application/x-javascript
+    AddOutputFilterByType DEFLATE application/json
+</IfModule>
+
+# Cache para recursos estáticos
+<IfModule mod_expires.c>
+    ExpiresActive on
+    
+    # Assets estáticos (imágenes, fonts, etc.)
+    ExpiresByType image/png "access plus 1 year"
+    ExpiresByType image/jpg "access plus 1 year"
+    ExpiresByType image/jpeg "access plus 1 year"
+    ExpiresByType image/gif "access plus 1 year"
+    ExpiresByType image/svg+xml "access plus 1 year"
+    ExpiresByType image/webp "access plus 1 year"
+    ExpiresByType font/woff "access plus 1 year"
+    ExpiresByType font/woff2 "access plus 1 year"
+    ExpiresByType application/font-woff "access plus 1 year"
+    ExpiresByType application/font-woff2 "access plus 1 year"
+    
+    # CSS y JS
+    ExpiresByType text/css "access plus 1 month"
+    ExpiresByType application/javascript "access plus 1 month"
+    ExpiresByType text/javascript "access plus 1 month"
+    
+    # HTML
+    ExpiresByType text/html "access plus 0 seconds"
+</IfModule>
+
+# Configuración para archivos estáticos con hash (Vite)
+<IfModule mod_rewrite.c>
+    # Archivos con hash pueden tener cache largo
+    RewriteCond %{REQUEST_FILENAME} \.(css|js)$
+    RewriteCond %{REQUEST_FILENAME} -[a-f0-9]{8}\.(css|js)$
+    RewriteRule .* - [E=CACHE:1]
+</IfModule>
+
+<IfModule mod_headers.c>
+    # Cache largo para archivos con hash
+    Header set Cache-Control "public, max-age=31536000, immutable" env=CACHE
+</IfModule>
+
+# Reglas de rewrite para React Router
+<IfModule mod_rewrite.c>
+    # Manejar archivos estáticos normalmente
+    RewriteCond %{REQUEST_FILENAME} -f
+    RewriteRule .* - [L]
+    
+    # Manejar directorios normalmente
+    RewriteCond %{REQUEST_FILENAME} -d
+    RewriteRule .* - [L]
+    
+    # Para todas las demás rutas, servir index.html (React Router)
+    RewriteCond %{REQUEST_URI} !^/tienda/assets/
+    RewriteCond %{REQUEST_URI} !^/tienda/vite\.svg$
+    RewriteCond %{REQUEST_URI} !^/tienda/favicon\.ico$
+    RewriteRule ^(.*)$ /tienda/index.html [L,QSA]
+</IfModule>
+
+# Bloquear acceso a archivos sensibles
+<FilesMatch "\.(env|git|htaccess|htpasswd|ini|log|sh|inc|bak|sql)$">
+    Require all denied
+</FilesMatch>
+
+# Bloquear acceso a directorios de desarrollo
+<IfModule mod_rewrite.c>
+    RewriteCond %{REQUEST_URI} ^/tienda/(node_modules|src|\.git|\.vscode)/
+    RewriteRule .* - [R=404,L]
+</IfModule>
+
+# Configuración para SPA - Headers adicionales
+<IfModule mod_headers.c>
+    
+    # Cache busting para index.html
+    <FilesMatch "index\.html$">
+        Header set Cache-Control "no-cache, no-store, must-revalidate"
+        Header set Pragma "no-cache"
+        Header set Expires "0"
+    </FilesMatch>
+</IfModule>
+
+# Configuración MIME types adicionales
+<IfModule mod_mime.c>
+    AddType application/javascript .js
+    AddType text/css .css
+    AddType image/svg+xml .svg
+    AddType font/woff .woff
+    AddType font/woff2 .woff2
+    AddType application/json .json
+    AddType application/manifest+json .webmanifest
+</IfModule>
+
+# Configuración para PWA 
+<IfModule mod_rewrite.c>
+    # Service Worker
+    RewriteCond %{REQUEST_URI} sw\.js$
+    RewriteRule .* - [E=SW:1]
+</IfModule>
+
+<IfModule mod_headers.c>
+    # Headers específicos para Service Worker
+    Header set Service-Worker-Allowed "/" env=SW
+    Header set Cache-Control "no-cache" env=SW
+</IfModule>
+

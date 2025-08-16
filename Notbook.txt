@@ -2,5 +2,3 @@ npm run dev           # Usa .env.development automáticamente
 npm run dev:prod      # Usa .env.production
 npm run build         # Build para producción
 npm run build:dev     # Build para desarrollo
-
-Arreglar que cuando las credenciales son incorrectas no redirija, sino que deje que el usuario lo vuelva a intentar
