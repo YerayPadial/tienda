@@ -8,10 +8,17 @@ const Header: React.FC = () => {
   const navigate = useNavigate()
   const [isMenuOpen, setIsMenuOpen] = useState(false)
 
-  const handleLogout = () => {
-    logout()
-    navigate('/')
-    setIsMenuOpen(false) // Cerrar menú al hacer logout
+  const handleLogout = async () => {
+    try {
+      await logout()
+      navigate('/')
+      setIsMenuOpen(false) // Cerrar menú al hacer logout
+    } catch (error) {
+      console.error('Error during logout:', error)
+      // Incluso si hay error, navegar al home
+      navigate('/')
+      setIsMenuOpen(false)
+    }
   }
 
   const closeMenu = () => {

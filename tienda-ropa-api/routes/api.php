@@ -12,27 +12,33 @@ use App\Http\Controllers\EmployeeController;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\AuthController;
 
-//Products
-Route::apiResource('products', ProductController::class);
-Route::apiResource('sizes', SizeController::class);
-Route::apiResource('colors', ColorController::class);
-Route::apiResource('product-stocks', ProductStockController::class);
-Route::get('/products/{product}', [ProductController::class, 'showDetail']);
-
-Route::apiResource('orders', OrderController::class);
-Route::apiResource('order-products', OrderProductController::class);
-Route::apiResource('employees', EmployeeController::class);
-Route::apiResource('users', UserController::class);
+// Rutas públicas
 Route::post('/login', [AuthController::class, 'login']);
 Route::post('/register', [AuthController::class, 'register']);
 
-Route::get('/profile', [ProfileController::class, 'show']);
-Route::put('/profile', [ProfileController::class, 'update']); // Editar nombre y email juntos
-Route::put('/profile/name', [ProfileController::class, 'updateName']); // Editar solo nombre
-Route::put('/profile/email', [ProfileController::class, 'updateEmail']); // Editar solo email
-Route::put('/profile/password', [ProfileController::class, 'changePassword']); // Cambiar contraseña
+Route::get('/products', [ProductController::class, 'index']);
+Route::get('/products/{product}', [ProductController::class, 'show']);
+Route::get('/products/{product}', [ProductController::class, 'showDetail']);
+Route::get('/sizes', [SizeController::class, 'index']);
+Route::get('/colors', [ColorController::class, 'index']);
+Route::get('/product-stocks', [ProductStockController::class, 'index']);
 
-// Orders
-Route::get('/user-orders', [OrderController::class, 'userOrders']);
-Route::get('/orders/{order}', [OrderController::class, 'orderDetail']);
+// Rutas que requieren autenticación
+Route::middleware('auth:sanctum')->group(function () {
+    Route::post('/logout', [AuthController::class, 'logout']);
+    Route::get('/me', [AuthController::class, 'me']);
 
+    Route::apiResource('orders', OrderController::class);
+    Route::apiResource('order-products', OrderProductController::class);
+    Route::apiResource('employees', EmployeeController::class);
+    Route::apiResource('users', UserController::class);
+
+    Route::get('/profile', [ProfileController::class, 'show']);
+    Route::put('/profile', [ProfileController::class, 'update']);
+    Route::put('/profile/name', [ProfileController::class, 'updateName']);
+    Route::put('/profile/email', [ProfileController::class, 'updateEmail']);
+    Route::put('/profile/password', [ProfileController::class, 'changePassword']);
+
+    Route::get('/user-orders', [OrderController::class, 'userOrders']);
+    Route::get('/orders/{order}', [OrderController::class, 'orderDetail']);
+});

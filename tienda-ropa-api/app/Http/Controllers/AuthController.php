@@ -21,7 +21,6 @@ class AuthController extends Controller
             'password.min' => 'La contraseña no puede estar vacía',
         ]);
 
-        // Intentamos autenticar
         if (!Auth::attempt($request->only('email', 'password'))) {
             return response()->json([
                 'message' => 'Email o contraseña incorrectos'
@@ -30,9 +29,12 @@ class AuthController extends Controller
 
         $user = User::where('email', $request->email)->first();
 
-        // Devolver el usuario, y más adelante añadir un token
+        // GENERA EL TOKEN CON SANCTUM
+        $token = $user->createToken('web-session')->plainTextToken;
+
         return response()->json([
             'user' => $user,
+            'token' => $token,
             'message' => 'Login exitoso'
         ]);
     }
@@ -62,9 +64,13 @@ class AuthController extends Controller
                 'password' => bcrypt($request->password),
             ]);
 
+            // Crear token para auto-login después del registro
+            $token = $user->createToken('web-session')->plainTextToken;
+
             return response()->json([
                 'user' => $user,
-                'message' => 'Usuario registrado correctamente'
+                'token' => $token,
+                'message' => 'Usuario registrado y logueado correctamente'
             ], 201);
         } catch (\Exception $e) {
             return response()->json([
@@ -72,5 +78,24 @@ class AuthController extends Controller
                 'error' => $e->getMessage()
             ], 500);
         }
+    }
+
+    public function logout(Request $request)
+    {
+        // Revocar el token actual
+        $request->user()->currentAccessToken()->delete();
+
+        return response()->json([
+            'message' => 'Logout exitoso'
+        ]);
+    }
+
+    // Método para verificar si el usuario está autenticado
+    public function me(Request $request)
+    {
+        return response()->json([
+            'user' => $request->user(),
+            'message' => 'Usuario autenticado'
+        ]);
     }
 }

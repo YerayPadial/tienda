@@ -1,11 +1,6 @@
--> Proteger rutas y controlar accesos con Sactum
+npm run dev           # Usa .env.development automáticamente
+npm run dev:prod      # Usa .env.production
+npm run build         # Build para producción
+npm run build:dev     # Build para desarrollo
 
-1. Crear un controlador de autenticación básico:
-2. Crear controlador de autenticación:
- AuthController.php
-3. Agregar rutas de autenticación:
-4. Configurar Sanctum en los modelos User y Employee:
-
-
-Si más adelante añado JWT/Sanctum, 
-solo tendre que modificar la lógica para usar el token en las peticiones protegidas.
+Arreglar que cuando las credenciales son incorrectas no redirija, sino que deje que el usuario lo vuelva a intentar

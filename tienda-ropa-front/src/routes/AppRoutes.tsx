@@ -8,6 +8,7 @@ import Profile from '../pages/Profile'
 import Order from '../pages/Order'
 import OrderDetail from '../pages/OrderDetail'
 import ProductDetail from '../pages/ProductDetail'
+import ProtectedRoute from '../components/ProtectedRoute'
 import { useUser } from '../context/UserContext'
 
 const AppRoutes: React.FC = () => {
@@ -17,40 +18,44 @@ const AppRoutes: React.FC = () => {
     <Routes>
       <Route path="/" element={<Home />} />
       <Route path="/productos" element={<Products />} />
+      <Route path="/productos/:id" element={<ProductDetail />} />
       <Route path="/login" element={<Login />} />
       <Route path="/registro" element={<Register />} />
+
+      {/* Rutas protegidas */}
       <Route
         path="/usuario"
         element={
-          user
-            ? <UserMenu user={user} />
-            : <div className="p-8 text-center text-xl">Debes iniciar sesión</div>
+          <ProtectedRoute>
+            <UserMenu user={user!} />
+          </ProtectedRoute>
         }
       />
       <Route
         path="/perfil"
         element={
-          user
-            ? <Profile />
-            : <div className="p-8 text-center text-xl">Debes iniciar sesión</div>
+          <ProtectedRoute>
+            <Profile />
+          </ProtectedRoute>
         }
       />
       <Route
         path="/pedidos"
         element={
-          user
-            ? <Order />
-            : <div className="p-8 text-center text-xl">Debes iniciar sesión</div>
+          <ProtectedRoute>
+            <Order />
+          </ProtectedRoute>
         }
       />
       <Route
         path="/detalles-pedido/:id"
-        element={<OrderDetail />} />
-      <Route
-        path="/productos/:id"
-        element={<ProductDetail />} />
+        element={
+          <ProtectedRoute>
+            <OrderDetail />
+          </ProtectedRoute>
+        }
+      />
     </Routes>
-
   )
 }
 

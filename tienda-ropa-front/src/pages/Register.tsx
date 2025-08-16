@@ -70,16 +70,23 @@ const Register: React.FC = () => {
 
     try {
       const response = await register(name, email, password, passwordConfirmation)
-      if (response.data.user) {
-        loginUser(response.data.user)
+      // Auto-login
+      if (response.data.token && response.data.user) {
+        loginUser(response.data.user) // Llama a la función para loguear al usuario
+        setSuccess('¡Registro exitoso! Ya estás logueado')
 
         // Pequeño delay para asegurar que el contexto se actualice
         setTimeout(() => {
           navigate('/usuario')
         }, 100)
       } else {
+        // Fallback en caso de que no haya auto-login
         setSuccess('¡Registro exitoso! Ya puedes iniciar sesión')
+        setTimeout(() => {
+          navigate('/login')
+        }, 2000)
       }
+
       setName('')
       setEmail('')
       setPassword('')
