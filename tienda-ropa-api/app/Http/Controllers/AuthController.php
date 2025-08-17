@@ -61,7 +61,7 @@ class AuthController extends Controller
             // Sanitizar datos de entrada
             $name = strip_tags(trim($request->name));
             $email = filter_var(trim($request->email), FILTER_SANITIZE_EMAIL);
-            
+
             $user = User::create([
                 'name' => $name,
                 'email' => $email,
@@ -86,12 +86,36 @@ class AuthController extends Controller
 
     public function logout(Request $request)
     {
-        // Revocar el token actual
-        $request->user()->currentAccessToken()->delete();
+        try {
+            // Verificar si hay un usuario autenticado
+            $user = $request->user();
 
-        return response()->json([
-            'message' => 'Logout exitoso'
-        ]);
+            if ($user) {
+                $token = $user->currentAccessToken();
+
+                // Verificar que el token existe y no es un TransientToken
+                if ($token && !($token instanceof \Laravel\Sanctum\TransientToken)) {
+                    // Revocar el token actual
+                    $token->delete();
+
+                    return response()->json([
+                        'message' => 'Logout exitoso'
+                    ]);
+                }
+            }
+
+            // Si no hay usuario o token, aún consideramos el logout exitoso
+            return response()->json([
+                'message' => 'Logout exitoso (sin sesión activa)'
+            ]);
+        } catch (\Exception $e) {
+            // En caso de cualquier error, aún devolvemos éxito 
+            // porque el objetivo es limpiar la sesión del frontend
+            return response()->json([
+                'message' => 'Logout completado',
+                'note' => 'Sesión limpiada localmente'
+            ]);
+        }
     }
 
     // Método para verificar si el usuario está autenticado

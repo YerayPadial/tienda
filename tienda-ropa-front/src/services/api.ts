@@ -37,10 +37,10 @@ api.interceptors.request.use(
     if (!checkStorageIntegrity()) {
       return config;
     }
-    
+
     const rawToken = localStorage.getItem('token')
     const token = sanitizeToken(rawToken)
-    
+
     if (token) {
       config.headers.Authorization = `Bearer ${token}`
     }
@@ -108,7 +108,10 @@ export const logout = async () => {
   try {
     await api.post('/logout')
   } catch (error) {
-    console.error('Error during logout:', error)
+    // Log del error solo en desarrollo
+    if (import.meta.env.DEV) {
+      console.error('Error during logout:', error)
+    }
   } finally {
     // Limpiar datos locales de forma segura
     secureLogout()
@@ -121,7 +124,7 @@ export const verifyAuth = async () => {
     if (!checkStorageIntegrity()) {
       throw new Error('Storage integrity check failed')
     }
-    
+
     const response = await api.get('/me')
     return response.data
   } catch (error) {
