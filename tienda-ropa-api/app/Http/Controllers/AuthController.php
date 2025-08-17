@@ -58,9 +58,13 @@ class AuthController extends Controller
         ]);
 
         try {
+            // Sanitizar datos de entrada
+            $name = strip_tags(trim($request->name));
+            $email = filter_var(trim($request->email), FILTER_SANITIZE_EMAIL);
+            
             $user = User::create([
-                'name' => $request->name,
-                'email' => $request->email,
+                'name' => $name,
+                'email' => $email,
                 'password' => bcrypt($request->password),
             ]);
 

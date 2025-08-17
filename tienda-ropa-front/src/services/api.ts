@@ -1,4 +1,5 @@
 import axios from 'axios'
+import { sanitizeToken, secureLogout, checkStorageIntegrity } from '../utils/security'
 
 // Detectar entorno automáticamente
 const isLocal = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1'
@@ -32,7 +33,14 @@ export const api = axios.create({
 // Interceptor para agregar el token a todas las peticiones
 api.interceptors.request.use(
   (config) => {
-    const token = localStorage.getItem('token')
+    // Verificar integridad del storage antes de cada petición
+    if (!checkStorageIntegrity()) {
+      return config;
+    }
+    
+    const rawToken = localStorage.getItem('token')
+    const token = sanitizeToken(rawToken)
+    
     if (token) {
       config.headers.Authorization = `Bearer ${token}`
     }
@@ -55,8 +63,7 @@ api.interceptors.response.use(
 
       if (!isLoginAttempt && !isRegisterAttempt) {
         // Solo limpiar y redirigir si es un token expirado/inválido
-        localStorage.removeItem('token')
-        localStorage.removeItem('user')
+        secureLogout()
 
         // Solo redirigir si no estamos ya en la página de login
         if (window.location.pathname !== '/login') {
@@ -103,20 +110,23 @@ export const logout = async () => {
   } catch (error) {
     console.error('Error during logout:', error)
   } finally {
-    // Limpiar datos locales independientemente del resultado
-    localStorage.removeItem('token')
-    localStorage.removeItem('user')
+    // Limpiar datos locales de forma segura
+    secureLogout()
   }
 }
 
 export const verifyAuth = async () => {
   try {
+    // Verificar integridad antes de hacer la petición
+    if (!checkStorageIntegrity()) {
+      throw new Error('Storage integrity check failed')
+    }
+    
     const response = await api.get('/me')
     return response.data
   } catch (error) {
-    // Si falla la verificación, limpiar datos locales
-    localStorage.removeItem('token')
-    localStorage.removeItem('user')
+    // Si falla la verificación, limpiar datos locales de forma segura
+    secureLogout()
     throw error
   }
 }

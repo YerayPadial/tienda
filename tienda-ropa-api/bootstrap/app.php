@@ -16,6 +16,9 @@ return Application::configure(basePath: dirname(__DIR__))
             \Laravel\Sanctum\Http\Middleware\EnsureFrontendRequestsAreStateful::class,
         ]);
         
+        // Añadir headers de seguridad a todas las rutas
+        $middleware->append(\App\Http\Middleware\SecurityHeaders::class);
+        
         // Excluir CSRF de rutas API
         $middleware->validateCsrfTokens(except: [
             'api/*',
