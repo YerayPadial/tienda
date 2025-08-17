@@ -22,7 +22,7 @@ if (isDevelopment || import.meta.env.DEV) {
 // Creamos una instancia de axios con la configuración base
 export const api = axios.create({
   baseURL: API_URL,
-  withCredentials: true,
+  withCredentials: false,
   headers: {
     'Content-Type': 'application/json',
     Accept: 'application/json',

@@ -2,3 +2,19 @@ npm run dev           # Usa .env.development automáticamente
 npm run dev:prod      # Usa .env.production
 npm run build         # Build para producción
 npm run build:dev     # Build para desarrollo
+
+
+Falta:
+
+1. Panel administrativo
+
+    - Usuarios
+    - Trabajadores
+    - Login
+    - Productos 
+    - Pedidos
+
+2. Frontend compra
+
+    - Carrito
+    - Apartado pago
