@@ -20,11 +20,14 @@ return [
     'allowed_methods' => ['*'],
 
     'allowed_origins' => [
-        'http://localhost:5173',         
+        'http://localhost:5173',
         'http://127.0.0.1:5173',
-        'http://localhost:3000',    
-        'https://padiyera.com',          
-        'https://padiyera.com/tienda',    
+        'http://localhost:5174',
+        'http://127.0.0.1:5174',
+        'http://localhost:3000',
+        'https://padiyera.com',
+        'https://padiyera.com/tienda',
+        'https://padiyera.com/panelTienda',
     ],
 
     'allowed_origins_patterns' => [],

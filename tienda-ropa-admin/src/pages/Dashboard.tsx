@@ -1,0 +1,260 @@
+import React, { useState, useEffect } from 'react'
+import {
+    Paper,
+    Typography,
+    Box,
+    Card,
+    CardContent,
+    Table,
+    TableBody,
+    TableCell,
+    TableContainer,
+    TableHead,
+    TableRow,
+    Chip,
+    CircularProgress,
+    Alert
+} from '@mui/material'
+import {
+    People,
+    Inventory,
+    ShoppingCart,
+    TrendingUp
+} from '@mui/icons-material'
+import { useEmployee } from '../context/EmployeeContext'
+
+interface DashboardStats {
+    totalEmployees: number
+    totalProducts: number
+    totalClients: number
+    totalOrders: number
+    recentOrders: Array<{
+        id: number
+        user_name: string
+        total: string
+        status: string
+        created_at: string
+    }>
+}
+
+const Dashboard: React.FC = () => {
+    const { employee } = useEmployee()
+    const [stats, setStats] = useState<DashboardStats | null>(null)
+    const [loading, setLoading] = useState(true)
+    const [error, setError] = useState<string | null>(null)
+
+    useEffect(() => {
+        loadDashboardData()
+    }, [])
+
+    const loadDashboardData = async () => {
+        try {
+            setLoading(true)
+            setError(null)
+
+            // Simulamos datos del dashboard por ahora
+            // En una implementación real, harías llamadas a la API
+            const mockStats: DashboardStats = {
+                totalEmployees: 5,
+                totalProducts: 120,
+                totalClients: 89,
+                totalOrders: 234,
+                recentOrders: [
+                    {
+                        id: 1,
+                        user_name: 'Juan Pérez',
+                        total: '89.99',
+                        status: 'pending',
+                        created_at: '2024-01-15T10:30:00Z'
+                    },
+                    {
+                        id: 2,
+                        user_name: 'María García',
+                        total: '156.50',
+                        status: 'completed',
+                        created_at: '2024-01-15T09:15:00Z'
+                    },
+                    {
+                        id: 3,
+                        user_name: 'Carlos López',
+                        total: '67.25',
+                        status: 'processing',
+                        created_at: '2024-01-15T08:45:00Z'
+                    }
+                ]
+            }
+
+            // Simular delay de API
+            await new Promise(resolve => setTimeout(resolve, 1000))
+            setStats(mockStats)
+        } catch (error) {
+            console.error('Error loading dashboard data:', error)
+            setError('Error al cargar los datos del dashboard')
+        } finally {
+            setLoading(false)
+        }
+    }
+
+    const getStatusColor = (status: string) => {
+        switch (status) {
+            case 'completed':
+                return 'success'
+            case 'processing':
+                return 'warning'
+            case 'pending':
+                return 'info'
+            case 'cancelled':
+                return 'error'
+            default:
+                return 'default'
+        }
+    }
+
+    const getStatusText = (status: string) => {
+        switch (status) {
+            case 'completed':
+                return 'Completado'
+            case 'processing':
+                return 'Procesando'
+            case 'pending':
+                return 'Pendiente'
+            case 'cancelled':
+                return 'Cancelado'
+            default:
+                return status
+        }
+    }
+
+    const formatDate = (dateString: string) => {
+        return new Date(dateString).toLocaleDateString('es-ES', {
+            year: 'numeric',
+            month: 'short',
+            day: 'numeric',
+            hour: '2-digit',
+            minute: '2-digit'
+        })
+    }
+
+    if (loading) {
+        return (
+            <Box display="flex" justifyContent="center" alignItems="center" minHeight="50vh">
+                <CircularProgress />
+            </Box>
+        )
+    }
+
+    if (error) {
+        return (
+            <Alert severity="error" sx={{ mb: 2 }}>
+                {error}
+            </Alert>
+        )
+    }
+
+    const statCards = [
+        {
+            title: 'Empleados',
+            value: stats?.totalEmployees || 0,
+            icon: <People fontSize="large" />,
+            color: '#1976d2'
+        },
+        {
+            title: 'Productos',
+            value: stats?.totalProducts || 0,
+            icon: <Inventory fontSize="large" />,
+            color: '#388e3c'
+        },
+        {
+            title: 'Clientes',
+            value: stats?.totalClients || 0,
+            icon: <People fontSize="large" />,
+            color: '#f57c00'
+        },
+        {
+            title: 'Pedidos',
+            value: stats?.totalOrders || 0,
+            icon: <ShoppingCart fontSize="large" />,
+            color: '#7b1fa2'
+        }
+    ]
+
+    return (
+        <Box>
+            {/* Bienvenida */}
+            <Box mb={4}>
+                <Typography variant="h4" component="h1" gutterBottom>
+                    Dashboard
+                </Typography>
+                <Typography variant="h6" color="text.secondary">
+                    Bienvenido/a, {employee?.name}
+                </Typography>
+            </Box>
+
+            {/* Estadísticas */}
+            <Box display="flex" flexWrap="wrap" gap={2} sx={{ mb: 4 }}>
+                {statCards.map((card, index) => (
+                    <Card key={index} sx={{ minWidth: 200, flex: 1 }}>
+                        <CardContent>
+                            <Box display="flex" alignItems="center" justifyContent="space-between">
+                                <Box>
+                                    <Typography color="text.secondary" gutterBottom>
+                                        {card.title}
+                                    </Typography>
+                                    <Typography variant="h4" component="div">
+                                        {card.value}
+                                    </Typography>
+                                </Box>
+                                <Box sx={{ color: card.color }}>
+                                    {card.icon}
+                                </Box>
+                            </Box>
+                        </CardContent>
+                    </Card>
+                ))}
+            </Box>
+
+            {/* Pedidos Recientes */}
+            <Paper sx={{ p: 2 }}>
+                <Box display="flex" alignItems="center" mb={2}>
+                    <TrendingUp sx={{ mr: 1 }} />
+                    <Typography variant="h6" component="h2">
+                        Pedidos Recientes
+                    </Typography>
+                </Box>
+
+                <TableContainer>
+                    <Table>
+                        <TableHead>
+                            <TableRow>
+                                <TableCell>ID</TableCell>
+                                <TableCell>Cliente</TableCell>
+                                <TableCell>Total</TableCell>
+                                <TableCell>Estado</TableCell>
+                                <TableCell>Fecha</TableCell>
+                            </TableRow>
+                        </TableHead>
+                        <TableBody>
+                            {stats?.recentOrders.map((order) => (
+                                <TableRow key={order.id}>
+                                    <TableCell>#{order.id}</TableCell>
+                                    <TableCell>{order.user_name}</TableCell>
+                                    <TableCell>€{order.total}</TableCell>
+                                    <TableCell>
+                                        <Chip
+                                            label={getStatusText(order.status)}
+                                            color={getStatusColor(order.status) as any}
+                                            size="small"
+                                        />
+                                    </TableCell>
+                                    <TableCell>{formatDate(order.created_at)}</TableCell>
+                                </TableRow>
+                            ))}
+                        </TableBody>
+                    </Table>
+                </TableContainer>
+            </Paper>
+        </Box>
+    )
+}
+
+export default Dashboard
