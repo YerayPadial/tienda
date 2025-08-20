@@ -55,6 +55,8 @@ export const adminRouter = createBrowserRouter([
     path: '*',
     element: <Navigate to="/admin/login" replace />
   }
-])
+], {
+  basename: '/panelTienda'
+})
 
 export default adminRouter

@@ -57,8 +57,8 @@ api.interceptors.response.use(
         localStorage.removeItem('admin_employee')
 
         // Solo redirigir si no estamos ya en la página de login
-        if (window.location.pathname !== '/admin/login') {
-          window.location.href = '/admin/login'
+        if (!window.location.pathname.includes('/admin/login')) {
+          window.location.href = '/panelTienda/admin/login'
         }
       }
     }
