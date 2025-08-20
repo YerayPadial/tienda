@@ -137,7 +137,12 @@ export const deleteEmployee = async (id: number) => {
 
 
 export const getProducts = async () => {
-  const response = await api.get('/products') // Pública
+  const response = await api.get('/admin/products') 
+  return response.data
+}
+
+export const getProduct = async (id: number) => {
+  const response = await api.get(`/admin/products/${id}`)
   return response.data
 }
 
@@ -199,13 +204,25 @@ export const updateOrderStatus = async (id: number, status: string) => {
 
 
 export const getSizes = async () => {
-  const response = await api.get('/sizes')
-  return response.data
+  try {
+    const response = await api.get('/sizes')
+    console.log('getSizes raw response:', response)
+    return response.data
+  } catch (error) {
+    console.error('Error in getSizes:', error)
+    throw error
+  }
 }
 
 export const getColors = async () => {
-  const response = await api.get('/colors')
-  return response.data
+  try {
+    const response = await api.get('/colors')
+    console.log('getColors raw response:', response)
+    return response.data
+  } catch (error) {
+    console.error('Error in getColors:', error)
+    throw error
+  }
 }
 
 // Función helper para verificar si el empleado está autenticado

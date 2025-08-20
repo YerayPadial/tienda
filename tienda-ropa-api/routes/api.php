@@ -56,7 +56,7 @@ Route::prefix('admin')->middleware('auth:sanctum')->group(function () {
     Route::apiResource('users', UserController::class);
 
     // CRUD de productos (admin puede hacer todo)
-    Route::apiResource('products', ProductController::class)->except(['index', 'show']);
+    Route::apiResource('products', ProductController::class);
 
     // CRUD de pedidos (gestión completa)
     Route::apiResource('orders', OrderController::class);

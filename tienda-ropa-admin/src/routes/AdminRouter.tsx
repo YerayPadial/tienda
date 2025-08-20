@@ -5,6 +5,7 @@ import ProtectedRoute from '../components/ProtectedRoute'
 import AdminLogin from '../pages/AdminLogin'
 import Dashboard from '../pages/Dashboard'
 import EmployeeManagement from '../pages/EmployeeManagement'
+import Products from '../pages/Products'
 
 export const adminRouter = createBrowserRouter([
   {
@@ -39,7 +40,7 @@ export const adminRouter = createBrowserRouter([
       },
       {
         path: 'products',
-        element: <div>Productos - En desarrollo</div>
+        element: <Products />
       },
       {
         path: 'clients',
