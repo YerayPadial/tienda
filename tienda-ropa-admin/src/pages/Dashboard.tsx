@@ -31,10 +31,20 @@ interface DashboardStats {
     totalOrders: number
     recentOrders: Array<{
         id: number
-        user_name: string
-        total: string
+        user_id: string
+        calculated_total: string
         status: string
         created_at: string
+        user?: {
+            id: number
+            name: string
+            email: string
+        }
+    }>
+    users: Array<{
+        id: number
+        name: string
+        email: string
     }>
 }
 
@@ -79,7 +89,8 @@ const Dashboard: React.FC = () => {
                 totalProducts: Array.isArray(products) ? products.length : 0,
                 totalUsers: Array.isArray(users) ? users.length : 0,
                 totalOrders: Array.isArray(orders) ? orders.length : 0,
-                recentOrders: recentOrders
+                recentOrders: recentOrders,
+                users: Array.isArray(users) ? users : []
             }
 
             setStats(dashboardStats)
@@ -119,6 +130,19 @@ const Dashboard: React.FC = () => {
             default:
                 return status
         }
+    }
+
+    const getUserName = (userId: string | number, order?: any) => {
+        // Primero intentar usar la relación user del pedido si está disponible
+        if (order?.user?.name) {
+            return order.user.name
+        }
+
+        // Si no, buscar en la lista de usuarios cargada
+        if (!stats?.users) return `Usuario #${userId}`
+
+        const user = stats.users.find(u => u.id.toString() === userId.toString())
+        return user ? user.name : `Usuario #${userId}`
     }
 
     const formatDate = (dateString: string) => {
@@ -230,21 +254,31 @@ const Dashboard: React.FC = () => {
                             </TableRow>
                         </TableHead>
                         <TableBody>
-                            {stats?.recentOrders.map((order) => (
-                                <TableRow key={order.id}>
-                                    <TableCell>#{order.id}</TableCell>
-                                    <TableCell>{order.user_name}</TableCell>
-                                    <TableCell>€{order.total}</TableCell>
-                                    <TableCell>
-                                        <Chip
-                                            label={getStatusText(order.status)}
-                                            color={getStatusColor(order.status) as any}
-                                            size="small"
-                                        />
+                            {stats?.recentOrders && stats.recentOrders.length > 0 ? (
+                                stats.recentOrders.map((order) => (
+                                    <TableRow key={order.id}>
+                                        <TableCell>#{order.id}</TableCell>
+                                        <TableCell>{getUserName(order.user_id, order)}</TableCell>
+                                        <TableCell>€{order.calculated_total}</TableCell>
+                                        <TableCell>
+                                            <Chip
+                                                label={getStatusText(order.status)}
+                                                color={getStatusColor(order.status) as any}
+                                                size="small"
+                                            />
+                                        </TableCell>
+                                        <TableCell>{formatDate(order.created_at)}</TableCell>
+                                    </TableRow>
+                                ))
+                            ) : (
+                                <TableRow>
+                                    <TableCell colSpan={5} align="center">
+                                        <Typography variant="body2" color="text.secondary">
+                                            No hay pedidos recientes
+                                        </Typography>
                                     </TableCell>
-                                    <TableCell>{formatDate(order.created_at)}</TableCell>
                                 </TableRow>
-                            ))}
+                            )}
                         </TableBody>
                     </Table>
                 </TableContainer>

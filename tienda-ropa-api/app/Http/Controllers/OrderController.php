@@ -9,7 +9,23 @@ class OrderController extends Controller
 {
     public function index()
     {
-        return Order::all();
+        $orders = Order::with([
+            'items.product',
+            'items.size',
+            'items.color',
+            'user'
+        ])->orderBy('created_at', 'desc')->get();
+
+        // Agregar el total calculado a cada pedido
+        $orders = $orders->map(function ($order) {
+            $order->calculated_total = $order->formatted_total;
+            return $order;
+        });
+
+        return response()->json([
+            'data' => $orders,
+            'message' => 'Pedidos obtenidos exitosamente'
+        ]);
     }
 
     public function store(Request $request)

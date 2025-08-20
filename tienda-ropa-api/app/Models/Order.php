@@ -36,4 +36,16 @@ class Order extends Model
     {
         return $this->hasMany(OrderProduct::class);
     }
+
+    public function calculateTotal()
+    {
+        return $this->items->sum(function ($item) {
+            return $item->product->price * $item->quantity;
+        });
+    }
+
+    public function getFormattedTotalAttribute()
+    {
+        return number_format($this->calculateTotal(), 2, '.', '');
+    }
 }
