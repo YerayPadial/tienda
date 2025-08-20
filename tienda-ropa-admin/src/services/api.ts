@@ -66,9 +66,9 @@ api.interceptors.response.use(
   }
 )
 
-// ====================================
+
 // FUNCIONES DE AUTENTICACIÓN DE EMPLEADOS
-// ====================================
+
 
 export const employeeLogin = async (email: string, password: string) => {
   const response = await api.post('/admin/login', { email, password })
@@ -108,9 +108,9 @@ export const verifyEmployeeAuth = async () => {
   }
 }
 
-// ====================================
+
 // FUNCIONES CRUD - EMPLEADOS
-// ====================================
+
 
 export const getEmployees = async () => {
   const response = await api.get('/admin/employees')
@@ -132,9 +132,9 @@ export const deleteEmployee = async (id: number) => {
   return response.data
 }
 
-// ====================================
+
 // FUNCIONES CRUD - PRODUCTOS
-// ====================================
+
 
 export const getProducts = async () => {
   const response = await api.get('/products') // Pública
@@ -156,9 +156,9 @@ export const deleteProduct = async (id: number) => {
   return response.data
 }
 
-// ====================================
+
 // FUNCIONES CRUD - USUARIOS/CLIENTES
-// ====================================
+
 
 export const getUsers = async () => {
   const response = await api.get('/admin/users')
@@ -175,9 +175,9 @@ export const deleteUser = async (id: number) => {
   return response.data
 }
 
-// ====================================
+
 // FUNCIONES CRUD - PEDIDOS
-// ====================================
+
 
 export const getOrders = async () => {
   const response = await api.get('/admin/orders')
@@ -194,9 +194,9 @@ export const updateOrderStatus = async (id: number, status: string) => {
   return response.data
 }
 
-// ====================================
+
 // FUNCIONES AUXILIARES
-// ====================================
+
 
 export const getSizes = async () => {
   const response = await api.get('/sizes')

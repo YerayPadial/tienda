@@ -22,11 +22,12 @@ import {
     TrendingUp
 } from '@mui/icons-material'
 import { useEmployee } from '../context/EmployeeContext'
+import { getEmployees, getProducts, getUsers, getOrders } from '../services/api'
 
 interface DashboardStats {
     totalEmployees: number
     totalProducts: number
-    totalClients: number
+    totalUsers: number
     totalOrders: number
     recentOrders: Array<{
         id: number
@@ -52,41 +53,36 @@ const Dashboard: React.FC = () => {
             setLoading(true)
             setError(null)
 
-            // Simulamos datos del dashboard por ahora
-            // En una implementación real, harías llamadas a la API
-            const mockStats: DashboardStats = {
-                totalEmployees: 5,
-                totalProducts: 120,
-                totalClients: 89,
-                totalOrders: 234,
-                recentOrders: [
-                    {
-                        id: 1,
-                        user_name: 'Juan Pérez',
-                        total: '89.99',
-                        status: 'pending',
-                        created_at: '2024-01-15T10:30:00Z'
-                    },
-                    {
-                        id: 2,
-                        user_name: 'María García',
-                        total: '156.50',
-                        status: 'completed',
-                        created_at: '2024-01-15T09:15:00Z'
-                    },
-                    {
-                        id: 3,
-                        user_name: 'Carlos López',
-                        total: '67.25',
-                        status: 'processing',
-                        created_at: '2024-01-15T08:45:00Z'
-                    }
-                ]
+            // Cargar datos reales desde las APIs
+            const [employeesRes, productsRes, usersRes, ordersRes] = await Promise.all([
+                getEmployees().catch(() => ({ data: [] })),
+                getProducts().catch(() => ({ data: [] })),
+                getUsers().catch(() => ({ data: [] })),
+                getOrders().catch(() => ({ data: [] }))
+            ])
+
+            // Extraer los datos de las respuestas
+            const employees = employeesRes.data || employeesRes || []
+            const products = productsRes.data || productsRes || []
+            const users = usersRes.data || usersRes || []
+            const orders = ordersRes.data || ordersRes || []
+
+            // Obtener los 5 pedidos más recientes
+            const recentOrders = Array.isArray(orders)
+                ? orders
+                    .sort((a: any, b: any) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime())
+                    .slice(0, 5)
+                : []
+
+            const dashboardStats: DashboardStats = {
+                totalEmployees: Array.isArray(employees) ? employees.length : 0,
+                totalProducts: Array.isArray(products) ? products.length : 0,
+                totalUsers: Array.isArray(users) ? users.length : 0,
+                totalOrders: Array.isArray(orders) ? orders.length : 0,
+                recentOrders: recentOrders
             }
 
-            // Simular delay de API
-            await new Promise(resolve => setTimeout(resolve, 1000))
-            setStats(mockStats)
+            setStats(dashboardStats)
         } catch (error) {
             console.error('Error loading dashboard data:', error)
             setError('Error al cargar los datos del dashboard')
@@ -165,8 +161,8 @@ const Dashboard: React.FC = () => {
             color: '#388e3c'
         },
         {
-            title: 'Clientes',
-            value: stats?.totalClients || 0,
+            title: 'Usuarios',
+            value: stats?.totalUsers || 0,
             icon: <People fontSize="large" />,
             color: '#f57c00'
         },
