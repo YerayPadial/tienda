@@ -12,6 +12,7 @@ use App\Http\Controllers\EmployeeController;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\EmployeeAuthController;
+use App\Http\Controllers\ImageController;
 
 // Rutas públicas (clientes)
 Route::post('/login', [AuthController::class, 'login']);
@@ -48,6 +49,10 @@ Route::middleware('auth:sanctum')->group(function () {
 Route::prefix('admin')->middleware('auth:sanctum')->group(function () {
     Route::post('/logout', [EmployeeAuthController::class, 'logout']);
     Route::get('/me', [EmployeeAuthController::class, 'me']);
+
+    // Upload de imágenes
+    Route::post('/upload-image', [ImageController::class, 'upload']);
+    Route::delete('/delete-image', [ImageController::class, 'delete']);
 
     // CRUD de empleados
     Route::apiResource('employees', EmployeeController::class);

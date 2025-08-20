@@ -137,7 +137,7 @@ export const deleteEmployee = async (id: number) => {
 
 
 export const getProducts = async () => {
-  const response = await api.get('/admin/products') 
+  const response = await api.get('/admin/products')
   return response.data
 }
 
@@ -206,7 +206,6 @@ export const updateOrderStatus = async (id: number, status: string) => {
 export const getSizes = async () => {
   try {
     const response = await api.get('/sizes')
-    console.log('getSizes raw response:', response)
     return response.data
   } catch (error) {
     console.error('Error in getSizes:', error)
@@ -217,10 +216,42 @@ export const getSizes = async () => {
 export const getColors = async () => {
   try {
     const response = await api.get('/colors')
-    console.log('getColors raw response:', response)
     return response.data
   } catch (error) {
     console.error('Error in getColors:', error)
+    throw error
+  }
+}
+
+// Subir imagen
+export const uploadImage = async (file: File) => {
+  try {
+    const formData = new FormData()
+    formData.append('image', file)
+
+    const response = await api.post('/admin/upload-image', formData, {
+      headers: {
+        'Content-Type': 'multipart/form-data',
+      },
+    })
+
+    return response.data
+  } catch (error) {
+    console.error('Error uploading image:', error)
+    throw error
+  }
+}
+
+// Eliminar imagen
+export const deleteImage = async (path: string) => {
+  try {
+    const response = await api.delete('/admin/delete-image', {
+      data: { path }
+    })
+
+    return response.data
+  } catch (error) {
+    console.error('Error deleting image:', error)
     throw error
   }
 }

@@ -13,9 +13,9 @@ use Illuminate\Validation\Rule;
 class ProductController extends Controller
 {
     /**
-     * Obtener todos los productos para admin
+     * Obtener todos los productos
      */
-    public function index()
+    public function index(Request $request)
     {
         try {
             $products = Product::with(['stocks.size', 'stocks.color'])
@@ -30,10 +30,16 @@ class ProductController extends Controller
                 return $product;
             });
 
-            return response()->json([
-                'data' => $products,
-                'message' => 'Productos obtenidos exitosamente'
-            ]);
+            // Si la llamada viene del admin (con token), devolver con estructura de mensaje
+            if ($request->user()) {
+                return response()->json([
+                    'data' => $products,
+                    'message' => 'Productos obtenidos exitosamente'
+                ]);
+            }
+
+            // Si es llamada pública (frontend), devolver directamente los productos
+            return response()->json($products);
         } catch (\Exception $e) {
             return response()->json([
                 'message' => 'Error al obtener productos',

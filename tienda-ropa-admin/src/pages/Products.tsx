@@ -21,6 +21,7 @@ import {
 } from '@mui/material'
 import { Add, Edit, Delete } from '@mui/icons-material'
 import { useForm, useFieldArray, Controller } from 'react-hook-form'
+import ImageUploader from '../components/ImageUploader'
 import {
     getProducts,
     createProduct,
@@ -119,11 +120,7 @@ export default function Products() {
                 getSizes(),
                 getColors()
             ])
-            console.log('Products loaded:', productsRes.data)
-            console.log('Sizes response:', sizesRes)
-            console.log('Colors response:', colorsRes)
 
-            // Las respuestas de sizes y colors pueden venir directamente, no en .data
             setProducts(productsRes.data || [])
             setSizes(sizesRes.data || sizesRes || [])
             setColors(colorsRes.data || colorsRes || [])
@@ -137,9 +134,7 @@ export default function Products() {
             setColors([])
         }
         setLoading(false)
-    }
-
-    // Dialog: New/Edit Product
+    }    // Dialog: New/Edit Product
     const handleOpenDialog = (product?: Product) => {
         setSuccess(null)
         setError(null)
@@ -229,9 +224,6 @@ export default function Products() {
 
     // RHF watch images (comentado porque no se usa actualmente)
     // const images = watch('images')
-
-    // Debug logging
-    console.log('Component render - sizes:', sizes, 'colors:', colors)
 
     return (
         <Box p={3}>
@@ -466,48 +458,11 @@ export default function Products() {
                                 name="images"
                                 control={control}
                                 render={({ field }) => (
-                                    <Stack spacing={1}>
-                                        <Typography variant="subtitle2">Imágenes (URLs)</Typography>
-                                        {Array.isArray(field.value) &&
-                                            (field.value as string[]).map((img: string, idx: number) => (
-                                                <Stack
-                                                    direction="row"
-                                                    key={idx}
-                                                    alignItems="center"
-                                                    spacing={1}
-                                                >
-                                                    <TextField
-                                                        value={img}
-                                                        onChange={(e) => {
-                                                            const arr = [...(field.value as string[])]
-                                                            arr[idx] = e.target.value
-                                                            field.onChange(arr)
-                                                        }}
-                                                        label={`Imagen #${idx + 1}`}
-                                                        fullWidth
-                                                    />
-                                                    <IconButton
-                                                        onClick={() => {
-                                                            const arr = [...(field.value as string[])]
-                                                            arr.splice(idx, 1)
-                                                            field.onChange(arr)
-                                                        }}
-                                                        color="error"
-                                                    >
-                                                        <Delete />
-                                                    </IconButton>
-                                                </Stack>
-                                            ))}
-                                        <Button
-                                            onClick={() =>
-                                                field.onChange([...(field.value as string[] ?? []), ''])
-                                            }
-                                            variant="outlined"
-                                            size="small"
-                                        >
-                                            Añadir imagen
-                                        </Button>
-                                    </Stack>
+                                    <ImageUploader
+                                        images={field.value || []}
+                                        onChange={field.onChange}
+                                        maxImages={5}
+                                    />
                                 )}
                             />
                             {/* Stocks */}
@@ -538,14 +493,11 @@ export default function Products() {
                                                 SelectProps={{ native: true }}
                                             >
                                                 <option value="">Selecciona</option>
-                                                {sizes && sizes.length > 0 && sizes.map((s) => {
-                                                    console.log('Rendering size:', s)
-                                                    return (
-                                                        <option key={s.id} value={s.id}>
-                                                            {s.name}
-                                                        </option>
-                                                    )
-                                                })}
+                                                {sizes && sizes.length > 0 && sizes.map((s) => (
+                                                    <option key={s.id} value={s.id}>
+                                                        {s.name}
+                                                    </option>
+                                                ))}
                                             </TextField>
                                         )}
                                     />
@@ -565,14 +517,11 @@ export default function Products() {
                                                 SelectProps={{ native: true }}
                                             >
                                                 <option value="">Selecciona</option>
-                                                {colors && colors.length > 0 && colors.map((c) => {
-                                                    console.log('Rendering color:', c)
-                                                    return (
-                                                        <option key={c.id} value={c.id}>
-                                                            {c.name}
-                                                        </option>
-                                                    )
-                                                })}
+                                                {colors && colors.length > 0 && colors.map((c) => (
+                                                    <option key={c.id} value={c.id}>
+                                                        {c.name}
+                                                    </option>
+                                                ))}
                                             </TextField>
                                         )}
                                     />
