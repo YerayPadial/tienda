@@ -27,6 +27,15 @@ class ProductControllerCrud extends Controller
                 $product->total_stock = $product->stocks->sum('stock');
                 $product->available_sizes = $product->stocks->where('stock', '>', 0)->pluck('size.name')->unique()->values();
                 $product->available_colors = $product->stocks->where('stock', '>', 0)->pluck('color.name')->unique()->values();
+
+                // Limpiar URLs de imágenes
+                if ($product->images && is_array($product->images)) {
+                    $product->images = array_map(function ($imageUrl) {
+                        // Si la URL contiene index.php, la limpiamos
+                        return str_replace('/index.php/', '/', $imageUrl);
+                    }, $product->images);
+                }
+
                 return $product;
             });
             return response()->json([
@@ -125,6 +134,13 @@ class ProductControllerCrud extends Controller
     {
         try {
             $product->load(['stocks.size', 'stocks.color']);
+
+            // Limpiar URLs de imágenes
+            if ($product->images && is_array($product->images)) {
+                $product->images = array_map(function ($imageUrl) {
+                    return str_replace('/index.php/', '/', $imageUrl);
+                }, $product->images);
+            }
 
             return response()->json([
                 'data' => $product,
@@ -267,6 +283,14 @@ class ProductControllerCrud extends Controller
         $sizes = $sizes->whereIn('id', $product_sizes)->values();
         $colors = $colors->whereIn('id', $product_colors)->values();
 
+        // Limpiar URLs de imágenes
+        $cleanImages = $product->images;
+        if ($cleanImages && is_array($cleanImages)) {
+            $cleanImages = array_map(function ($imageUrl) {
+                return str_replace('/index.php/', '/', $imageUrl);
+            }, $cleanImages);
+        }
+
         return response()->json([
             'product' => [
                 'id' => $product->id,
@@ -275,7 +299,7 @@ class ProductControllerCrud extends Controller
                 'category' => $product->category,
                 'gender' => $product->gender,
                 'price' => $product->price,
-                'images' => $product->images,
+                'images' => $cleanImages,
                 'sizes' => $sizes,
                 'colors' => $colors,
                 'stocks' => $stocks,

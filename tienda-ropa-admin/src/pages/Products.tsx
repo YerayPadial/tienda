@@ -124,6 +124,18 @@ export default function Products() {
             setProducts(productsRes.data || [])
             setSizes(sizesRes.data || sizesRes || [])
             setColors(colorsRes.data || colorsRes || [])
+
+            // Debug: verificar que los productos tengan imágenes
+            console.log('Productos cargados:', productsRes.data)
+            if (productsRes.data && productsRes.data.length > 0) {
+                productsRes.data.forEach((product: any, index: number) => {
+                    console.log(`Producto ${index + 1} (${product.name}):`, {
+                        images: product.images,
+                        firstImage: product.images?.[0]
+                    })
+                })
+            }
+
             setError(null)
         } catch (err: any) {
             console.error('Error loading data:', err)
@@ -263,7 +275,7 @@ export default function Products() {
                             <TableRow key={product.id}>
                                 <TableCell>
                                     <Stack direction="row" alignItems="center" spacing={1}>
-                                        {product.images?.[0] && (
+                                        {product.images?.[0] ? (
                                             <img
                                                 src={product.images[0]}
                                                 alt={product.name}
@@ -275,11 +287,30 @@ export default function Products() {
                                                     marginRight: 8
                                                 }}
                                                 onError={(e: any) => {
+                                                    console.log('Error cargando imagen:', product.images[0])
                                                     e.target.onerror = null
                                                     e.target.src =
                                                         'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNDAiIGhlaWdodD0iNDAiIHZpZXdCb3g9IjAgMCA0MCA0MCIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KPHJlY3Qgd2lkdGg9IjQwIiBoZWlnaHQ9IjQwIiBmaWxsPSIjRTVFN0VCIi8+CjxwYXRoIGQ9Ik0yMCAyNEMxOC45IDI0IDE4IDIzLjEgMTggMjJDMTggMjAuOSAxOC45IDIwIDIwIDIwQzIxLjEgMjAgMjIgMjAuOSAyMiAyMkMyMiAyMy4xIDIxLjEgMjQgMjAgMjRaTTIwIDI4QzE2LjcgMjggMTQgMjYuNSAxNCAyNi41QzE0IDI0LjUgMTYuNyAyMyAyMCAyM0MyMy4zIDIzIDI2IDI0LjUgMjYgMjYuNUMyNiAyNi41IDIzLjMgMjggMjAgMjhaIiBmaWxsPSIjOUM5Q0EzIi8+Cjwvc3ZnPgo='
                                                 }}
+                                                onLoad={() => {
+                                                    console.log('Imagen cargada exitosamente:', product.images[0])
+                                                }}
                                             />
+                                        ) : (
+                                            <div style={{
+                                                width: 40,
+                                                height: 40,
+                                                backgroundColor: '#f0f0f0',
+                                                borderRadius: 8,
+                                                marginRight: 8,
+                                                display: 'flex',
+                                                alignItems: 'center',
+                                                justifyContent: 'center',
+                                                fontSize: '12px',
+                                                color: '#666'
+                                            }}>
+                                                Sin imagen
+                                            </div>
                                         )}
                                         <Typography>{product.name}</Typography>
                                     </Stack>
