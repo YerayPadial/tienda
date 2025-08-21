@@ -235,6 +235,11 @@ export const uploadImage = async (file: File) => {
       },
     })
 
+    // Limpiar la URL de la imagen si contiene /index.php/
+    if (response.data && response.data.data && response.data.data.url) {
+      response.data.data.url = response.data.data.url.replace('/index.php/', '/')
+    }
+
     return response.data
   } catch (error) {
     console.error('Error uploading image:', error)

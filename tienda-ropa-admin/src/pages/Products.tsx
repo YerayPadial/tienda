@@ -125,17 +125,6 @@ export default function Products() {
             setSizes(sizesRes.data || sizesRes || [])
             setColors(colorsRes.data || colorsRes || [])
 
-            // Debug: verificar que los productos tengan imágenes
-            console.log('Productos cargados:', productsRes.data)
-            if (productsRes.data && productsRes.data.length > 0) {
-                productsRes.data.forEach((product: any, index: number) => {
-                    console.log(`Producto ${index + 1} (${product.name}):`, {
-                        images: product.images,
-                        firstImage: product.images?.[0]
-                    })
-                })
-            }
-
             setError(null)
         } catch (err: any) {
             console.error('Error loading data:', err)
@@ -155,13 +144,19 @@ export default function Products() {
             // Load product for edit
             getProduct(product.id).then((res) => {
                 const p = res.data
+
+                // Limpiar URLs de imágenes al cargar el producto
+                const cleanImages = p.images && Array.isArray(p.images)
+                    ? p.images.map((url: string) => url.replace('/index.php/', '/'))
+                    : []
+
                 reset({
                     name: p.name,
                     description: p.description,
                     category: p.category,
                     gender: p.gender,
                     price: p.price,
-                    images: p.images ?? [],
+                    images: cleanImages,
                     stocks:
                         p.stocks.length > 0
                             ? p.stocks.map((s: Stock) => ({

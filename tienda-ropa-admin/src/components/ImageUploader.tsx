@@ -39,8 +39,13 @@ const ImageUploader: React.FC<ImageUploaderProps> = ({
         try {
             const uploadPromises = acceptedFiles.map(file => uploadImage(file))
             const responses = await Promise.all(uploadPromises)
-            
-            const newImageUrls = responses.map(response => response.data.url)
+
+            const newImageUrls = responses.map(response => {
+                const url = response.data.url
+                // Asegurar que la URL esté limpia
+                const cleanUrl = url.replace('/index.php/', '/')
+                return cleanUrl
+            })
             onChange([...images, ...newImageUrls])
         } catch (err: any) {
             setError('Error al subir las imágenes: ' + (err.response?.data?.message || err.message))
@@ -65,7 +70,7 @@ const ImageUploader: React.FC<ImageUploaderProps> = ({
             if (urlParts.length > 1) {
                 await deleteImage(urlParts[1])
             }
-            
+
             const updatedImages = images.filter(img => img !== imageUrl)
             onChange(updatedImages)
         } catch (err: any) {
@@ -139,7 +144,11 @@ const ImageUploader: React.FC<ImageUploaderProps> = ({
                                     image={imageUrl}
                                     alt={`Imagen ${index + 1}`}
                                     sx={{ objectFit: 'cover' }}
+                                    onLoad={() => {
+                                        console.log('Imagen cargada correctamente:', imageUrl)
+                                    }}
                                     onError={(e: any) => {
+                                        console.error('Error al cargar imagen:', imageUrl)
                                         e.target.onerror = null
                                         e.target.src = 'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMTIwIiBoZWlnaHQ9IjEyMCIgdmlld0JveD0iMCAwIDEyMCAxMjAiIGZpbGw9Im5vbmUiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+CjxyZWN0IHdpZHRoPSIxMjAiIGhlaWdodD0iMTIwIiBmaWxsPSIjRTVFN0VCIi8+CjxwYXRoIGQ9Ik02MCA3MkM1Ni43IDcyIDU0IDY5LjMgNTQgNjZDNTQgNjIuNyA1Ni43IDYwIDYwIDYwQzYzLjMgNjAgNjYgNjIuNyA2NiA2NkM2NiA2OS4zIDYzLjMgNzIgNjAgNzJaTTYwIDg0QzUwLjEgODQgNDIgNzkuNSA0MiA3OS41QzQyIDczLjUgNTAuMSA2OSA2MCA2OUM2OS45IDY5IDc4IDczLjUgNzggNzkuNUM3OCA3OS41IDY5LjkgODQgNjAgODRaIiBmaWxsPSIjOUM5Q0EzIi8+Cjwvc3ZnPgo='
                                     }}
