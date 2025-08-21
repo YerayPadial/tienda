@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\ProductControllerCrud;
 use App\Http\Controllers\ProfileController;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\ProductController;
@@ -61,7 +62,7 @@ Route::prefix('admin')->middleware('auth:sanctum')->group(function () {
     Route::apiResource('users', UserController::class);
 
     // CRUD de productos (admin puede hacer todo)
-    Route::apiResource('products', ProductController::class);
+    Route::apiResource('products', ProductControllerCrud::class);
 
     // CRUD de pedidos (gestión completa)
     Route::apiResource('orders', OrderController::class);
