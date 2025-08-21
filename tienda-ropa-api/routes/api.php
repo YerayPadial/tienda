@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\OrderControllerCrud;
 use App\Http\Controllers\ProductControllerCrud;
 use App\Http\Controllers\ProfileController;
 use Illuminate\Support\Facades\Route;
@@ -65,7 +66,8 @@ Route::prefix('admin')->middleware('auth:sanctum')->group(function () {
     Route::apiResource('products', ProductControllerCrud::class);
 
     // CRUD de pedidos (gestión completa)
-    Route::apiResource('orders', OrderController::class);
+    Route::apiResource('orders', OrderControllerCrud::class);
+    Route::put('orders/{order}/items', [OrderControllerCrud::class, 'updateItems']);
     Route::apiResource('order-products', OrderProductController::class);
 
     // Gestión de tallas y colores

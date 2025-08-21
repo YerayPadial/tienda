@@ -238,10 +238,82 @@ export const deleteUser = async (id: number) => {
 
 // FUNCIONES CRUD - PEDIDOS
 
+export const getOrders = async (params?: {
+  page?: number
+  perPage?: number
+  search?: string
+  status?: string
+  sortBy?: string
+  sortOrder?: 'asc' | 'desc'
+}) => {
+  try {
+    const queryParams = new URLSearchParams()
+    if (params?.page) queryParams.append('page', params.page.toString())
+    if (params?.perPage) queryParams.append('perPage', params.perPage.toString())
+    if (params?.search) queryParams.append('search', params.search)
+    if (params?.status) queryParams.append('status', params.status)
+    if (params?.sortBy) queryParams.append('sortBy', params.sortBy)
+    if (params?.sortOrder) queryParams.append('sortOrder', params.sortOrder)
 
-export const getOrders = async () => {
-  const response = await api.get('/admin/orders')
-  return response.data
+    const response = await api.get(`/admin/orders?${queryParams.toString()}`)
+    return response.data
+  } catch (error) {
+    console.error('Error in getOrders:', error)
+    throw error
+  }
+}
+
+export const getOrder = async (id: number) => {
+  try {
+    const response = await api.get(`/admin/orders/${id}`)
+    return response.data
+  } catch (error) {
+    console.error('Error in getOrder:', error)
+    throw error
+  }
+}
+
+export const updateOrder = async (id: number, orderData: {
+  status: string
+  shipping_type?: string
+  shipping_data?: any
+  payment_completed?: boolean
+}) => {
+  try {
+    const response = await api.put(`/admin/orders/${id}`, orderData)
+    return response.data
+  } catch (error) {
+    console.error('Error in updateOrder:', error)
+    throw error
+  }
+}
+
+export const updateOrderItems = async (id: number, itemsData: {
+  items: Array<{
+    id?: number
+    product_id: number
+    size_id: number
+    color_id: number
+    quantity: number
+  }>
+}) => {
+  try {
+    const response = await api.put(`/admin/orders/${id}/items`, itemsData)
+    return response.data
+  } catch (error) {
+    console.error('Error in updateOrderItems:', error)
+    throw error
+  }
+}
+
+export const deleteOrder = async (id: number) => {
+  try {
+    const response = await api.delete(`/admin/orders/${id}`)
+    return response.data
+  } catch (error) {
+    console.error('Error in deleteOrder:', error)
+    throw error
+  }
 }
 
 export const getOrderDetail = async (id: number) => {

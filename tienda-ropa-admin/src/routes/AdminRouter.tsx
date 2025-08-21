@@ -7,6 +7,7 @@ import Dashboard from '../pages/Dashboard'
 import EmployeeManagement from '../pages/EmployeeManagement'
 import Products from '../pages/Products'
 import UserManagement from '../pages/UserManagement'
+import OrderManagement from '../pages/OrderManagement'
 
 export const adminRouter = createBrowserRouter([
   {
@@ -49,7 +50,7 @@ export const adminRouter = createBrowserRouter([
       },
       {
         path: 'orders',
-        element: <div>Pedidos - En desarrollo</div>
+        element: <OrderManagement />
       }
     ]
   },
