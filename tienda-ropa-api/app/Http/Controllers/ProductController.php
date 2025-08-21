@@ -9,7 +9,18 @@ class ProductController extends Controller
 {
     public function index()
     {
-        return Product::all();
+        $products = Product::all();
+
+        $products = $products->map(function ($product) {
+            if ($product->images && is_array($product->images)) {
+                $product->images = array_map(function ($imageUrl) {
+                    return str_replace('/index.php/', '/', $imageUrl);
+                }, $product->images);
+            }
+            return $product;
+        });
+
+        return $products;
     }
 
     public function store(Request $request)
@@ -54,6 +65,13 @@ class ProductController extends Controller
         $sizes = $sizes->whereIn('id', $product_sizes)->values();
         $colors = $colors->whereIn('id', $product_colors)->values();
 
+        $cleanImages = $product->images;
+        if ($cleanImages && is_array($cleanImages)) {
+            $cleanImages = array_map(function ($imageUrl) {
+                return str_replace('/index.php/', '/', $imageUrl);
+            }, $cleanImages);
+        }
+
         return response()->json([
             'product' => [
                 'id' => $product->id,
@@ -62,7 +80,7 @@ class ProductController extends Controller
                 'category' => $product->category,
                 'gender' => $product->gender,
                 'price' => $product->price,
-                'images' => $product->images,
+                'images' => $cleanImages,
                 'sizes' => $sizes,
                 'colors' => $colors,
                 'stocks' => $stocks,

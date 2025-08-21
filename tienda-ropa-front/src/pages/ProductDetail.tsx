@@ -122,7 +122,14 @@ const ProductDetail: React.FC = () => {
                 Volver a productos
             </button>
 
-            <img src={product.image_url} alt={product.name} className="w-full h-64 object-cover mb-4" />
+            <img
+                src={product.images && product.images.length > 0 ? product.images[0] : '/placeholder-image.jpg'}
+                alt={product.name}
+                className="w-full h-64 object-cover mb-4"
+                onError={(e: any) => {
+                    e.target.src = 'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNDAwIiBoZWlnaHQ9IjI1NiIgdmlld0JveD0iMCAwIDQwMCAyNTYiIGZpbGw9Im5vbmUiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+CjxyZWN0IHdpZHRoPSI0MDAiIGhlaWdodD0iMjU2IiBmaWxsPSIjRTVFN0VCIi8+CjxwYXRoIGQ9Ik0yMDAgMTUwQzE5MC41IDE1MCAyMDAgMTM4LjggMjAwIDEzMkMyMDAgMTI1LjIgMTkwLjUgMTIwIDIwMCAxMjBDMjA5LjUgMTIwIDIyMCAxMjUuMiAyMjAgMTMyQzIyMCAxMzguOCAyMDkuNSAxNTAgMjAwIDE1MFpNMjAwIDE3MEMxODAuMiAxNzAgMTYwIDE2MC41IDE2MCA2MEMxNjAgMTQzLjUgMTgwLjIgMTMwIDIwMCAxMzBDMjE5LjggMTMwIDI0MCAxNDMuNSAyNDAgMTYwQzI0MCAxNjAuNSAyMTkuOCAxNzAgMjAwIDE3MFoiIGZpbGw9IiM5QzlDQTMiLz4KPC9zdmc+Cg=='
+                }}
+            />
             <h1 className="text-2xl font-bold">{product.name}</h1>
             <p className="text-gray-700 mb-2">{product.description}</p>
             <p className="text-xl font-bold text-blue-600 mb-4">${product.price}</p>
