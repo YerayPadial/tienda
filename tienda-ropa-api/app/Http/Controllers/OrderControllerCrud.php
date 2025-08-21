@@ -42,7 +42,38 @@ class OrderControllerCrud extends Controller
             // Ordenamiento
             $sortBy = $request->get('sortBy', 'created_at');
             $sortOrder = $request->get('sortOrder', 'desc');
-            $query->orderBy($sortBy, $sortOrder);
+
+            // Manejar casos especiales de ordenamiento
+            switch ($sortBy) {
+                case 'user.name':
+                case 'user_name':
+                    $query->join('users', 'orders.user_id', '=', 'users.id')
+                        ->orderBy('users.name', $sortOrder)
+                        ->select('orders.*');
+                    break;
+                case 'items_count':
+                    $query->withCount('items')
+                        ->orderBy('items_count', $sortOrder);
+                    break;
+                case 'calculated_total':
+                    // Para el total calculado, usamos una subconsulta para evitar problemas con los with()
+                    $query->orderByRaw('(
+                        SELECT SUM(products.price * order_products.quantity)
+                        FROM order_products
+                        JOIN products ON order_products.product_id = products.id
+                        WHERE order_products.order_id = orders.id
+                    ) ' . $sortOrder);
+                    break;
+                default:
+                    // Para campos normales de la tabla orders
+                    if (in_array($sortBy, ['id', 'status', 'created_at', 'updated_at', 'payment_completed'])) {
+                        $query->orderBy($sortBy, $sortOrder);
+                    } else {
+                        // Fallback a created_at si el campo no es válido
+                        $query->orderBy('created_at', $sortOrder);
+                    }
+                    break;
+            }
 
             // Paginación
             $perPage = $request->get('perPage', 10);

@@ -197,6 +197,7 @@ export default function OrderManagement() {
                 ),
             }),
             columnHelper.accessor('user.name', {
+                id: 'user_name',
                 header: 'Cliente',
                 cell: (info) => (
                     <Box>
@@ -244,6 +245,7 @@ export default function OrderManagement() {
                 ),
             }),
             columnHelper.accessor('calculated_total', {
+                id: 'calculated_total',
                 header: 'Total',
                 cell: (info) => (
                     <Box display="flex" alignItems="center" gap={1}>
