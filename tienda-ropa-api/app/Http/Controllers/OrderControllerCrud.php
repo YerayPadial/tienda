@@ -112,13 +112,13 @@ class OrderControllerCrud extends Controller
     {
         try {
             $validatedData = $request->validate([
-                'status' => 'required|string|in:procesando,en_camino,entregado',
+                'status' => 'required|string|in:pendiente,procesando,enviado,entregado',
                 'shipping_type' => 'sometimes|string',
                 'shipping_data' => 'sometimes|array',
                 'payment_completed' => 'sometimes|boolean',
             ], [
                 'status.required' => 'El estado es obligatorio',
-                'status.in' => 'El estado debe ser: procesando, en_camino o entregado',
+                'status.in' => 'El estado debe ser: pendiente, procesando, enviado o entregado',
             ]);
 
             $order->update($validatedData);

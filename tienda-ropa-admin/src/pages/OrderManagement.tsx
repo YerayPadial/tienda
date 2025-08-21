@@ -92,7 +92,7 @@ type OrderItem = {
 type Order = {
     id: number
     user_id: number
-    status: 'procesando' | 'en_camino' | 'entregado'
+    status: 'pendiente' | 'procesando' | 'enviado' | 'entregado'
     shipping_type: string
     shipping_data: any
     payment_completed: boolean
@@ -110,7 +110,7 @@ type Order = {
 }
 
 type OrderFormData = {
-    status: 'procesando' | 'en_camino' | 'entregado'
+    status: 'pendiente' | 'procesando' | 'enviado' | 'entregado'
     items: {
         id?: number
         product_id: number | string
@@ -123,8 +123,9 @@ type OrderFormData = {
 const columnHelper = createColumnHelper<Order>()
 
 const statusConfig = {
+    pendiente: { label: 'Pendiente', color: '#9E9E9E', bgColor: '#F5F5F5' },
     procesando: { label: 'Procesando', color: '#FFA726', bgColor: '#FFF8E1' },
-    en_camino: { label: 'En Camino', color: '#42A5F5', bgColor: '#E3F2FD' },
+    enviado: { label: 'Enviado', color: '#42A5F5', bgColor: '#E3F2FD' },
     entregado: { label: 'Entregado', color: '#66BB6A', bgColor: '#E8F5E8' }
 }
 
@@ -165,7 +166,7 @@ export default function OrderManagement() {
         formState: { errors }
     } = useForm<OrderFormData>({
         defaultValues: {
-            status: 'procesando',
+            status: 'pendiente',
             items: []
         }
     })
@@ -561,8 +562,9 @@ export default function OrderManagement() {
                                         label="Estado"
                                     >
                                         <MenuItem value="">Todos</MenuItem>
+                                        <MenuItem value="pendiente">Pendiente</MenuItem>
                                         <MenuItem value="procesando">Procesando</MenuItem>
-                                        <MenuItem value="en_camino">En Camino</MenuItem>
+                                        <MenuItem value="enviado">Enviado</MenuItem>
                                         <MenuItem value="entregado">Entregado</MenuItem>
                                     </Select>
                                 </FormControl>
@@ -688,6 +690,17 @@ export default function OrderManagement() {
                                                     {...field}
                                                     label="Estado del Pedido"
                                                 >
+                                                    <MenuItem value="pendiente">
+                                                        <Chip
+                                                            label="Pendiente"
+                                                            size="small"
+                                                            sx={{
+                                                                backgroundColor: statusConfig.pendiente.bgColor,
+                                                                color: statusConfig.pendiente.color,
+                                                                border: `2px solid ${statusConfig.pendiente.color}`
+                                                            }}
+                                                        />
+                                                    </MenuItem>
                                                     <MenuItem value="procesando">
                                                         <Chip
                                                             label="Procesando"
@@ -699,14 +712,14 @@ export default function OrderManagement() {
                                                             }}
                                                         />
                                                     </MenuItem>
-                                                    <MenuItem value="en_camino">
+                                                    <MenuItem value="enviado">
                                                         <Chip
-                                                            label="En Camino"
+                                                            label="Enviado"
                                                             size="small"
                                                             sx={{
-                                                                backgroundColor: statusConfig.en_camino.bgColor,
-                                                                color: statusConfig.en_camino.color,
-                                                                border: `2px solid ${statusConfig.en_camino.color}`
+                                                                backgroundColor: statusConfig.enviado.bgColor,
+                                                                color: statusConfig.enviado.color,
+                                                                border: `2px solid ${statusConfig.enviado.color}`
                                                             }}
                                                         />
                                                     </MenuItem>
