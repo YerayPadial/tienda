@@ -6,6 +6,7 @@ import AdminLogin from '../pages/AdminLogin'
 import Dashboard from '../pages/Dashboard'
 import EmployeeManagement from '../pages/EmployeeManagement'
 import Products from '../pages/Products'
+import UserManagement from '../pages/UserManagement'
 
 export const adminRouter = createBrowserRouter([
   {
@@ -44,7 +45,7 @@ export const adminRouter = createBrowserRouter([
       },
       {
         path: 'clients',
-        element: <div>Clientes - En desarrollo</div>
+        element: <UserManagement />
       },
       {
         path: 'orders',

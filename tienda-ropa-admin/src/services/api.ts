@@ -164,20 +164,75 @@ export const deleteProduct = async (id: number) => {
 
 // FUNCIONES CRUD - USUARIOS/CLIENTES
 
+export const getUsers = async (params?: {
+  page?: number
+  perPage?: number
+  search?: string
+  sortBy?: string
+  sortOrder?: 'asc' | 'desc'
+}) => {
+  try {
+    const queryParams = new URLSearchParams()
+    if (params?.page) queryParams.append('page', params.page.toString())
+    if (params?.perPage) queryParams.append('perPage', params.perPage.toString())
+    if (params?.search) queryParams.append('search', params.search)
+    if (params?.sortBy) queryParams.append('sortBy', params.sortBy)
+    if (params?.sortOrder) queryParams.append('sortOrder', params.sortOrder)
 
-export const getUsers = async () => {
-  const response = await api.get('/admin/users')
-  return response.data
+    const response = await api.get(`/admin/users?${queryParams.toString()}`)
+    return response.data
+  } catch (error) {
+    console.error('Error in getUsers:', error)
+    throw error
+  }
 }
 
-export const updateUser = async (id: number, userData: any) => {
-  const response = await api.put(`/admin/users/${id}`, userData)
-  return response.data
+export const getUser = async (id: number) => {
+  try {
+    const response = await api.get(`/admin/users/${id}`)
+    return response.data
+  } catch (error) {
+    console.error('Error in getUser:', error)
+    throw error
+  }
+}
+
+export const createUser = async (userData: {
+  name: string
+  email: string
+  password: string
+}) => {
+  try {
+    const response = await api.post('/admin/users', userData)
+    return response.data
+  } catch (error) {
+    console.error('Error in createUser:', error)
+    throw error
+  }
+}
+
+export const updateUser = async (id: number, userData: {
+  name: string
+  email: string
+  password?: string
+}) => {
+  try {
+    const response = await api.put(`/admin/users/${id}`, userData)
+    return response.data
+  } catch (error) {
+    console.error('Error in updateUser:', error)
+    throw error
+  }
 }
 
 export const deleteUser = async (id: number) => {
-  const response = await api.delete(`/admin/users/${id}`)
-  return response.data
+  try {
+    const response = await api.delete(`/admin/users/${id}`)
+    return response.data
+  } catch (error) {
+    console.error('Error in deleteUser:', error)
+    throw error
+  }
 }
 
 
