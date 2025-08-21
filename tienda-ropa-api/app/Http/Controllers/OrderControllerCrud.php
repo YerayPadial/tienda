@@ -84,6 +84,12 @@ class OrderControllerCrud extends Controller
             $ordersData = array_map(function ($order) {
                 $order->calculated_total = $order->formatted_total;
                 $order->items_count = $order->items->count();
+
+                // Si el tipo de envío es recogida, no mostrar datos de envío
+                if ($order->shipping_type === 'recogida') {
+                    $order->shipping_data = null;
+                }
+
                 return $order;
             }, $ordersData);
 
@@ -125,6 +131,11 @@ class OrderControllerCrud extends Controller
             $order->calculated_total = $order->formatted_total;
             $order->items_count = $order->items->count();
 
+            // Si el tipo de envío es recogida, no mostrar datos de envío en la respuesta
+            if ($order->shipping_type === 'recogida') {
+                $order->shipping_data = null;
+            }
+
             return response()->json([
                 'data' => $order,
                 'message' => 'Pedido obtenido exitosamente'
@@ -142,28 +153,48 @@ class OrderControllerCrud extends Controller
     public function update(Request $request, Order $order)
     {
         try {
-            $validatedData = $request->validate([
+            // Validación base
+            $rules = [
                 'status' => 'required|string|in:pendiente,procesando,enviado,entregado',
                 'shipping_type' => 'sometimes|string|in:domicilio,recogida',
                 'shipping_data' => 'sometimes|array',
-                'shipping_data.address' => 'sometimes|string|max:255',
-                'shipping_data.city' => 'sometimes|string|max:100',
-                'shipping_data.postal_code' => 'sometimes|string|max:10',
-                'shipping_data.province' => 'sometimes|string|max:100',
-                'shipping_data.phone' => 'sometimes|string|max:20',
-                'shipping_data.notes' => 'sometimes|string|max:500',
                 'payment_completed' => 'sometimes|boolean',
-            ], [
+            ];
+
+            $messages = [
                 'status.required' => 'El estado es obligatorio',
                 'status.in' => 'El estado debe ser: pendiente, procesando, enviado o entregado',
                 'shipping_type.in' => 'El tipo de envío debe ser: domicilio o recogida',
-                'shipping_data.address.max' => 'La dirección no puede exceder 255 caracteres',
-                'shipping_data.city.max' => 'La ciudad no puede exceder 100 caracteres',
-                'shipping_data.postal_code.max' => 'El código postal no puede exceder 10 caracteres',
-                'shipping_data.province.max' => 'La provincia no puede exceder 100 caracteres',
-                'shipping_data.phone.max' => 'El teléfono no puede exceder 20 caracteres',
-                'shipping_data.notes.max' => 'Las notas no pueden exceder 500 caracteres',
-            ]);
+            ];
+
+            // Si el tipo de envío es domicilio, validar campos de envío
+            $shippingType = $request->input('shipping_type', $order->shipping_type);
+            if ($shippingType === 'domicilio') {
+                $rules = array_merge($rules, [
+                    'shipping_data.address' => 'sometimes|string|max:255',
+                    'shipping_data.city' => 'sometimes|string|max:100',
+                    'shipping_data.postal_code' => 'sometimes|string|max:10',
+                    'shipping_data.province' => 'sometimes|string|max:100',
+                    'shipping_data.phone' => 'sometimes|string|max:20',
+                    'shipping_data.notes' => 'sometimes|string|max:500',
+                ]);
+
+                $messages = array_merge($messages, [
+                    'shipping_data.address.max' => 'La dirección no puede exceder 255 caracteres',
+                    'shipping_data.city.max' => 'La ciudad no puede exceder 100 caracteres',
+                    'shipping_data.postal_code.max' => 'El código postal no puede exceder 10 caracteres',
+                    'shipping_data.province.max' => 'La provincia no puede exceder 100 caracteres',
+                    'shipping_data.phone.max' => 'El teléfono no puede exceder 20 caracteres',
+                    'shipping_data.notes.max' => 'Las notas no pueden exceder 500 caracteres',
+                ]);
+            }
+
+            $validatedData = $request->validate($rules, $messages);
+
+            // Si el tipo de envío es recogida, limpiar datos de envío
+            if (isset($validatedData['shipping_type']) && $validatedData['shipping_type'] === 'recogida') {
+                $validatedData['shipping_data'] = null;
+            }
 
             $order->update($validatedData);
 
@@ -176,6 +207,11 @@ class OrderControllerCrud extends Controller
             ]);
 
             $order->calculated_total = $order->formatted_total;
+
+            // Si el tipo de envío es recogida, no mostrar datos de envío en la respuesta
+            if ($order->shipping_type === 'recogida') {
+                $order->shipping_data = null;
+            }
 
             return response()->json([
                 'data' => $order,

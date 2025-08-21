@@ -69,6 +69,14 @@ class OrderController extends Controller
             ->orderBy('created_at', 'desc')
             ->get();
 
+        // Limpiar datos de envío para pedidos de recogida
+        $orders = $orders->map(function ($order) {
+            if ($order->shipping_type === 'recogida') {
+                $order->shipping_data = null;
+            }
+            return $order;
+        });
+
         return response()->json(['orders' => $orders]);
     }
 
@@ -81,6 +89,11 @@ class OrderController extends Controller
             'items.color',
             'user'
         ]);
+
+        // Si el tipo de envío es recogida, no mostrar datos de envío
+        if ($order->shipping_type === 'recogida') {
+            $order->shipping_data = null;
+        }
 
         return response()->json(['order' => $order]);
     }

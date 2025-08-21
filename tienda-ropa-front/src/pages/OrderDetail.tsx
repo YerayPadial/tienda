@@ -51,18 +51,20 @@ const OrderDetail: React.FC = () => {
                 </div>
                 <div className="mb-4">
                     <span className="font-semibold">Tipo envío: </span>
-                    <span>{order.shipping_type}</span>
+                    <span>{order.shipping_type === 'recogida' ? 'Recogida en tienda' : 'Envío a domicilio'}</span>
                 </div>
-                <div className="mb-4">
-                    <span className="font-semibold">Datos de envío: </span>
-                    {order.shipping_data && typeof order.shipping_data === 'object' ?
-                        <ul className="list-disc ml-6">
-                            {Object.entries(order.shipping_data).map(([key, value]) => (
-                                <li key={key}><span className="font-bold">{key}:</span> {String(value)}</li>
-                            ))}
-                        </ul>
-                        : <span>No disponible</span>}
-                </div>
+                {order.shipping_type === 'domicilio' && (
+                    <div className="mb-4">
+                        <span className="font-semibold">Datos de envío: </span>
+                        {order.shipping_data && typeof order.shipping_data === 'object' ?
+                            <ul className="list-disc ml-6">
+                                {Object.entries(order.shipping_data).map(([key, value]) => (
+                                    <li key={key}><span className="font-bold">{key}:</span> {String(value)}</li>
+                                ))}
+                            </ul>
+                            : <span>No disponible</span>}
+                    </div>
+                )}
                 <div className="border-t border-b py-4 my-4">
                     <h4 className="font-medium text-gray-700 mb-3">Productos:</h4>
                     <div className="space-y-2">
