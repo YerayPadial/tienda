@@ -111,6 +111,15 @@ type Order = {
 
 type OrderFormData = {
     status: 'pendiente' | 'procesando' | 'enviado' | 'entregado'
+    shipping_type?: string
+    shipping_data?: {
+        address?: string
+        city?: string
+        postal_code?: string
+        province?: string
+        phone?: string
+        notes?: string
+    }
     items: {
         id?: number
         product_id: number | string
@@ -167,6 +176,15 @@ export default function OrderManagement() {
     } = useForm<OrderFormData>({
         defaultValues: {
             status: 'pendiente',
+            shipping_type: 'domicilio',
+            shipping_data: {
+                address: '',
+                city: '',
+                postal_code: '',
+                province: '',
+                phone: '',
+                notes: ''
+            },
             items: []
         }
     })
@@ -412,6 +430,15 @@ export default function OrderManagement() {
 
             reset({
                 status: orderData.status,
+                shipping_type: orderData.shipping_type,
+                shipping_data: {
+                    address: orderData.shipping_data?.address || '',
+                    city: orderData.shipping_data?.city || '',
+                    postal_code: orderData.shipping_data?.postal_code || '',
+                    province: orderData.shipping_data?.province || '',
+                    phone: orderData.shipping_data?.phone || '',
+                    notes: orderData.shipping_data?.notes || ''
+                },
                 items: orderData.items.map((item: OrderItem) => ({
                     id: item.id,
                     product_id: item.product_id,
@@ -439,9 +466,11 @@ export default function OrderManagement() {
 
         try {
             if (editingOrder) {
-                // Actualizar estado del pedido
+                // Actualizar estado y datos de envío del pedido
                 await updateOrder(editingOrder.id, {
-                    status: data.status
+                    status: data.status,
+                    shipping_type: data.shipping_type,
+                    shipping_data: data.shipping_data
                 })
 
                 // Actualizar items del pedido
@@ -745,6 +774,108 @@ export default function OrderManagement() {
                                             </FormControl>
                                         )}
                                     />
+
+                                    <Divider />
+
+                                    {/* Información de envío */}
+                                    <Box>
+                                        <Typography variant="h6" sx={{ mb: 2 }}>
+                                            Información de Envío
+                                        </Typography>
+                                        <Stack spacing={2}>
+                                            <Controller
+                                                name="shipping_type"
+                                                control={control}
+                                                render={({ field }) => (
+                                                    <FormControl fullWidth>
+                                                        <InputLabel>Tipo de Envío</InputLabel>
+                                                        <Select
+                                                            {...field}
+                                                            label="Tipo de Envío"
+                                                        >
+                                                            <MenuItem value="domicilio">Envío a domicilio</MenuItem>
+                                                            <MenuItem value="recogida">Recogida en tienda</MenuItem>
+                                                        </Select>
+                                                    </FormControl>
+                                                )}
+                                            />
+                                            <Controller
+                                                name="shipping_data.address"
+                                                control={control}
+                                                render={({ field }) => (
+                                                    <TextField
+                                                        {...field}
+                                                        label="Dirección"
+                                                        fullWidth
+                                                        multiline
+                                                        rows={2}
+                                                        placeholder="Calle, número, piso, puerta..."
+                                                    />
+                                                )}
+                                            />
+                                            <Stack direction={{ xs: 'column', md: 'row' }} spacing={2}>
+                                                <Controller
+                                                    name="shipping_data.city"
+                                                    control={control}
+                                                    render={({ field }) => (
+                                                        <TextField
+                                                            {...field}
+                                                            label="Ciudad"
+                                                            fullWidth
+                                                        />
+                                                    )}
+                                                />
+                                                <Controller
+                                                    name="shipping_data.postal_code"
+                                                    control={control}
+                                                    render={({ field }) => (
+                                                        <TextField
+                                                            {...field}
+                                                            label="Código Postal"
+                                                            fullWidth
+                                                        />
+                                                    )}
+                                                />
+                                                <Controller
+                                                    name="shipping_data.province"
+                                                    control={control}
+                                                    render={({ field }) => (
+                                                        <TextField
+                                                            {...field}
+                                                            label="Provincia"
+                                                            fullWidth
+                                                        />
+                                                    )}
+                                                />
+                                            </Stack>
+                                            <Controller
+                                                name="shipping_data.phone"
+                                                control={control}
+                                                render={({ field }) => (
+                                                    <TextField
+                                                        {...field}
+                                                        label="Teléfono de contacto"
+                                                        fullWidth
+                                                        placeholder="+34 600 000 000"
+                                                    />
+                                                )}
+                                            />
+                                            <Controller
+                                                name="shipping_data.notes"
+                                                control={control}
+                                                render={({ field }) => (
+                                                    <TextField
+                                                        {...field}
+                                                        label="Notas adicionales"
+                                                        fullWidth
+                                                        multiline
+                                                        rows={2}
+                                                        placeholder="Instrucciones especiales de entrega..."
+                                                    />
+                                                )}
+                                            />
+                                        </Stack>
+                                    </Box>
 
                                     <Divider />
 

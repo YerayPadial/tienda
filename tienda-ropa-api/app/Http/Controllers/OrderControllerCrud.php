@@ -144,12 +144,25 @@ class OrderControllerCrud extends Controller
         try {
             $validatedData = $request->validate([
                 'status' => 'required|string|in:pendiente,procesando,enviado,entregado',
-                'shipping_type' => 'sometimes|string',
+                'shipping_type' => 'sometimes|string|in:domicilio,recogida',
                 'shipping_data' => 'sometimes|array',
+                'shipping_data.address' => 'sometimes|string|max:255',
+                'shipping_data.city' => 'sometimes|string|max:100',
+                'shipping_data.postal_code' => 'sometimes|string|max:10',
+                'shipping_data.province' => 'sometimes|string|max:100',
+                'shipping_data.phone' => 'sometimes|string|max:20',
+                'shipping_data.notes' => 'sometimes|string|max:500',
                 'payment_completed' => 'sometimes|boolean',
             ], [
                 'status.required' => 'El estado es obligatorio',
                 'status.in' => 'El estado debe ser: pendiente, procesando, enviado o entregado',
+                'shipping_type.in' => 'El tipo de envío debe ser: domicilio o recogida',
+                'shipping_data.address.max' => 'La dirección no puede exceder 255 caracteres',
+                'shipping_data.city.max' => 'La ciudad no puede exceder 100 caracteres',
+                'shipping_data.postal_code.max' => 'El código postal no puede exceder 10 caracteres',
+                'shipping_data.province.max' => 'La provincia no puede exceder 100 caracteres',
+                'shipping_data.phone.max' => 'El teléfono no puede exceder 20 caracteres',
+                'shipping_data.notes.max' => 'Las notas no pueden exceder 500 caracteres',
             ]);
 
             $order->update($validatedData);
