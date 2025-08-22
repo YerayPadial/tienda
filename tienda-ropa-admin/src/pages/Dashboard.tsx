@@ -202,7 +202,7 @@ const Dashboard: React.FC = () => {
         <Box>
             {/* Bienvenida */}
             <Box mb={4}>
-                <Typography variant="h4" component="h1" gutterBottom>
+                <Typography variant="h4" fontWeight={700} gutterBottom>
                     Dashboard
                 </Typography>
                 <Typography variant="h6" color="text.secondary">

@@ -445,7 +445,7 @@ const EmployeeManagement: React.FC = () => {
     return (
         <Box>
             <Box display="flex" justifyContent="space-between" alignItems="center" mb={3}>
-                <Typography variant="h4" component="h1">
+                <Typography variant="h4" fontWeight={700}>
                     Gestión de Empleados
                 </Typography>
                 <Button

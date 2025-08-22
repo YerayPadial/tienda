@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useState, useMemo } from 'react'
 import {
     Box,
     Typography,
@@ -11,16 +11,49 @@ import {
     TableRow,
     TableCell,
     TableBody,
+    TableContainer,
     Dialog,
     DialogTitle,
     DialogContent,
     DialogActions,
     Alert,
     Chip,
-    TextField
+    TextField,
+    FormControl,
+    InputLabel,
+    Select,
+    MenuItem,
+    Tooltip,
+    Avatar
 } from '@mui/material'
-import { Add, Edit, Delete } from '@mui/icons-material'
+import {
+    Add,
+    Edit,
+    Delete,
+    ArrowUpward,
+    ArrowDownward,
+    FilterList,
+    ShoppingBag,
+    Euro,
+    Inventory,
+    Category,
+    Person,
+    Image
+} from '@mui/icons-material'
 import { useForm, useFieldArray, Controller } from 'react-hook-form'
+import {
+    createColumnHelper,
+    flexRender,
+    getCoreRowModel,
+    getSortedRowModel,
+    getFilteredRowModel,
+    getPaginationRowModel,
+    useReactTable,
+    type SortingState,
+    type ColumnFiltersState,
+    type VisibilityState,
+    type PaginationState
+} from '@tanstack/react-table'
 import ImageUploader from '../components/ImageUploader'
 import {
     getProducts,
@@ -74,6 +107,8 @@ const defaultValues: ProductFormData = {
     stocks: [{ size_id: '', color_id: '', stock: 0 }]
 }
 
+const columnHelper = createColumnHelper<Product>()
+
 export default function Products() {
     // Data
     const [products, setProducts] = useState<Product[]>([])
@@ -87,7 +122,19 @@ export default function Products() {
     const [deleteId, setDeleteId] = useState<number | null>(null)
     const [deleteDialog, setDeleteDialog] = useState(false)
 
-    // Form RHF
+    // Estados de la tabla
+    const [sorting, setSorting] = useState<SortingState>([])
+    const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([])
+    const [columnVisibility, setColumnVisibility] = useState<VisibilityState>({})
+    const [pagination, setPagination] = useState<PaginationState>({
+        pageIndex: 0,
+        pageSize: 10,
+    })
+    const [globalFilter, setGlobalFilter] = useState('')
+    const [categoryFilter, setCategoryFilter] = useState('')
+    const [genderFilter, setGenderFilter] = useState('')
+
+    // Form React Hook Form
     const {
         control,
         handleSubmit,
@@ -105,6 +152,163 @@ export default function Products() {
     } = useFieldArray({
         control,
         name: 'stocks'
+    })
+
+    // Definición de columnas
+    const columns = useMemo(
+        () => [
+            columnHelper.accessor('id', {
+                header: 'ID',
+                size: 80,
+                cell: (info) => (
+                    <Chip
+                        label={`#${info.getValue()}`}
+                        size="small"
+                        variant="outlined"
+                        color="primary"
+                    />
+                ),
+            }),
+            columnHelper.accessor('images', {
+                header: 'Imagen',
+                size: 80,
+                enableSorting: false,
+                cell: (info) => {
+                    const images = info.getValue()
+                    return (
+                        <Avatar
+                            src={images && images.length > 0 ? images[0] : undefined}
+                            variant="rounded"
+                            sx={{ width: 48, height: 48 }}
+                        >
+                            <Image />
+                        </Avatar>
+                    )
+                },
+            }),
+            columnHelper.accessor('name', {
+                header: 'Nombre',
+                cell: (info) => (
+                    <Box display="flex" alignItems="center" gap={1}>
+                        <ShoppingBag color="action" fontSize="small" />
+                        <Typography variant="body2" fontWeight="medium">
+                            {info.getValue()}
+                        </Typography>
+                    </Box>
+                ),
+            }),
+            columnHelper.accessor('category', {
+                header: 'Categoría',
+                cell: (info) => (
+                    <Box display="flex" alignItems="center" gap={1}>
+                        <Category color="action" fontSize="small" />
+                        <Typography variant="body2" color="text.secondary">
+                            {info.getValue()}
+                        </Typography>
+                    </Box>
+                ),
+            }),
+            columnHelper.accessor('gender', {
+                header: 'Género',
+                cell: (info) => {
+                    const gender = info.getValue()
+                    const genderConfig = {
+                        'hombre': { label: 'Hombre', color: 'info' as const },
+                        'mujer': { label: 'Mujer', color: 'secondary' as const },
+                        'unisex': { label: 'Unisex', color: 'default' as const }
+                    }
+                    const config = genderConfig[gender as keyof typeof genderConfig] || genderConfig.unisex
+
+                    return (
+                        <Box display="flex" alignItems="center" gap={1}>
+                            <Person color="action" fontSize="small" />
+                            <Chip
+                                label={config.label}
+                                size="small"
+                                color={config.color}
+                                variant="outlined"
+                            />
+                        </Box>
+                    )
+                },
+            }),
+            columnHelper.accessor('price', {
+                header: 'Precio',
+                cell: (info) => (
+                    <Box display="flex" alignItems="center" gap={1}>
+                        <Euro color="action" fontSize="small" />
+                        <Typography variant="body2" fontWeight="medium">
+                            €{Number(info.getValue()).toFixed(2)}
+                        </Typography>
+                    </Box>
+                ),
+            }),
+            columnHelper.accessor('total_stock', {
+                header: 'Stock Total',
+                cell: (info) => (
+                    <Box display="flex" alignItems="center" gap={1}>
+                        <Inventory color="action" fontSize="small" />
+                        <Chip
+                            label={info.getValue() || 0}
+                            size="small"
+                            color={((info.getValue() || 0) > 0) ? 'success' : 'error'}
+                            variant="outlined"
+                        />
+                    </Box>
+                ),
+            }),
+            columnHelper.display({
+                id: 'actions',
+                header: 'Acciones',
+                size: 120,
+                cell: (info) => (
+                    <Stack direction="row" spacing={1}>
+                        <Tooltip title="Editar producto">
+                            <IconButton
+                                size="small"
+                                color="primary"
+                                onClick={() => handleOpenDialog(info.row.original)}
+                            >
+                                <Edit fontSize="small" />
+                            </IconButton>
+                        </Tooltip>
+                        <Tooltip title="Eliminar producto">
+                            <IconButton
+                                size="small"
+                                color="error"
+                                onClick={() => handleOpenDelete(info.row.original.id)}
+                            >
+                                <Delete fontSize="small" />
+                            </IconButton>
+                        </Tooltip>
+                    </Stack>
+                ),
+            }),
+        ],
+        []
+    )
+
+    // Configuración de la tabla
+    const table = useReactTable({
+        data: products,
+        columns,
+        state: {
+            sorting,
+            columnFilters,
+            columnVisibility,
+            pagination,
+            globalFilter,
+        },
+        onSortingChange: setSorting,
+        onColumnFiltersChange: setColumnFilters,
+        onColumnVisibilityChange: setColumnVisibility,
+        onPaginationChange: setPagination,
+        onGlobalFilterChange: setGlobalFilter,
+        getCoreRowModel: getCoreRowModel(),
+        getSortedRowModel: getSortedRowModel(),
+        getFilteredRowModel: getFilteredRowModel(),
+        getPaginationRowModel: getPaginationRowModel(),
+        globalFilterFn: 'includesString',
     })
 
     // Fetch initial data
@@ -135,7 +339,19 @@ export default function Products() {
             setColors([])
         }
         setLoading(false)
-    }    // Dialog: New/Edit Product
+    }
+
+    // Obtener categorías únicas
+    const uniqueCategories = useMemo(() => {
+        return [...new Set(products.map(p => p.category))].filter(Boolean)
+    }, [products])
+
+    // Obtener géneros únicos
+    const uniqueGenders = useMemo(() => {
+        return [...new Set(products.map(p => p.gender))].filter(Boolean)
+    }, [products])
+
+    // Dialog: New/Edit Product
     const handleOpenDialog = (product?: Product) => {
         setSuccess(null)
         setError(null)
@@ -229,9 +445,6 @@ export default function Products() {
         setLoading(false)
     }
 
-    // RHF watch images (comentado porque no se usa actualmente)
-    // const images = watch('images')
-
     return (
         <Box p={3}>
             <Stack direction="row" justifyContent="space-between" alignItems="center">
@@ -247,131 +460,203 @@ export default function Products() {
                     Nuevo producto
                 </Button>
             </Stack>
+
             <Box mt={2}>
                 {error && <Alert severity="error">{error}</Alert>}
                 {success && <Alert severity="success">{success}</Alert>}
             </Box>
-            <Paper sx={{ mt: 3 }}>
-                <Table>
-                    <TableHead>
-                        <TableRow>
-                            <TableCell>Nombre</TableCell>
-                            <TableCell>Categoría</TableCell>
-                            <TableCell>Género</TableCell>
-                            <TableCell>Precio</TableCell>
-                            <TableCell>Stock total</TableCell>
-                            <TableCell>Tallas</TableCell>
-                            <TableCell>Colores</TableCell>
-                            <TableCell>Acciones</TableCell>
-                        </TableRow>
-                    </TableHead>
-                    <TableBody>
-                        {products && products.length > 0 && products.map((product) => (
-                            <TableRow key={product.id}>
-                                <TableCell>
-                                    <Stack direction="row" alignItems="center" spacing={1}>
-                                        {product.images?.[0] ? (
-                                            <img
-                                                src={product.images[0]}
-                                                alt={product.name}
-                                                style={{
-                                                    width: 40,
-                                                    height: 40,
-                                                    objectFit: 'cover',
-                                                    borderRadius: 8,
-                                                    marginRight: 8
-                                                }}
-                                                onError={(e: any) => {
-                                                    console.log('Error cargando imagen:', product.images[0])
-                                                    e.target.onerror = null
-                                                    e.target.src =
-                                                        'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNDAiIGhlaWdodD0iNDAiIHZpZXdCb3g9IjAgMCA0MCA0MCIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KPHJlY3Qgd2lkdGg9IjQwIiBoZWlnaHQ9IjQwIiBmaWxsPSIjRTVFN0VCIi8+CjxwYXRoIGQ9Ik0yMCAyNEMxOC45IDI0IDE4IDIzLjEgMTggMjJDMTggMjAuOSAxOC45IDIwIDIwIDIwQzIxLjEgMjAgMjIgMjAuOSAyMiAyMkMyMiAyMy4xIDIxLjEgMjQgMjAgMjRaTTIwIDI4QzE2LjcgMjggMTQgMjYuNSAxNCAyNi41QzE0IDI0LjUgMTYuNyAyMyAyMCAyM0MyMy4zIDIzIDI2IDI0LjUgMjYgMjYuNUMyNiAyNi41IDIzLjMgMjggMjAgMjhaIiBmaWxsPSIjOUM5Q0EzIi8+Cjwvc3ZnPgo='
-                                                }}
-                                                onLoad={() => {
-                                                    console.log('Imagen cargada exitosamente:', product.images[0])
-                                                }}
-                                            />
-                                        ) : (
-                                            <div style={{
-                                                width: 40,
-                                                height: 40,
-                                                backgroundColor: '#f0f0f0',
-                                                borderRadius: 8,
-                                                marginRight: 8,
-                                                display: 'flex',
-                                                alignItems: 'center',
-                                                justifyContent: 'center',
-                                                fontSize: '12px',
-                                                color: '#666'
-                                            }}>
-                                                Sin imagen
-                                            </div>
-                                        )}
-                                        <Typography>{product.name}</Typography>
-                                    </Stack>
-                                </TableCell>
-                                <TableCell>{product.category}</TableCell>
-                                <TableCell>
-                                    <Chip
-                                        label={product.gender}
-                                        color={
-                                            product.gender === 'hombre'
-                                                ? 'primary'
-                                                : product.gender === 'mujer'
-                                                    ? 'secondary'
-                                                    : 'default'
-                                        }
-                                        size="small"
-                                    />
-                                </TableCell>
-                                <TableCell>
-                                    {product.price.toLocaleString('es-ES', {
-                                        style: 'currency',
-                                        currency: 'EUR'
-                                    })}
-                                </TableCell>
-                                <TableCell>{product.total_stock ?? 0}</TableCell>
-                                <TableCell>
-                                    {product.available_sizes && product.available_sizes.length > 0 &&
-                                        product.available_sizes.map((size) => (
-                                            <Chip key={size} label={size} size="small" />
-                                        ))
-                                    }
-                                </TableCell>
-                                <TableCell>
-                                    {product.available_colors && product.available_colors.length > 0 &&
-                                        product.available_colors.map((color) => (
-                                            <Chip key={color} label={color} size="small" />
-                                        ))
-                                    }
-                                </TableCell>
-                                <TableCell>
-                                    <IconButton
-                                        aria-label="Editar"
-                                        color="primary"
-                                        onClick={() => handleOpenDialog(product)}
-                                    >
-                                        <Edit />
-                                    </IconButton>
-                                    <IconButton
-                                        aria-label="Eliminar"
-                                        color="error"
-                                        onClick={() => handleOpenDelete(product.id)}
-                                    >
-                                        <Delete />
-                                    </IconButton>
-                                </TableCell>
-                            </TableRow>
-                        ))}
-                        {products.length === 0 && (
-                            <TableRow>
-                                <TableCell colSpan={8} align="center">
-                                    No hay productos
-                                </TableCell>
-                            </TableRow>
-                        )}
-                    </TableBody>
-                </Table>
+
+            {/* Controles de filtros y búsqueda */}
+            <Paper sx={{ p: 2, mb: 2, mt: 3 }}>
+                <Stack direction={{ xs: 'column', md: 'row' }} spacing={2} alignItems="center">
+                    <TextField
+                        placeholder="Buscar productos..."
+                        value={globalFilter}
+                        onChange={(e) => setGlobalFilter(e.target.value)}
+                        variant="outlined"
+                        size="small"
+                        sx={{ minWidth: 250 }}
+                        InputProps={{
+                            startAdornment: <FilterList sx={{ mr: 1, color: 'text.secondary' }} />
+                        }}
+                    />
+
+                    <FormControl size="small" sx={{ minWidth: 120 }}>
+                        <InputLabel>Categoría</InputLabel>
+                        <Select
+                            value={categoryFilter}
+                            onChange={(e) => {
+                                setCategoryFilter(e.target.value)
+                                table.getColumn('category')?.setFilterValue(e.target.value || undefined)
+                            }}
+                            label="Categoría"
+                        >
+                            <MenuItem value="">Todas</MenuItem>
+                            {uniqueCategories.map((category) => (
+                                <MenuItem key={category} value={category}>
+                                    {category}
+                                </MenuItem>
+                            ))}
+                        </Select>
+                    </FormControl>
+
+                    <FormControl size="small" sx={{ minWidth: 120 }}>
+                        <InputLabel>Género</InputLabel>
+                        <Select
+                            value={genderFilter}
+                            onChange={(e) => {
+                                setGenderFilter(e.target.value)
+                                table.getColumn('gender')?.setFilterValue(e.target.value || undefined)
+                            }}
+                            label="Género"
+                        >
+                            <MenuItem value="">Todos</MenuItem>
+                            {uniqueGenders.map((gender) => (
+                                <MenuItem key={gender} value={gender}>
+                                    {gender === 'hombre' ? 'Hombre' : gender === 'mujer' ? 'Mujer' : 'Unisex'}
+                                </MenuItem>
+                            ))}
+                        </Select>
+                    </FormControl>
+
+                    <Box sx={{ ml: 'auto' }}>
+                        <Typography variant="body2" color="text.secondary">
+                            {table.getFilteredRowModel().rows.length} de {products.length} productos
+                        </Typography>
+                    </Box>
+                </Stack>
+            </Paper>
+
+            {/* Tabla con TanStack React Table */}
+            <Paper>
+                <TableContainer>
+                    <Table>
+                        <TableHead>
+                            {table.getHeaderGroups().map((headerGroup) => (
+                                <TableRow key={headerGroup.id}>
+                                    {headerGroup.headers.map((header) => (
+                                        <TableCell
+                                            key={header.id}
+                                            sx={{
+                                                width: header.getSize(),
+                                                cursor: header.column.getCanSort() ? 'pointer' : 'default',
+                                                userSelect: 'none',
+                                            }}
+                                            onClick={header.column.getToggleSortingHandler()}
+                                        >
+                                            <Box display="flex" alignItems="center" gap={1}>
+                                                {header.isPlaceholder ? null : (
+                                                    flexRender(
+                                                        header.column.columnDef.header,
+                                                        header.getContext()
+                                                    )
+                                                )}
+                                                {header.column.getCanSort() && (
+                                                    <Box display="flex" flexDirection="column">
+                                                        {header.column.getIsSorted() === 'asc' && (
+                                                            <ArrowUpward fontSize="small" />
+                                                        )}
+                                                        {header.column.getIsSorted() === 'desc' && (
+                                                            <ArrowDownward fontSize="small" />
+                                                        )}
+                                                        {!header.column.getIsSorted() && (
+                                                            <ArrowUpward
+                                                                fontSize="small"
+                                                                sx={{ opacity: 0.3 }}
+                                                            />
+                                                        )}
+                                                    </Box>
+                                                )}
+                                            </Box>
+                                        </TableCell>
+                                    ))}
+                                </TableRow>
+                            ))}
+                        </TableHead>
+                        <TableBody>
+                            {table.getRowModel().rows.length === 0 ? (
+                                <TableRow>
+                                    <TableCell colSpan={table.getVisibleLeafColumns().length} align="center">
+                                        <Typography variant="body2" color="text.secondary" py={4}>
+                                            {globalFilter || categoryFilter || genderFilter
+                                                ? 'No se encontraron productos con los filtros aplicados'
+                                                : 'No hay productos registrados'
+                                            }
+                                        </Typography>
+                                    </TableCell>
+                                </TableRow>
+                            ) : (
+                                table.getRowModel().rows.map((row) => (
+                                    <TableRow key={row.id} hover>
+                                        {row.getVisibleCells().map((cell) => (
+                                            <TableCell key={cell.id}>
+                                                {flexRender(
+                                                    cell.column.columnDef.cell,
+                                                    cell.getContext()
+                                                )}
+                                            </TableCell>
+                                        ))}
+                                    </TableRow>
+                                ))
+                            )}
+                        </TableBody>
+                    </Table>
+                </TableContainer>
+
+                {/* Paginación */}
+                <Box display="flex" justifyContent="space-between" alignItems="center" p={2}>
+                    <Box display="flex" alignItems="center" gap={2}>
+                        <Typography variant="body2" color="text.secondary">
+                            Página {table.getState().pagination.pageIndex + 1} de {table.getPageCount()}
+                        </Typography>
+                        <FormControl size="small" sx={{ minWidth: 100 }}>
+                            <Select
+                                value={table.getState().pagination.pageSize}
+                                onChange={(e) => table.setPageSize(Number(e.target.value))}
+                            >
+                                {[5, 10, 20, 50].map((pageSize) => (
+                                    <MenuItem key={pageSize} value={pageSize}>
+                                        {pageSize}
+                                    </MenuItem>
+                                ))}
+                            </Select>
+                        </FormControl>
+                        <Typography variant="body2" color="text.secondary">
+                            por página
+                        </Typography>
+                    </Box>
+
+                    <Stack direction="row" spacing={1}>
+                        <Button
+                            size="small"
+                            onClick={() => table.setPageIndex(0)}
+                            disabled={!table.getCanPreviousPage()}
+                        >
+                            Primera
+                        </Button>
+                        <Button
+                            size="small"
+                            onClick={() => table.previousPage()}
+                            disabled={!table.getCanPreviousPage()}
+                        >
+                            Anterior
+                        </Button>
+                        <Button
+                            size="small"
+                            onClick={() => table.nextPage()}
+                            disabled={!table.getCanNextPage()}
+                        >
+                            Siguiente
+                        </Button>
+                        <Button
+                            size="small"
+                            onClick={() => table.setPageIndex(table.getPageCount() - 1)}
+                            disabled={!table.getCanNextPage()}
+                        >
+                            Última
+                        </Button>
+                    </Stack>
+                </Box>
             </Paper>
 
             {/* Dialogo crear/editar */}
@@ -386,8 +671,7 @@ export default function Products() {
                 </DialogTitle>
                 <DialogContent>
                     <form id="product-form" onSubmit={handleSubmit(onSubmit)}>
-                        <Stack spacing={2}>
-                            {/* Nombre */}
+                        <Stack spacing={3} sx={{ mt: 2 }}>
                             <Controller
                                 name="name"
                                 control={control}
@@ -395,14 +679,14 @@ export default function Products() {
                                 render={({ field }) => (
                                     <TextField
                                         {...field}
-                                        label="Nombre"
-                                        fullWidth
+                                        label="Nombre del producto"
                                         error={!!errors.name}
                                         helperText={errors.name?.message}
+                                        fullWidth
                                     />
                                 )}
                             />
-                            {/* Descripción */}
+
                             <Controller
                                 name="description"
                                 control={control}
@@ -411,75 +695,65 @@ export default function Products() {
                                     <TextField
                                         {...field}
                                         label="Descripción"
-                                        fullWidth
                                         multiline
                                         rows={3}
                                         error={!!errors.description}
                                         helperText={errors.description?.message}
+                                        fullWidth
                                     />
                                 )}
                             />
-                            {/* Categoría */}
-                            <Controller
-                                name="category"
-                                control={control}
-                                rules={{ required: 'La categoría es obligatoria' }}
-                                render={({ field }) => (
-                                    <TextField
-                                        {...field}
-                                        label="Categoría"
-                                        fullWidth
-                                        error={!!errors.category}
-                                        helperText={errors.category?.message}
-                                    />
-                                )}
-                            />
-                            {/* Género */}
-                            <Controller
-                                name="gender"
-                                control={control}
-                                rules={{
-                                    required: 'El género es obligatorio',
-                                    validate: (v) =>
-                                        ['hombre', 'mujer', 'unisex'].includes(v) ||
-                                        'Valor inválido'
-                                }}
-                                render={({ field }) => (
-                                    <TextField
-                                        {...field}
-                                        label="Género"
-                                        select
-                                        fullWidth
-                                        error={!!errors.gender}
-                                        helperText={errors.gender?.message}
-                                        SelectProps={{ native: true }}
-                                    >
-                                        <option value="hombre">Hombre</option>
-                                        <option value="mujer">Mujer</option>
-                                        <option value="unisex">Unisex</option>
-                                    </TextField>
-                                )}
-                            />
-                            {/* Precio */}
-                            <Controller
-                                name="price"
-                                control={control}
-                                rules={{
-                                    required: 'El precio es obligatorio',
-                                    min: { value: 0, message: 'El precio no puede ser negativo' }
-                                }}
-                                render={({ field }) => (
-                                    <TextField
-                                        {...field}
-                                        label="Precio (€)"
-                                        type="number"
-                                        fullWidth
-                                        error={!!errors.price}
-                                        helperText={errors.price?.message}
-                                    />
-                                )}
-                            />
-                            {/* Imágenes */}
+
+                            <Stack direction="row" spacing={2}>
+                                <Controller
+                                    name="category"
+                                    control={control}
+                                    rules={{ required: 'La categoría es obligatoria' }}
+                                    render={({ field }) => (
+                                        <TextField
+                                            {...field}
+                                            label="Categoría"
+                                            error={!!errors.category}
+                                            helperText={errors.category?.message}
+                                            fullWidth
+                                        />
+                                    )}
+                                />
+
+                                <Controller
+                                    name="gender"
+                                    control={control}
+                                    rules={{ required: 'El género es obligatorio' }}
+                                    render={({ field }) => (
+                                        <FormControl fullWidth error={!!errors.gender}>
+                                            <InputLabel>Género</InputLabel>
+                                            <Select {...field} label="Género">
+                                                <MenuItem value="hombre">Hombre</MenuItem>
+                                                <MenuItem value="mujer">Mujer</MenuItem>
+                                                <MenuItem value="unisex">Unisex</MenuItem>
+                                            </Select>
+                                        </FormControl>
+                                    )}
+                                />
+
+                                <Controller
+                                    name="price"
+                                    control={control}
+                                    rules={{ required: 'El precio es obligatorio', min: 0 }}
+                                    render={({ field }) => (
+                                        <TextField
+                                            {...field}
+                                            type="number"
+                                            label="Precio (€)"
+                                            error={!!errors.price}
+                                            helperText={errors.price?.message}
+                                            fullWidth
+                                            inputProps={{ step: 0.01 }}
+                                        />
+                                    )}
+                                />
+                            </Stack>
+
                             <Controller
                                 name="images"
                                 control={control}
@@ -491,102 +765,77 @@ export default function Products() {
                                     />
                                 )}
                             />
-                            {/* Stocks */}
-                            <Typography variant="subtitle2" sx={{ mt: 2 }}>
-                                Variaciones de stock (talla/color/cantidad)
-                            </Typography>
-                            {stockFields && stockFields.length > 0 && stockFields.map((item, idx) => (
-                                <Stack
-                                    direction="row"
-                                    spacing={1}
-                                    alignItems="center"
-                                    key={item.id}
-                                    sx={{ mb: 1 }}
-                                >
-                                    {/* Talla */}
+
+                            <Typography variant="h6">Stock por talla y color</Typography>
+                            {stockFields.map((field, index) => (
+                                <Stack key={field.id} direction="row" spacing={2} alignItems="center">
                                     <Controller
-                                        name={`stocks.${idx}.size_id`}
+                                        name={`stocks.${index}.size_id`}
                                         control={control}
                                         rules={{ required: 'Selecciona una talla' }}
                                         render={({ field }) => (
-                                            <TextField
-                                                {...field}
-                                                label="Talla"
-                                                select
-                                                error={!!errors.stocks?.[idx]?.size_id}
-                                                helperText={errors.stocks?.[idx]?.size_id?.message}
-                                                style={{ minWidth: 120 }}
-                                                SelectProps={{ native: true }}
-                                            >
-                                                <option value="">Selecciona</option>
-                                                {sizes && sizes.length > 0 && sizes.map((s) => (
-                                                    <option key={s.id} value={s.id}>
-                                                        {s.name}
-                                                    </option>
-                                                ))}
-                                            </TextField>
+                                            <FormControl sx={{ minWidth: 120 }}>
+                                                <InputLabel>Talla</InputLabel>
+                                                <Select {...field} label="Talla">
+                                                    {sizes.map((size) => (
+                                                        <MenuItem key={size.id} value={size.id}>
+                                                            {size.name}
+                                                        </MenuItem>
+                                                    ))}
+                                                </Select>
+                                            </FormControl>
                                         )}
                                     />
-                                    {/* Color */}
+
                                     <Controller
-                                        name={`stocks.${idx}.color_id`}
+                                        name={`stocks.${index}.color_id`}
                                         control={control}
                                         rules={{ required: 'Selecciona un color' }}
                                         render={({ field }) => (
-                                            <TextField
-                                                {...field}
-                                                label="Color"
-                                                select
-                                                error={!!errors.stocks?.[idx]?.color_id}
-                                                helperText={errors.stocks?.[idx]?.color_id?.message}
-                                                style={{ minWidth: 120 }}
-                                                SelectProps={{ native: true }}
-                                            >
-                                                <option value="">Selecciona</option>
-                                                {colors && colors.length > 0 && colors.map((c) => (
-                                                    <option key={c.id} value={c.id}>
-                                                        {c.name}
-                                                    </option>
-                                                ))}
-                                            </TextField>
+                                            <FormControl sx={{ minWidth: 120 }}>
+                                                <InputLabel>Color</InputLabel>
+                                                <Select {...field} label="Color">
+                                                    {colors.map((color) => (
+                                                        <MenuItem key={color.id} value={color.id}>
+                                                            {color.name}
+                                                        </MenuItem>
+                                                    ))}
+                                                </Select>
+                                            </FormControl>
                                         )}
                                     />
-                                    {/* Stock */}
+
                                     <Controller
-                                        name={`stocks.${idx}.stock`}
+                                        name={`stocks.${index}.stock`}
                                         control={control}
-                                        rules={{
-                                            required: 'Cantidad obligatoria',
-                                            min: { value: 0, message: 'No negativo' }
-                                        }}
+                                        rules={{ required: 'El stock es obligatorio', min: 0 }}
                                         render={({ field }) => (
                                             <TextField
                                                 {...field}
-                                                label="Cantidad"
                                                 type="number"
-                                                error={!!errors.stocks?.[idx]?.stock}
-                                                helperText={errors.stocks?.[idx]?.stock?.message}
-                                                style={{ minWidth: 100 }}
+                                                label="Stock"
+                                                inputProps={{ min: 0 }}
+                                                sx={{ width: 100 }}
                                             />
                                         )}
                                     />
+
                                     <IconButton
-                                        onClick={() => removeStock(idx)}
                                         color="error"
+                                        onClick={() => removeStock(index)}
                                         disabled={stockFields.length === 1}
                                     >
                                         <Delete />
                                     </IconButton>
                                 </Stack>
                             ))}
+
                             <Button
-                                onClick={() =>
-                                    appendStock({ size_id: '', color_id: '', stock: 0 })
-                                }
                                 variant="outlined"
-                                size="small"
+                                startIcon={<Add />}
+                                onClick={() => appendStock({ size_id: '', color_id: '', stock: 0 })}
                             >
-                                Añadir variación
+                                Agregar variación
                             </Button>
                         </Stack>
                     </form>
@@ -599,7 +848,7 @@ export default function Products() {
                         variant="contained"
                         disabled={loading}
                     >
-                        {editingProduct ? 'Actualizar' : 'Crear'}
+                        {loading ? 'Guardando...' : (editingProduct ? 'Actualizar' : 'Crear')}
                     </Button>
                 </DialogActions>
             </Dialog>

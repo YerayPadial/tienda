@@ -8,11 +8,11 @@ Falta:
 
 1. Panel administrativo
 
-    - Usuarios              terminado
-    - Trabajadores          mejorar
+    - Usuarios              mejorar (estetica table de productos y empleados)
+    - Trabajadores          mejorar (Mejorar scroll progress "Cargando empleados...")
     - Login                 terminado
-    - Productos             mejorar
-    - Pedidos               terminado
+    - Productos             mejorar (Creacion de tallas y colores/ validar precios mayor a 0/ Añadir scroll progress)
+    - Pedidos               mejorar (estetica table de productos y empleados)
 
 2. Frontend compra
 
