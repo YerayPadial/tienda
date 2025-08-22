@@ -476,8 +476,10 @@ export default function Products() {
                         variant="outlined"
                         size="small"
                         sx={{ minWidth: 250 }}
-                        InputProps={{
-                            startAdornment: <FilterList sx={{ mr: 1, color: 'text.secondary' }} />
+                        slotProps={{
+                            input: {
+                                startAdornment: <FilterList sx={{ mr: 1, color: 'text.secondary' }} />
+                            }
                         }}
                     />
 
@@ -748,7 +750,9 @@ export default function Products() {
                                             error={!!errors.price}
                                             helperText={errors.price?.message}
                                             fullWidth
-                                            inputProps={{ step: 0.01 }}
+                                            slotProps={{
+                                                htmlInput: { step: 0.01 }
+                                            }}
                                         />
                                     )}
                                 />
@@ -814,7 +818,9 @@ export default function Products() {
                                                 {...field}
                                                 type="number"
                                                 label="Stock"
-                                                inputProps={{ min: 0 }}
+                                                slotProps={{
+                                                    htmlInput: { min: 0 }
+                                                }}
                                                 sx={{ width: 100 }}
                                             />
                                         )}

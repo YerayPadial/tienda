@@ -614,12 +614,14 @@ export default function OrderManagement() {
                                     placeholder="Buscar por ID de pedido, nombre o email del cliente..."
                                     value={globalFilter}
                                     onChange={(e) => setGlobalFilter(e.target.value)}
-                                    InputProps={{
-                                        startAdornment: (
-                                            <InputAdornment position="start">
-                                                <Search />
-                                            </InputAdornment>
-                                        ),
+                                    slotProps={{
+                                        input: {
+                                            startAdornment: (
+                                                <InputAdornment position="start">
+                                                    <Search />
+                                                </InputAdornment>
+                                            ),
+                                        }
                                     }}
                                 />
                             </Box>
@@ -1043,7 +1045,9 @@ export default function OrderManagement() {
                                                                             label="Cantidad"
                                                                             type="number"
                                                                             fullWidth
-                                                                            inputProps={{ min: 1 }}
+                                                                            slotProps={{
+                                                                                htmlInput: { min: 1 }
+                                                                            }}
                                                                         />
                                                                     )}
                                                                 />

@@ -412,12 +412,14 @@ export default function UserManagement() {
                             placeholder="Buscar por nombre o email..."
                             value={globalFilter}
                             onChange={(e) => setGlobalFilter(e.target.value)}
-                            InputProps={{
-                                startAdornment: (
-                                    <InputAdornment position="start">
-                                        <Search />
-                                    </InputAdornment>
-                                ),
+                            slotProps={{
+                                input: {
+                                    startAdornment: (
+                                        <InputAdornment position="start">
+                                            <Search />
+                                        </InputAdornment>
+                                    ),
+                                }
                             }}
                         />
                     </Paper>
@@ -539,12 +541,14 @@ export default function UserManagement() {
                                                 fullWidth
                                                 error={!!errors.name}
                                                 helperText={errors.name?.message}
-                                                InputProps={{
-                                                    startAdornment: (
-                                                        <InputAdornment position="start">
-                                                            <Person />
-                                                        </InputAdornment>
-                                                    ),
+                                                slotProps={{
+                                                    input: {
+                                                        startAdornment: (
+                                                            <InputAdornment position="start">
+                                                                <Person />
+                                                            </InputAdornment>
+                                                        ),
+                                                    }
                                                 }}
                                             />
                                         )}
@@ -567,12 +571,14 @@ export default function UserManagement() {
                                                 fullWidth
                                                 error={!!errors.email}
                                                 helperText={errors.email?.message}
-                                                InputProps={{
-                                                    startAdornment: (
-                                                        <InputAdornment position="start">
-                                                            <Email />
-                                                        </InputAdornment>
-                                                    ),
+                                                slotProps={{
+                                                    input: {
+                                                        startAdornment: (
+                                                            <InputAdornment position="start">
+                                                                <Email />
+                                                            </InputAdornment>
+                                                        ),
+                                                    }
                                                 }}
                                             />
                                         )}

@@ -473,8 +473,10 @@ const EmployeeManagement: React.FC = () => {
                         variant="outlined"
                         size="small"
                         sx={{ minWidth: 250 }}
-                        InputProps={{
-                            startAdornment: <FilterList sx={{ mr: 1, color: 'text.secondary' }} />
+                        slotProps={{
+                            input: {
+                                startAdornment: <FilterList sx={{ mr: 1, color: 'text.secondary' }} />
+                            }
                         }}
                     />
 
