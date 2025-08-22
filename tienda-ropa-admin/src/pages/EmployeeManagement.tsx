@@ -1,15 +1,9 @@
-import React, { useState, useEffect } from 'react'
+import React, { useState, useEffect, useMemo } from 'react'
 import {
     Box,
     Paper,
     Typography,
     Button,
-    Table,
-    TableBody,
-    TableCell,
-    TableContainer,
-    TableHead,
-    TableRow,
     Chip,
     IconButton,
     Dialog,
@@ -24,13 +18,40 @@ import {
     MenuItem,
     Select,
     FormControl,
-    InputLabel
+    InputLabel,
+    Stack,
+    Tooltip,
+    TableContainer,
+    Table,
+    TableHead,
+    TableBody,
+    TableRow,
+    TableCell
 } from '@mui/material'
 import {
     Add,
     Edit,
-    Delete
+    Delete,
+    ArrowUpward,
+    ArrowDownward,
+    FilterList,
+    Person,
+    Email,
+    CalendarToday
 } from '@mui/icons-material'
+import {
+    createColumnHelper,
+    flexRender,
+    getCoreRowModel,
+    getSortedRowModel,
+    getFilteredRowModel,
+    getPaginationRowModel,
+    useReactTable,
+    type SortingState,
+    type ColumnFiltersState,
+    type VisibilityState,
+    type PaginationState
+} from '@tanstack/react-table'
 import { getEmployees, createEmployee, updateEmployee, deleteEmployee } from '../services/api'
 
 interface Employee {
@@ -57,7 +78,10 @@ interface FormData {
     is_active: boolean
 }
 
+const columnHelper = createColumnHelper<Employee>()
+
 const EmployeeManagement: React.FC = () => {
+    // Estados principales
     const [employees, setEmployees] = useState<Employee[]>([])
     const [loading, setLoading] = useState(true)
     const [error, setError] = useState<string | null>(null)
@@ -73,8 +97,147 @@ const EmployeeManagement: React.FC = () => {
     const [formErrors, setFormErrors] = useState<FormErrors>({})
     const [saving, setSaving] = useState(false)
 
+    // Estados de la tabla
+    const [sorting, setSorting] = useState<SortingState>([])
+    const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([])
+    const [columnVisibility, setColumnVisibility] = useState<VisibilityState>({})
+    const [pagination, setPagination] = useState<PaginationState>({
+        pageIndex: 0,
+        pageSize: 10,
+    })
+    const [globalFilter, setGlobalFilter] = useState('')
+    const [roleFilter, setRoleFilter] = useState('')
+    const [statusFilter, setStatusFilter] = useState('')
+
     // Roles disponibles
     const availableRoles = ['admin', 'empleado', 'vendedor', 'gerente']
+
+    // Definición de columnas
+    const columns = useMemo(
+        () => [
+            columnHelper.accessor('id', {
+                header: 'ID',
+                size: 80,
+                cell: (info) => (
+                    <Chip
+                        label={`#${info.getValue()}`}
+                        size="small"
+                        variant="outlined"
+                        color="primary"
+                    />
+                ),
+            }),
+            columnHelper.accessor('name', {
+                header: 'Nombre',
+                cell: (info) => (
+                    <Box display="flex" alignItems="center" gap={1}>
+                        <Person color="action" fontSize="small" />
+                        <Typography variant="body2" fontWeight="medium">
+                            {info.getValue()}
+                        </Typography>
+                    </Box>
+                ),
+            }),
+            columnHelper.accessor('email', {
+                header: 'Email',
+                cell: (info) => (
+                    <Box display="flex" alignItems="center" gap={1}>
+                        <Email color="action" fontSize="small" />
+                        <Typography variant="body2" color="text.secondary">
+                            {info.getValue()}
+                        </Typography>
+                    </Box>
+                ),
+            }),
+            columnHelper.accessor('rol', {
+                header: 'Rol',
+                cell: (info) => {
+                    const role = info.getValue()
+                    return (
+                        <Chip
+                            label={formatRole(role)}
+                            size="small"
+                            color={getRoleColor(role)}
+                            variant="filled"
+                        />
+                    )
+                },
+            }),
+            columnHelper.accessor('is_active', {
+                header: 'Estado',
+                cell: (info) => (
+                    <Chip
+                        label={info.getValue() ? 'Activo' : 'Inactivo'}
+                        size="small"
+                        color={info.getValue() ? 'success' : 'error'}
+                        variant="outlined"
+                    />
+                ),
+            }),
+            columnHelper.accessor('created_at', {
+                header: 'Fecha Registro',
+                cell: (info) => (
+                    <Box display="flex" alignItems="center" gap={1}>
+                        <CalendarToday color="action" fontSize="small" />
+                        <Typography variant="body2" color="text.secondary">
+                            {formatDate(info.getValue())}
+                        </Typography>
+                    </Box>
+                ),
+            }),
+            columnHelper.display({
+                id: 'actions',
+                header: 'Acciones',
+                size: 120,
+                cell: (info) => (
+                    <Stack direction="row" spacing={1}>
+                        <Tooltip title="Editar empleado">
+                            <IconButton
+                                size="small"
+                                color="primary"
+                                onClick={() => handleOpenDialog(info.row.original)}
+                            >
+                                <Edit fontSize="small" />
+                            </IconButton>
+                        </Tooltip>
+                        <Tooltip title="Eliminar empleado">
+                            <IconButton
+                                size="small"
+                                color="error"
+                                onClick={() => handleDelete(info.row.original.id)}
+                            >
+                                <Delete fontSize="small" />
+                            </IconButton>
+                        </Tooltip>
+                    </Stack>
+                ),
+            }),
+        ],
+        []
+    )
+
+    // Configuración de la tabla
+    const table = useReactTable({
+        data: employees,
+        columns,
+        state: {
+            sorting,
+            columnFilters,
+            columnVisibility,
+            pagination,
+            globalFilter,
+        },
+        onSortingChange: setSorting,
+        onColumnFiltersChange: setColumnFilters,
+        onColumnVisibilityChange: setColumnVisibility,
+        onPaginationChange: setPagination,
+        onGlobalFilterChange: setGlobalFilter,
+        getCoreRowModel: getCoreRowModel(),
+        getSortedRowModel: getSortedRowModel(),
+        getFilteredRowModel: getFilteredRowModel(),
+        getPaginationRowModel: getPaginationRowModel(),
+        globalFilterFn: 'includesString',
+    })
 
     // Función para validar email
     const isValidEmail = (email: string): boolean => {
@@ -300,73 +463,196 @@ const EmployeeManagement: React.FC = () => {
                 </Alert>
             )}
 
+            {/* Controles de filtros y búsqueda */}
+            <Paper sx={{ p: 2, mb: 2 }}>
+                <Stack direction={{ xs: 'column', md: 'row' }} spacing={2} alignItems="center">
+                    <TextField
+                        placeholder="Buscar empleados..."
+                        value={globalFilter}
+                        onChange={(e) => setGlobalFilter(e.target.value)}
+                        variant="outlined"
+                        size="small"
+                        sx={{ minWidth: 250 }}
+                        InputProps={{
+                            startAdornment: <FilterList sx={{ mr: 1, color: 'text.secondary' }} />
+                        }}
+                    />
+
+                    <FormControl size="small" sx={{ minWidth: 120 }}>
+                        <InputLabel>Rol</InputLabel>
+                        <Select
+                            value={roleFilter}
+                            onChange={(e) => {
+                                setRoleFilter(e.target.value)
+                                table.getColumn('rol')?.setFilterValue(e.target.value || undefined)
+                            }}
+                            label="Rol"
+                        >
+                            <MenuItem value="">Todos</MenuItem>
+                            {availableRoles.map((role) => (
+                                <MenuItem key={role} value={role}>
+                                    {formatRole(role)}
+                                </MenuItem>
+                            ))}
+                        </Select>
+                    </FormControl>
+
+                    <FormControl size="small" sx={{ minWidth: 120 }}>
+                        <InputLabel>Estado</InputLabel>
+                        <Select
+                            value={statusFilter}
+                            onChange={(e) => {
+                                setStatusFilter(e.target.value)
+                                table.getColumn('is_active')?.setFilterValue(
+                                    e.target.value === '' ? undefined : e.target.value === 'true'
+                                )
+                            }}
+                            label="Estado"
+                        >
+                            <MenuItem value="">Todos</MenuItem>
+                            <MenuItem value="true">Activos</MenuItem>
+                            <MenuItem value="false">Inactivos</MenuItem>
+                        </Select>
+                    </FormControl>
+
+                    <Box sx={{ ml: 'auto' }}>
+                        <Typography variant="body2" color="text.secondary">
+                            {table.getFilteredRowModel().rows.length} de {employees.length} empleados
+                        </Typography>
+                    </Box>
+                </Stack>
+            </Paper>
+
+            {/* Tabla con TanStack React Table */}
             <Paper>
                 <TableContainer>
                     <Table>
                         <TableHead>
-                            <TableRow>
-                                <TableCell>ID</TableCell>
-                                <TableCell>Nombre</TableCell>
-                                <TableCell>Email</TableCell>
-                                <TableCell>Rol</TableCell>
-                                <TableCell>Estado</TableCell>
-                                <TableCell>Fecha Registro</TableCell>
-                                <TableCell>Acciones</TableCell>
-                            </TableRow>
+                            {table.getHeaderGroups().map((headerGroup) => (
+                                <TableRow key={headerGroup.id}>
+                                    {headerGroup.headers.map((header) => (
+                                        <TableCell
+                                            key={header.id}
+                                            sx={{
+                                                width: header.getSize(),
+                                                cursor: header.column.getCanSort() ? 'pointer' : 'default',
+                                                userSelect: 'none',
+                                            }}
+                                            onClick={header.column.getToggleSortingHandler()}
+                                        >
+                                            <Box display="flex" alignItems="center" gap={1}>
+                                                {header.isPlaceholder ? null : (
+                                                    flexRender(
+                                                        header.column.columnDef.header,
+                                                        header.getContext()
+                                                    )
+                                                )}
+                                                {header.column.getCanSort() && (
+                                                    <Box display="flex" flexDirection="column">
+                                                        {header.column.getIsSorted() === 'asc' && (
+                                                            <ArrowUpward fontSize="small" />
+                                                        )}
+                                                        {header.column.getIsSorted() === 'desc' && (
+                                                            <ArrowDownward fontSize="small" />
+                                                        )}
+                                                        {!header.column.getIsSorted() && (
+                                                            <ArrowUpward
+                                                                fontSize="small"
+                                                                sx={{ opacity: 0.3 }}
+                                                            />
+                                                        )}
+                                                    </Box>
+                                                )}
+                                            </Box>
+                                        </TableCell>
+                                    ))}
+                                </TableRow>
+                            ))}
                         </TableHead>
                         <TableBody>
-                            {employees.length === 0 ? (
+                            {table.getRowModel().rows.length === 0 ? (
                                 <TableRow>
-                                    <TableCell colSpan={7} align="center">
-                                        <Typography variant="body2" color="text.secondary">
-                                            No hay empleados registrados
+                                    <TableCell colSpan={table.getVisibleLeafColumns().length} align="center">
+                                        <Typography variant="body2" color="text.secondary" py={4}>
+                                            {globalFilter || roleFilter || statusFilter
+                                                ? 'No se encontraron empleados con los filtros aplicados'
+                                                : 'No hay empleados registrados'
+                                            }
                                         </Typography>
                                     </TableCell>
                                 </TableRow>
                             ) : (
-                                employees.map((employee) => (
-                                    <TableRow key={employee.id}>
-                                        <TableCell>#{employee.id}</TableCell>
-                                        <TableCell>{employee.name}</TableCell>
-                                        <TableCell>{employee.email}</TableCell>
-                                        <TableCell>
-                                            <Chip
-                                                label={formatRole(employee.rol)}
-                                                color={getRoleColor(employee.rol)}
-                                                size="small"
-                                            />
-                                        </TableCell>
-                                        <TableCell>
-                                            <Chip
-                                                label={employee.is_active ? 'Activo' : 'Inactivo'}
-                                                color={employee.is_active ? 'success' : 'default'}
-                                                size="small"
-                                            />
-                                        </TableCell>
-                                        <TableCell>{formatDate(employee.created_at)}</TableCell>
-                                        <TableCell>
-                                            <IconButton
-                                                size="small"
-                                                onClick={() => handleOpenDialog(employee)}
-                                                title="Editar"
-                                            >
-                                                <Edit />
-                                            </IconButton>
-                                            <IconButton
-                                                size="small"
-                                                onClick={() => handleDelete(employee.id)}
-                                                title="Eliminar"
-                                                color="error"
-                                            >
-                                                <Delete />
-                                            </IconButton>
-                                        </TableCell>
+                                table.getRowModel().rows.map((row) => (
+                                    <TableRow key={row.id} hover>
+                                        {row.getVisibleCells().map((cell) => (
+                                            <TableCell key={cell.id}>
+                                                {flexRender(
+                                                    cell.column.columnDef.cell,
+                                                    cell.getContext()
+                                                )}
+                                            </TableCell>
+                                        ))}
                                     </TableRow>
                                 ))
                             )}
                         </TableBody>
                     </Table>
                 </TableContainer>
+
+                {/* Paginación */}
+                <Box display="flex" justifyContent="space-between" alignItems="center" p={2}>
+                    <Box display="flex" alignItems="center" gap={2}>
+                        <Typography variant="body2" color="text.secondary">
+                            Página {table.getState().pagination.pageIndex + 1} de {table.getPageCount()}
+                        </Typography>
+                        <FormControl size="small" sx={{ minWidth: 100 }}>
+                            <Select
+                                value={table.getState().pagination.pageSize}
+                                onChange={(e) => table.setPageSize(Number(e.target.value))}
+                            >
+                                {[5, 10, 20, 50].map((pageSize) => (
+                                    <MenuItem key={pageSize} value={pageSize}>
+                                        {pageSize}
+                                    </MenuItem>
+                                ))}
+                            </Select>
+                        </FormControl>
+                        <Typography variant="body2" color="text.secondary">
+                            por página
+                        </Typography>
+                    </Box>
+
+                    <Stack direction="row" spacing={1}>
+                        <Button
+                            size="small"
+                            onClick={() => table.setPageIndex(0)}
+                            disabled={!table.getCanPreviousPage()}
+                        >
+                            Primera
+                        </Button>
+                        <Button
+                            size="small"
+                            onClick={() => table.previousPage()}
+                            disabled={!table.getCanPreviousPage()}
+                        >
+                            Anterior
+                        </Button>
+                        <Button
+                            size="small"
+                            onClick={() => table.nextPage()}
+                            disabled={!table.getCanNextPage()}
+                        >
+                            Siguiente
+                        </Button>
+                        <Button
+                            size="small"
+                            onClick={() => table.setPageIndex(table.getPageCount() - 1)}
+                            disabled={!table.getCanNextPage()}
+                        >
+                            Última
+                        </Button>
+                    </Stack>
+                </Box>
             </Paper>
 
             {/* Dialog para crear/editar empleado */}

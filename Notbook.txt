@@ -8,11 +8,11 @@ Falta:
 
 1. Panel administrativo
 
-    - Usuarios
-    - Trabajadores
-    - Login
-    - Productos 
-    - Pedidos
+    - Usuarios              terminado
+    - Trabajadores          mejorar
+    - Login                 terminado
+    - Productos             mejorar
+    - Pedidos               terminado
 
 2. Frontend compra
 
