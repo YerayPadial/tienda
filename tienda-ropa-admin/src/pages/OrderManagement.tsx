@@ -360,10 +360,10 @@ export default function OrderManagement() {
     })
 
     // Cargar datos
-    const fetchOrders = async (isInitial = false) => {
+    const fetchOrders = async (isInitial = false, showLoading = true) => {
         if (isInitial) {
             setInitialLoading(true)
-        } else {
+        } else if (showLoading) {
             setLoading(true)
         }
 
@@ -388,7 +388,7 @@ export default function OrderManagement() {
 
         if (isInitial) {
             setInitialLoading(false)
-        } else {
+        } else if (showLoading) {
             setLoading(false)
         }
     }
@@ -417,11 +417,18 @@ export default function OrderManagement() {
     }, [])
 
     useEffect(() => {
-        // Cargas posteriores (sin mostrar spinner inicial)
+        // Para ordenación no mostrar loading
         if (!initialLoading) {
-            fetchOrders(false)
+            fetchOrders(false, false)
         }
-    }, [pagination, sorting, globalFilter, statusFilter])
+    }, [sorting])
+
+    useEffect(() => {
+        // Para paginación, búsqueda y filtros sí mostrar loading
+        if (!initialLoading) {
+            fetchOrders(false, true)
+        }
+    }, [pagination, globalFilter, statusFilter])
 
     // Limpiar datos de envío cuando se cambia a recogida
     useEffect(() => {
@@ -526,7 +533,7 @@ export default function OrderManagement() {
                 setSuccess('Pedido actualizado correctamente')
             }
             setOpenDialog(false)
-            fetchOrders()
+            fetchOrders(false, false) // No mostrar loading al actualizar después de editar
         } catch (err: any) {
             setError(
                 err.response?.data?.message ||
@@ -544,7 +551,7 @@ export default function OrderManagement() {
             if (deleteId) {
                 await deleteOrder(deleteId)
                 setSuccess('Pedido eliminado correctamente')
-                fetchOrders()
+                fetchOrders(false, false) // No mostrar loading al actualizar después de eliminar
             }
             setDeleteDialog(false)
         } catch (err: any) {

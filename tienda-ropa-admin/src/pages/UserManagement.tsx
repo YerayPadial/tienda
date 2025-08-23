@@ -230,10 +230,10 @@ export default function UserManagement() {
     })
 
     // Cargar datos
-    const fetchUsers = async (isInitial = false) => {
+    const fetchUsers = async (isInitial = false, showLoading = true) => {
         if (isInitial) {
             setInitialLoading(true)
-        } else {
+        } else if (showLoading) {
             setLoading(true)
         }
 
@@ -257,7 +257,7 @@ export default function UserManagement() {
 
         if (isInitial) {
             setInitialLoading(false)
-        } else {
+        } else if (showLoading) {
             setLoading(false)
         }
     }
@@ -270,9 +270,16 @@ export default function UserManagement() {
     useEffect(() => {
         // Cargas posteriores (sin mostrar spinner inicial)
         if (!initialLoading) {
-            fetchUsers(false)
+            fetchUsers(false, false) // No mostrar loading para ordenación
         }
-    }, [pagination, sorting, globalFilter])
+    }, [sorting])
+
+    useEffect(() => {
+        // Para paginación y búsqueda sí mostrar loading
+        if (!initialLoading) {
+            fetchUsers(false, true)
+        }
+    }, [pagination, globalFilter])
 
     // Handlers del diálogo
     const handleOpenDialog = async (user?: User) => {
@@ -331,7 +338,7 @@ export default function UserManagement() {
                 setSuccess('Usuario creado correctamente')
             }
             setOpenDialog(false)
-            fetchUsers()
+            fetchUsers(false, false) // No mostrar loading al actualizar después de editar
         } catch (err: any) {
             setError(
                 err.response?.data?.message ||
@@ -349,7 +356,7 @@ export default function UserManagement() {
             if (deleteId) {
                 await deleteUser(deleteId)
                 setSuccess('Usuario eliminado correctamente')
-                fetchUsers()
+                fetchUsers(false, false) // No mostrar loading al actualizar después de eliminar
             }
             setDeleteDialog(false)
         } catch (err: any) {
