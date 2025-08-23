@@ -18,8 +18,13 @@ Falta:
 
     - Carrito
     - Apartado pago
-    - Filtros y buscador tienda !
-    - ProductDetail con carrusel de fotos si hay mas de una imagen    !
+    - Filtros y buscador tienda, Limitar cantidad de productos de 10 en 10 !
+    - ProductDetail con carrusel de fotos si hay mas de una imagen    ! TERMINADO
     - Si algun campo de orders viene vacio no mostrarlo en Order Detail !  TERMINADO
     - Cambiar valores de dolares a euros y detras de la cifras !  TERMINADO
     - Cambiar campos de Order detail a limpios para front ! TERMINADO
+
+    - Voy a transformar el diseño de la página ProductDetail.tsx 
+    para que tenga un aspecto profesional y elegante,
+    manteniendo toda la funcionalidad intacta pero mejorando 
+    significativamente el diseño visual. -
