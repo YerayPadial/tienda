@@ -56,7 +56,26 @@ class SizeController extends Controller
 
     public function destroy(Size $size)
     {
-        $size->delete();
-        return response()->json(null, 204);
+        try {
+            // Verificar si la talla está siendo utilizada en productos
+            $productsUsingSize = $size->stocks()->count();
+
+            if ($productsUsingSize > 0) {
+                return response()->json([
+                    'message' => 'No se puede eliminar la talla porque está siendo utilizada en productos existentes'
+                ], 422);
+            }
+
+            $size->delete();
+
+            return response()->json([
+                'message' => 'Talla eliminada exitosamente'
+            ], 200);
+        } catch (\Exception $e) {
+            return response()->json([
+                'message' => 'Error al eliminar la talla',
+                'error' => $e->getMessage()
+            ], 500);
+        }
     }
 }

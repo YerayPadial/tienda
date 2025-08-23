@@ -65,7 +65,9 @@ import {
     getColors,
     getProduct,
     createSize,
-    createColor
+    createColor,
+    deleteSize,
+    deleteColor
 } from '../services/api'
 
 type Size = { id: number; name: string }
@@ -134,6 +136,12 @@ export default function Products() {
     const [newColorHex, setNewColorHex] = useState('#000000')
     const [sizeError, setSizeError] = useState<string | null>(null)
     const [colorError, setColorError] = useState<string | null>(null)
+
+    // Estados para eliminar tallas y colores
+    const [deleteSizeDialog, setDeleteSizeDialog] = useState(false)
+    const [deleteColorDialog, setDeleteColorDialog] = useState(false)
+    const [sizeToDelete, setSizeToDelete] = useState<number | null>(null)
+    const [colorToDelete, setColorToDelete] = useState<number | null>(null)
 
     // Estados de la tabla
     const [sorting, setSorting] = useState<SortingState>([])
@@ -438,19 +446,19 @@ export default function Products() {
     // Manejar cambio en nombre de talla
     const handleSizeNameChange = (value: string) => {
         setNewSizeName(value)
-        if (sizeError) setSizeError(null) 
+        if (sizeError) setSizeError(null)
     }
 
     // Manejar cambio en nombre de color
     const handleColorNameChange = (value: string) => {
         setNewColorName(value)
-        if (colorError) setColorError(null) 
+        if (colorError) setColorError(null)
     }
 
     // Manejar cambio en hex de color
     const handleColorHexChange = (value: string) => {
         setNewColorHex(value)
-        if (colorError) setColorError(null) 
+        if (colorError) setColorError(null)
     }
 
     // Submit
@@ -600,6 +608,88 @@ export default function Products() {
             } else {
                 setColorError('Error al crear el color. Intenta de nuevo.')
             }
+        }
+        setLoading(false)
+    }
+
+    // Abrir diálogo de eliminar talla
+    const handleOpenDeleteSize = (sizeId: number) => {
+        setSizeToDelete(sizeId)
+        setDeleteSizeDialog(true)
+    }
+
+    // Abrir diálogo de eliminar color
+    const handleOpenDeleteColor = (colorId: number) => {
+        setColorToDelete(colorId)
+        setDeleteColorDialog(true)
+    }
+
+    // Eliminar talla
+    const handleDeleteSize = async () => {
+        if (!sizeToDelete) return
+
+        setLoading(true)
+        setError(null)
+        setSizeError(null)
+        try {
+            await deleteSize(sizeToDelete)
+            setSizes(prev => prev.filter(size => size.id !== sizeToDelete))
+            setSuccess('Talla eliminada correctamente')
+            setDeleteSizeDialog(false)
+            setSizeToDelete(null)
+        } catch (err: any) {
+            console.error('Error deleting size:', err)
+            let errorMessage = 'Error al eliminar la talla'
+
+            if (err.response?.status === 422) {
+                // Error de validación (talla en uso)
+                errorMessage = err.response.data?.message || 'No se puede eliminar la talla porque está siendo utilizada en productos existentes'
+            } else if (err.response?.status === 404) {
+                errorMessage = 'La talla no existe'
+            } else if (err.response?.status === 500) {
+                errorMessage = 'Error interno del servidor. Inténtalo de nuevo.'
+            } else if (err.response?.data?.message) {
+                errorMessage = err.response.data.message
+            }
+
+            setError(errorMessage)
+            setDeleteSizeDialog(false)
+            setSizeToDelete(null)
+        }
+        setLoading(false)
+    }
+
+    // Eliminar color
+    const handleDeleteColor = async () => {
+        if (!colorToDelete) return
+
+        setLoading(true)
+        setError(null)
+        setColorError(null)
+        try {
+            await deleteColor(colorToDelete)
+            setColors(prev => prev.filter(color => color.id !== colorToDelete))
+            setSuccess('Color eliminado correctamente')
+            setDeleteColorDialog(false)
+            setColorToDelete(null)
+        } catch (err: any) {
+            console.error('Error deleting color:', err)
+            let errorMessage = 'Error al eliminar el color'
+
+            if (err.response?.status === 422) {
+                // Error de validación (color en uso)
+                errorMessage = err.response.data?.message || 'No se puede eliminar el color porque está siendo utilizado en productos existentes'
+            } else if (err.response?.status === 404) {
+                errorMessage = 'El color no existe'
+            } else if (err.response?.status === 500) {
+                errorMessage = 'Error interno del servidor. Inténtalo de nuevo.'
+            } else if (err.response?.data?.message) {
+                errorMessage = err.response.data.message
+            }
+
+            setError(errorMessage)
+            setDeleteColorDialog(false)
+            setColorToDelete(null)
         }
         setLoading(false)
     }
@@ -979,7 +1069,21 @@ export default function Products() {
                                                     <Select {...field} label="Talla">
                                                         {sizes.map((size) => (
                                                             <MenuItem key={size.id} value={size.id}>
-                                                                {size.name}
+                                                                <Stack direction="row" spacing={1} alignItems="center" width="100%">
+                                                                    <Typography sx={{ flexGrow: 1 }}>{size.name}</Typography>
+                                                                    <IconButton
+                                                                        size="small"
+                                                                        color="error"
+                                                                        onClick={(e) => {
+                                                                            e.stopPropagation()
+                                                                            handleOpenDeleteSize(size.id)
+                                                                        }}
+                                                                        title="Eliminar talla"
+                                                                        sx={{ ml: 'auto' }}
+                                                                    >
+                                                                        <Delete fontSize="small" />
+                                                                    </IconButton>
+                                                                </Stack>
                                                             </MenuItem>
                                                         ))}
                                                     </Select>
@@ -1007,19 +1111,33 @@ export default function Products() {
                                                     <Select {...field} label="Color">
                                                         {colors.map((color) => (
                                                             <MenuItem key={color.id} value={color.id}>
-                                                                <Stack direction="row" spacing={1} alignItems="center">
-                                                                    {color.hex && (
-                                                                        <Box
-                                                                            sx={{
-                                                                                width: 16,
-                                                                                height: 16,
-                                                                                backgroundColor: color.hex,
-                                                                                border: '1px solid #ccc',
-                                                                                borderRadius: '2px'
-                                                                            }}
-                                                                        />
-                                                                    )}
-                                                                    <Typography>{color.name}</Typography>
+                                                                <Stack direction="row" spacing={1} alignItems="center" width="100%">
+                                                                    <Stack direction="row" spacing={1} alignItems="center" sx={{ flexGrow: 1 }}>
+                                                                        {color.hex && (
+                                                                            <Box
+                                                                                sx={{
+                                                                                    width: 16,
+                                                                                    height: 16,
+                                                                                    backgroundColor: color.hex,
+                                                                                    border: '1px solid #ccc',
+                                                                                    borderRadius: '2px'
+                                                                                }}
+                                                                            />
+                                                                        )}
+                                                                        <Typography>{color.name}</Typography>
+                                                                    </Stack>
+                                                                    <IconButton
+                                                                        size="small"
+                                                                        color="error"
+                                                                        onClick={(e) => {
+                                                                            e.stopPropagation()
+                                                                            handleOpenDeleteColor(color.id)
+                                                                        }}
+                                                                        title="Eliminar color"
+                                                                        sx={{ ml: 'auto' }}
+                                                                    >
+                                                                        <Delete fontSize="small" />
+                                                                    </IconButton>
                                                                 </Stack>
                                                             </MenuItem>
                                                         ))}
@@ -1185,6 +1303,50 @@ export default function Products() {
                         disabled={loading || !newColorName.trim()}
                     >
                         {loading ? 'Creando...' : 'Crear color'}
+                    </Button>
+                </DialogActions>
+            </Dialog>
+
+            {/* Dialogo eliminar talla */}
+            <Dialog open={deleteSizeDialog} onClose={() => setDeleteSizeDialog(false)}>
+                <DialogTitle>Eliminar talla</DialogTitle>
+                <DialogContent>
+                    <Typography>
+                        ¿Estás seguro de que quieres eliminar esta talla? Esta acción no se puede deshacer.
+                        Si la talla está siendo utilizada en productos existentes, no podrá ser eliminada.
+                    </Typography>
+                </DialogContent>
+                <DialogActions>
+                    <Button onClick={() => setDeleteSizeDialog(false)}>Cancelar</Button>
+                    <Button
+                        onClick={handleDeleteSize}
+                        color="error"
+                        variant="contained"
+                        disabled={loading}
+                    >
+                        {loading ? 'Eliminando...' : 'Eliminar'}
+                    </Button>
+                </DialogActions>
+            </Dialog>
+
+            {/* Dialogo eliminar color */}
+            <Dialog open={deleteColorDialog} onClose={() => setDeleteColorDialog(false)}>
+                <DialogTitle>Eliminar color</DialogTitle>
+                <DialogContent>
+                    <Typography>
+                        ¿Estás seguro de que quieres eliminar este color? Esta acción no se puede deshacer.
+                        Si el color está siendo utilizado en productos existentes, no podrá ser eliminado.
+                    </Typography>
+                </DialogContent>
+                <DialogActions>
+                    <Button onClick={() => setDeleteColorDialog(false)}>Cancelar</Button>
+                    <Button
+                        onClick={handleDeleteColor}
+                        color="error"
+                        variant="contained"
+                        disabled={loading}
+                    >
+                        {loading ? 'Eliminando...' : 'Eliminar'}
                     </Button>
                 </DialogActions>
             </Dialog>

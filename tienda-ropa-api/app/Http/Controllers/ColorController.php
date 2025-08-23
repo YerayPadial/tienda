@@ -58,7 +58,26 @@ class ColorController extends Controller
 
     public function destroy(Color $color)
     {
-        $color->delete();
-        return response()->json(null, 204);
+        try {
+            // Verificar si el color está siendo utilizado en productos
+            $productsUsingColor = $color->stocks()->count();
+
+            if ($productsUsingColor > 0) {
+                return response()->json([
+                    'message' => 'No se puede eliminar el color porque está siendo utilizado en productos existentes'
+                ], 422);
+            }
+
+            $color->delete();
+
+            return response()->json([
+                'message' => 'Color eliminado exitosamente'
+            ], 200);
+        } catch (\Exception $e) {
+            return response()->json([
+                'message' => 'Error al eliminar el color',
+                'error' => $e->getMessage()
+            ], 500);
+        }
     }
 }

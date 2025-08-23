@@ -350,6 +350,18 @@ export const createSize = async (data: { name: string }) => {
   }
 }
 
+export const deleteSize = async (id: number) => {
+  try {
+    const response = await api.delete(`/admin/sizes/${id}`)
+    return response.data
+  } catch (error: any) {
+    console.error('Error in deleteSize:', error)
+    console.error('Response data:', error?.response?.data)
+    console.error('Response status:', error?.response?.status)
+    throw error
+  }
+}
+
 export const getColors = async () => {
   try {
     const response = await api.get('/colors')
@@ -366,6 +378,18 @@ export const createColor = async (data: { name: string; hex?: string }) => {
     return response.data
   } catch (error) {
     console.error('Error in createColor:', error)
+    throw error
+  }
+}
+
+export const deleteColor = async (id: number) => {
+  try {
+    const response = await api.delete(`/admin/colors/${id}`)
+    return response.data
+  } catch (error: any) {
+    console.error('Error in deleteColor:', error)
+    console.error('Response data:', error?.response?.data)
+    console.error('Response status:', error?.response?.status)
     throw error
   }
 }
