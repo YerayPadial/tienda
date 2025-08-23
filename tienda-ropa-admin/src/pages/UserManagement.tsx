@@ -20,9 +20,11 @@ import {
     TableCell,
     TableBody,
     TableContainer,
-    TablePagination,
     Tooltip,
-    CircularProgress
+    CircularProgress,
+    FormControl,
+    Select,
+    MenuItem
 } from '@mui/material'
 import {
     Add,
@@ -441,8 +443,9 @@ export default function UserManagement() {
                                                 <TableCell
                                                     key={header.id}
                                                     sx={{
+                                                        width: header.getSize(),
                                                         cursor: header.column.getCanSort() ? 'pointer' : 'default',
-                                                        userSelect: 'none'
+                                                        userSelect: 'none',
                                                     }}
                                                     onClick={header.column.getToggleSortingHandler()}
                                                 >
@@ -452,12 +455,19 @@ export default function UserManagement() {
                                                             header.getContext()
                                                         )}
                                                         {header.column.getCanSort() && (
-                                                            <Box>
-                                                                {header.column.getIsSorted() === 'desc' ? (
-                                                                    <ArrowDownward fontSize="small" />
-                                                                ) : header.column.getIsSorted() === 'asc' ? (
+                                                            <Box display="flex" flexDirection="column">
+                                                                {header.column.getIsSorted() === 'asc' && (
                                                                     <ArrowUpward fontSize="small" />
-                                                                ) : null}
+                                                                )}
+                                                                {header.column.getIsSorted() === 'desc' && (
+                                                                    <ArrowDownward fontSize="small" />
+                                                                )}
+                                                                {!header.column.getIsSorted() && (
+                                                                    <ArrowUpward
+                                                                        fontSize="small"
+                                                                        sx={{ opacity: 0.3 }}
+                                                                    />
+                                                                )}
                                                             </Box>
                                                         )}
                                                     </Box>
@@ -500,27 +510,59 @@ export default function UserManagement() {
                         </TableContainer>
 
                         {/* Paginación */}
-                        <TablePagination
-                            component="div"
-                            count={totalRows}
-                            page={pagination.pageIndex}
-                            onPageChange={(_, newPage) =>
-                                setPagination(prev => ({ ...prev, pageIndex: newPage }))
-                            }
-                            rowsPerPage={pagination.pageSize}
-                            onRowsPerPageChange={(e) =>
-                                setPagination(prev => ({
-                                    ...prev,
-                                    pageSize: parseInt(e.target.value, 10),
-                                    pageIndex: 0
-                                }))
-                            }
-                            rowsPerPageOptions={[5, 10, 25, 50]}
-                            labelRowsPerPage="Filas por página:"
-                            labelDisplayedRows={({ from, to, count }) =>
-                                `${from}-${to} de ${count !== -1 ? count : `más de ${to}`}`
-                            }
-                        />
+                        <Box display="flex" justifyContent="space-between" alignItems="center" p={2}>
+                            <Box display="flex" alignItems="center" gap={2}>
+                                <Typography variant="body2" color="text.secondary">
+                                    Página {table.getState().pagination.pageIndex + 1} de {table.getPageCount()}
+                                </Typography>
+                                <FormControl size="small" sx={{ minWidth: 100 }}>
+                                    <Select
+                                        value={table.getState().pagination.pageSize}
+                                        onChange={(e) => table.setPageSize(Number(e.target.value))}
+                                    >
+                                        {[5, 10, 20, 50].map((pageSize) => (
+                                            <MenuItem key={pageSize} value={pageSize}>
+                                                {pageSize}
+                                            </MenuItem>
+                                        ))}
+                                    </Select>
+                                </FormControl>
+                                <Typography variant="body2" color="text.secondary">
+                                    por página
+                                </Typography>
+                            </Box>
+
+                            <Stack direction="row" spacing={1}>
+                                <Button
+                                    size="small"
+                                    onClick={() => table.setPageIndex(0)}
+                                    disabled={!table.getCanPreviousPage()}
+                                >
+                                    Primera
+                                </Button>
+                                <Button
+                                    size="small"
+                                    onClick={() => table.previousPage()}
+                                    disabled={!table.getCanPreviousPage()}
+                                >
+                                    Anterior
+                                </Button>
+                                <Button
+                                    size="small"
+                                    onClick={() => table.nextPage()}
+                                    disabled={!table.getCanNextPage()}
+                                >
+                                    Siguiente
+                                </Button>
+                                <Button
+                                    size="small"
+                                    onClick={() => table.setPageIndex(table.getPageCount() - 1)}
+                                    disabled={!table.getCanNextPage()}
+                                >
+                                    Última
+                                </Button>
+                            </Stack>
+                        </Box>
                     </Paper>
 
                     {/* Diálogo Crear/Editar */}
