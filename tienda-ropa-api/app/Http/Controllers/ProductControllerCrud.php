@@ -62,7 +62,7 @@ class ProductControllerCrud extends Controller
                 'description' => 'required|string',
                 'category' => 'required|string|max:255',
                 'gender' => 'required|string|in:hombre,mujer,unisex',
-                'price' => 'required|numeric|min:0',
+                'price' => 'required|numeric|min:0.01',
                 'images' => 'nullable|array',
                 'images.*' => 'string',
                 'stocks' => 'required|array|min:1',
@@ -77,6 +77,7 @@ class ProductControllerCrud extends Controller
                 'gender.in' => 'El género debe ser: hombre, mujer o unisex',
                 'price.required' => 'El precio es obligatorio',
                 'price.numeric' => 'El precio debe ser un número',
+                'price.min' => 'El precio debe ser mayor a 0',
                 'stocks.required' => 'Debe agregar al menos una variación de stock',
                 'stocks.min' => 'Debe agregar al menos una variación de stock'
             ]);
@@ -166,7 +167,7 @@ class ProductControllerCrud extends Controller
                 'description' => 'required|string',
                 'category' => 'required|string|max:255',
                 'gender' => 'required|string|in:hombre,mujer,unisex',
-                'price' => 'required|numeric|min:0',
+                'price' => 'required|numeric|min:0.01',
                 'images' => 'nullable|array',
                 'images.*' => 'string',
                 'stocks' => 'required|array|min:1',
@@ -181,6 +182,7 @@ class ProductControllerCrud extends Controller
                 'gender.in' => 'El género debe ser: hombre, mujer o unisex',
                 'price.required' => 'El precio es obligatorio',
                 'price.numeric' => 'El precio debe ser un número',
+                'price.min' => 'El precio debe ser mayor a 0',
                 'stocks.required' => 'Debe agregar al menos una variación de stock',
                 'stocks.min' => 'Debe agregar al menos una variación de stock'
             ]);

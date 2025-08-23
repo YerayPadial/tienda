@@ -14,8 +14,33 @@ class SizeController extends Controller
 
     public function store(Request $request)
     {
-        $size = Size::create($request->all());
-        return response()->json($size, 201);
+        try {
+            $validatedData = $request->validate([
+                'name' => 'required|string|max:50|unique:sizes,name',
+            ], [
+                'name.required' => 'El nombre de la talla es obligatorio',
+                'name.string' => 'El nombre debe ser una cadena de texto',
+                'name.max' => 'El nombre no puede exceder 50 caracteres',
+                'name.unique' => 'Ya existe una talla con este nombre',
+            ]);
+
+            $size = Size::create($validatedData);
+
+            return response()->json([
+                'data' => $size,
+                'message' => 'Talla creada exitosamente'
+            ], 201);
+        } catch (\Illuminate\Validation\ValidationException $e) {
+            return response()->json([
+                'message' => 'Error de validación',
+                'errors' => $e->errors()
+            ], 422);
+        } catch (\Exception $e) {
+            return response()->json([
+                'message' => 'Error al crear la talla',
+                'error' => $e->getMessage()
+            ], 500);
+        }
     }
 
     public function show(Size $size)

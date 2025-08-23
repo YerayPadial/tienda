@@ -340,12 +340,32 @@ export const getSizes = async () => {
   }
 }
 
+export const createSize = async (data: { name: string }) => {
+  try {
+    const response = await api.post('/admin/sizes', data)
+    return response.data
+  } catch (error) {
+    console.error('Error in createSize:', error)
+    throw error
+  }
+}
+
 export const getColors = async () => {
   try {
     const response = await api.get('/colors')
     return response.data
   } catch (error) {
     console.error('Error in getColors:', error)
+    throw error
+  }
+}
+
+export const createColor = async (data: { name: string; hex?: string }) => {
+  try {
+    const response = await api.post('/admin/colors', data)
+    return response.data
+  } catch (error) {
+    console.error('Error in createColor:', error)
     throw error
   }
 }

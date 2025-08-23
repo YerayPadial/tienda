@@ -63,7 +63,9 @@ import {
     deleteProduct,
     getSizes,
     getColors,
-    getProduct
+    getProduct,
+    createSize,
+    createColor
 } from '../services/api'
 
 type Size = { id: number; name: string }
@@ -123,6 +125,15 @@ export default function Products() {
     const [editingProduct, setEditingProduct] = useState<Product | null>(null)
     const [deleteId, setDeleteId] = useState<number | null>(null)
     const [deleteDialog, setDeleteDialog] = useState(false)
+
+    // Estados para crear tallas y colores
+    const [openSizeDialog, setOpenSizeDialog] = useState(false)
+    const [openColorDialog, setOpenColorDialog] = useState(false)
+    const [newSizeName, setNewSizeName] = useState('')
+    const [newColorName, setNewColorName] = useState('')
+    const [newColorHex, setNewColorHex] = useState('#000000')
+    const [sizeError, setSizeError] = useState<string | null>(null)
+    const [colorError, setColorError] = useState<string | null>(null)
 
     // Estados de la tabla
     const [sorting, setSorting] = useState<SortingState>([])
@@ -409,6 +420,39 @@ export default function Products() {
         setDeleteDialog(true)
     }
 
+    // Abrir diálogo de crear talla
+    const handleOpenSizeDialog = () => {
+        setNewSizeName('')
+        setSizeError(null)
+        setOpenSizeDialog(true)
+    }
+
+    // Abrir diálogo de crear color
+    const handleOpenColorDialog = () => {
+        setNewColorName('')
+        setNewColorHex('#000000')
+        setColorError(null)
+        setOpenColorDialog(true)
+    }
+
+    // Manejar cambio en nombre de talla
+    const handleSizeNameChange = (value: string) => {
+        setNewSizeName(value)
+        if (sizeError) setSizeError(null) 
+    }
+
+    // Manejar cambio en nombre de color
+    const handleColorNameChange = (value: string) => {
+        setNewColorName(value)
+        if (colorError) setColorError(null) 
+    }
+
+    // Manejar cambio en hex de color
+    const handleColorHexChange = (value: string) => {
+        setNewColorHex(value)
+        if (colorError) setColorError(null) 
+    }
+
     // Submit
     const onSubmit = async (data: ProductFormData) => {
         setLoading(true)
@@ -453,6 +497,109 @@ export default function Products() {
             setDeleteDialog(false)
         } catch (err: any) {
             setError('Error al eliminar el producto')
+        }
+        setLoading(false)
+    }
+
+    // Crear nueva talla
+    const handleCreateSize = async () => {
+        if (!newSizeName.trim()) {
+            setSizeError('El nombre de la talla es obligatorio')
+            return
+        }
+
+        // Validar que no existe ya la talla
+        const existingSize = sizes.find(size =>
+            size.name.toLowerCase().trim() === newSizeName.toLowerCase().trim()
+        )
+        if (existingSize) {
+            setSizeError('Ya existe una talla con este nombre')
+            return
+        }
+
+        setLoading(true)
+        setSizeError(null)
+        setError(null)
+        try {
+            const response = await createSize({ name: newSizeName.trim() })
+            const newSize = response.data || response
+            setSizes(prev => [...prev, newSize])
+            setSuccess('Talla creada correctamente')
+            setNewSizeName('')
+            setOpenSizeDialog(false)
+        } catch (err: any) {
+            console.error('Error creating size:', err)
+            // Manejar diferentes tipos de errores
+            if (err.response?.status === 422 && err.response?.data?.errors) {
+                const errors = err.response.data.errors
+                if (errors.name && errors.name[0]) {
+                    setSizeError(errors.name[0])
+                } else {
+                    setSizeError('Error de validación en el formulario')
+                }
+            } else if (err.response?.data?.message) {
+                setSizeError(err.response.data.message)
+            } else {
+                setSizeError('Error al crear la talla. Intenta de nuevo.')
+            }
+        }
+        setLoading(false)
+    }
+
+    // Crear nuevo color
+    const handleCreateColor = async () => {
+        if (!newColorName.trim()) {
+            setColorError('El nombre del color es obligatorio')
+            return
+        }
+
+        // Validar que no existe ya el color
+        const existingColor = colors.find(color =>
+            color.name.toLowerCase().trim() === newColorName.toLowerCase().trim()
+        )
+        if (existingColor) {
+            setColorError('Ya existe un color con este nombre')
+            return
+        }
+
+        // Validar formato del color hex
+        const hexPattern = /^#[a-fA-F0-9]{6}$/
+        if (newColorHex && !hexPattern.test(newColorHex)) {
+            setColorError('El código de color debe tener el formato #RRGGBB')
+            return
+        }
+
+        setLoading(true)
+        setColorError(null)
+        setError(null)
+        try {
+            const response = await createColor({
+                name: newColorName.trim(),
+                hex: newColorHex
+            })
+            const newColor = response.data || response
+            setColors(prev => [...prev, newColor])
+            setSuccess('Color creado correctamente')
+            setNewColorName('')
+            setNewColorHex('#000000')
+            setOpenColorDialog(false)
+        } catch (err: any) {
+            console.error('Error creating color:', err)
+            // Manejar diferentes tipos de errores
+            if (err.response?.status === 422 && err.response?.data?.errors) {
+                const errors = err.response.data.errors
+                if (errors.name && errors.name[0]) {
+                    setColorError(errors.name[0])
+                } else if (errors.hex && errors.hex[0]) {
+                    setColorError(errors.hex[0])
+                } else {
+                    setColorError('Error de validación en el formulario')
+                }
+            } else if (err.response?.data?.message) {
+                setColorError(err.response.data.message)
+            } else {
+                setColorError('Error al crear el color. Intenta de nuevo.')
+            }
         }
         setLoading(false)
     }
@@ -772,7 +919,13 @@ export default function Products() {
                                 <Controller
                                     name="price"
                                     control={control}
-                                    rules={{ required: 'El precio es obligatorio', min: 0 }}
+                                    rules={{
+                                        required: 'El precio es obligatorio',
+                                        min: {
+                                            value: 0.01,
+                                            message: 'El precio debe ser mayor a 0'
+                                        }
+                                    }}
                                     render={({ field }) => (
                                         <TextField
                                             {...field}
@@ -782,7 +935,10 @@ export default function Products() {
                                             helperText={errors.price?.message}
                                             fullWidth
                                             slotProps={{
-                                                htmlInput: { step: 0.01 }
+                                                htmlInput: {
+                                                    step: 0.01,
+                                                    min: 0
+                                                }
                                             }}
                                         />
                                     )}
@@ -804,41 +960,74 @@ export default function Products() {
                             <Typography variant="h6">Stock por talla y color</Typography>
                             {stockFields.map((field, index) => (
                                 <Stack key={field.id} direction="row" spacing={2} alignItems="center">
-                                    <Controller
-                                        name={`stocks.${index}.size_id`}
-                                        control={control}
-                                        rules={{ required: 'Selecciona una talla' }}
-                                        render={({ field }) => (
-                                            <FormControl sx={{ minWidth: 120 }}>
-                                                <InputLabel>Talla</InputLabel>
-                                                <Select {...field} label="Talla">
-                                                    {sizes.map((size) => (
-                                                        <MenuItem key={size.id} value={size.id}>
-                                                            {size.name}
-                                                        </MenuItem>
-                                                    ))}
-                                                </Select>
-                                            </FormControl>
-                                        )}
-                                    />
+                                    <Stack direction="row" spacing={1} alignItems="center">
+                                        <IconButton
+                                            size="small"
+                                            color="primary"
+                                            onClick={handleOpenSizeDialog}
+                                            title="Crear nueva talla"
+                                        >
+                                            <Add fontSize="small" />
+                                        </IconButton>
+                                        <Controller
+                                            name={`stocks.${index}.size_id`}
+                                            control={control}
+                                            rules={{ required: 'Selecciona una talla' }}
+                                            render={({ field }) => (
+                                                <FormControl sx={{ minWidth: 120 }}>
+                                                    <InputLabel>Talla</InputLabel>
+                                                    <Select {...field} label="Talla">
+                                                        {sizes.map((size) => (
+                                                            <MenuItem key={size.id} value={size.id}>
+                                                                {size.name}
+                                                            </MenuItem>
+                                                        ))}
+                                                    </Select>
+                                                </FormControl>
+                                            )}
+                                        />
+                                    </Stack>
 
-                                    <Controller
-                                        name={`stocks.${index}.color_id`}
-                                        control={control}
-                                        rules={{ required: 'Selecciona un color' }}
-                                        render={({ field }) => (
-                                            <FormControl sx={{ minWidth: 120 }}>
-                                                <InputLabel>Color</InputLabel>
-                                                <Select {...field} label="Color">
-                                                    {colors.map((color) => (
-                                                        <MenuItem key={color.id} value={color.id}>
-                                                            {color.name}
-                                                        </MenuItem>
-                                                    ))}
-                                                </Select>
-                                            </FormControl>
-                                        )}
-                                    />
+                                    <Stack direction="row" spacing={1} alignItems="center">
+                                        <IconButton
+                                            size="small"
+                                            color="primary"
+                                            onClick={handleOpenColorDialog}
+                                            title="Crear nuevo color"
+                                        >
+                                            <Add fontSize="small" />
+                                        </IconButton>
+                                        <Controller
+                                            name={`stocks.${index}.color_id`}
+                                            control={control}
+                                            rules={{ required: 'Selecciona un color' }}
+                                            render={({ field }) => (
+                                                <FormControl sx={{ minWidth: 120 }}>
+                                                    <InputLabel>Color</InputLabel>
+                                                    <Select {...field} label="Color">
+                                                        {colors.map((color) => (
+                                                            <MenuItem key={color.id} value={color.id}>
+                                                                <Stack direction="row" spacing={1} alignItems="center">
+                                                                    {color.hex && (
+                                                                        <Box
+                                                                            sx={{
+                                                                                width: 16,
+                                                                                height: 16,
+                                                                                backgroundColor: color.hex,
+                                                                                border: '1px solid #ccc',
+                                                                                borderRadius: '2px'
+                                                                            }}
+                                                                        />
+                                                                    )}
+                                                                    <Typography>{color.name}</Typography>
+                                                                </Stack>
+                                                            </MenuItem>
+                                                        ))}
+                                                    </Select>
+                                                </FormControl>
+                                            )}
+                                        />
+                                    </Stack>
 
                                     <Controller
                                         name={`stocks.${index}.stock`}
@@ -907,6 +1096,95 @@ export default function Products() {
                         disabled={loading}
                     >
                         Eliminar
+                    </Button>
+                </DialogActions>
+            </Dialog>
+
+            {/* Dialogo crear talla */}
+            <Dialog open={openSizeDialog} onClose={() => setOpenSizeDialog(false)}>
+                <DialogTitle>Crear nueva talla</DialogTitle>
+                <DialogContent>
+                    {sizeError && (
+                        <Alert severity="error" sx={{ mb: 2 }}>
+                            {sizeError}
+                        </Alert>
+                    )}
+                    <TextField
+                        autoFocus
+                        margin="dense"
+                        label="Nombre de la talla"
+                        fullWidth
+                        variant="outlined"
+                        value={newSizeName}
+                        onChange={(e) => handleSizeNameChange(e.target.value)}
+                        placeholder="Ej: XS, S, M, L, XL, 36, 38, 40..."
+                        error={!!sizeError}
+                        sx={{ mt: 2 }}
+                    />
+                </DialogContent>
+                <DialogActions>
+                    <Button onClick={() => setOpenSizeDialog(false)}>Cancelar</Button>
+                    <Button
+                        onClick={handleCreateSize}
+                        variant="contained"
+                        disabled={loading || !newSizeName.trim()}
+                    >
+                        {loading ? 'Creando...' : 'Crear talla'}
+                    </Button>
+                </DialogActions>
+            </Dialog>
+
+            {/* Dialogo crear color */}
+            <Dialog open={openColorDialog} onClose={() => setOpenColorDialog(false)}>
+                <DialogTitle>Crear nuevo color</DialogTitle>
+                <DialogContent>
+                    {colorError && (
+                        <Alert severity="error" sx={{ mb: 2 }}>
+                            {colorError}
+                        </Alert>
+                    )}
+                    <Stack spacing={2} sx={{ mt: 2 }}>
+                        <TextField
+                            autoFocus
+                            label="Nombre del color"
+                            fullWidth
+                            variant="outlined"
+                            value={newColorName}
+                            onChange={(e) => handleColorNameChange(e.target.value)}
+                            placeholder="Ej: Rojo, Azul marino, Negro..."
+                            error={!!colorError}
+                        />
+                        <Stack direction="row" spacing={2} alignItems="center">
+                            <TextField
+                                label="Color (hex)"
+                                type="color"
+                                value={newColorHex}
+                                onChange={(e) => handleColorHexChange(e.target.value)}
+                                sx={{ width: 100 }}
+                            />
+                            <Box
+                                sx={{
+                                    width: 40,
+                                    height: 40,
+                                    backgroundColor: newColorHex,
+                                    border: '1px solid #ccc',
+                                    borderRadius: 1
+                                }}
+                            />
+                            <Typography variant="body2" color="textSecondary">
+                                Vista previa del color
+                            </Typography>
+                        </Stack>
+                    </Stack>
+                </DialogContent>
+                <DialogActions>
+                    <Button onClick={() => setOpenColorDialog(false)}>Cancelar</Button>
+                    <Button
+                        onClick={handleCreateColor}
+                        variant="contained"
+                        disabled={loading || !newColorName.trim()}
+                    >
+                        {loading ? 'Creando...' : 'Crear color'}
                     </Button>
                 </DialogActions>
             </Dialog>

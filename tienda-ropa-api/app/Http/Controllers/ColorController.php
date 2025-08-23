@@ -14,8 +14,35 @@ class ColorController extends Controller
 
     public function store(Request $request)
     {
-        $color = Color::create($request->all());
-        return response()->json($color, 201);
+        try {
+            $validatedData = $request->validate([
+                'name' => 'required|string|max:50|unique:colors,name',
+                'hex' => 'nullable|string|regex:/^#[a-fA-F0-9]{6}$/',
+            ], [
+                'name.required' => 'El nombre del color es obligatorio',
+                'name.string' => 'El nombre debe ser una cadena de texto',
+                'name.max' => 'El nombre no puede exceder 50 caracteres',
+                'name.unique' => 'Ya existe un color con este nombre',
+                'hex.regex' => 'El código hexadecimal debe tener el formato #RRGGBB',
+            ]);
+
+            $color = Color::create($validatedData);
+
+            return response()->json([
+                'data' => $color,
+                'message' => 'Color creado exitosamente'
+            ], 201);
+        } catch (\Illuminate\Validation\ValidationException $e) {
+            return response()->json([
+                'message' => 'Error de validación',
+                'errors' => $e->errors()
+            ], 422);
+        } catch (\Exception $e) {
+            return response()->json([
+                'message' => 'Error al crear el color',
+                'error' => $e->getMessage()
+            ], 500);
+        }
     }
 
     public function show(Color $color)
