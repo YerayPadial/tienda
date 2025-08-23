@@ -56,13 +56,33 @@ const OrderDetail: React.FC = () => {
                 {order.shipping_type === 'domicilio' && (
                     <div className="mb-4">
                         <span className="font-semibold">Datos de envío: </span>
-                        {order.shipping_data && typeof order.shipping_data === 'object' ?
+                        {order.shipping_data && typeof order.shipping_data === 'object' ? (
                             <ul className="list-disc ml-6">
-                                {Object.entries(order.shipping_data).map(([key, value]) => (
-                                    <li key={key}><span className="font-bold">{key}:</span> {String(value)}</li>
-                                ))}
+                                {Object.entries(order.shipping_data)
+                                    .filter(([, value]) => value !== null && value !== undefined && value !== '')
+                                    .map(([key, value]) => {
+                                        // Mapear nombres técnicos a nombres amigables
+                                        const fieldNames: { [key: string]: string } = {
+                                            address: 'Dirección',
+                                            city: 'Ciudad',
+                                            postal_code: 'Código postal',
+                                            province: 'Provincia',
+                                            phone: 'Teléfono',
+                                            notes: 'Notas'
+                                        }
+
+                                        const displayName = fieldNames[key] || key
+
+                                        return (
+                                            <li key={key}>
+                                                <span className="font-bold">{displayName}:</span> {String(value)}
+                                            </li>
+                                        )
+                                    })}
                             </ul>
-                            : <span>No disponible</span>}
+                        ) : (
+                            <span>No disponible</span>
+                        )}
                     </div>
                 )}
                 <div className="border-t border-b py-4 my-4">
@@ -80,7 +100,7 @@ const OrderDetail: React.FC = () => {
                                     {item.color && <span className="text-xs ml-2 text-gray-500">Color: {item.color.name}</span>}
                                 </div>
                                 <span className="font-medium">
-                                    ${item.product?.price ? Number(item.product.price).toFixed(2) : '--'}
+                                    {item.product?.price ? Number(item.product.price).toFixed(2) : '--'}€
                                 </span>
                             </div>
                         ))}
@@ -89,10 +109,9 @@ const OrderDetail: React.FC = () => {
                 <div className="flex items-center gap-2 mb-2">
                     <FaCreditCard className="text-gray-500" />
                     <span className="text-xl font-bold text-gray-800">
-                        Total: $
-                        {order.items.reduce(
+                        Total: {order.items.reduce(
                             (total: number, item: any) => total + ((item.product?.price ?? 0) * item.quantity), 0
-                        ).toFixed(2)}
+                        ).toFixed(2)}€
                     </span>
                 </div>
             </div>

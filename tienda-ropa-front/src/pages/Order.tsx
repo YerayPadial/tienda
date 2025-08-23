@@ -8,7 +8,7 @@ const getStatusColor = (status: string) => {
   switch (status) {
     case 'Entregado':
       return 'text-green-600 bg-green-100'
-    case 'En camino':
+    case 'Enviado':
       return 'text-blue-600 bg-blue-100'
     case 'Procesando':
       return 'text-yellow-600 bg-yellow-100'
@@ -112,7 +112,7 @@ const Order: React.FC = () => {
                         {item.color && <span className="text-xs ml-2 text-gray-500">Color: {item.color.name}</span>}
                       </div>
                       <span className="font-medium">
-                        ${item.product?.price ? Number(item.product.price).toFixed(2) : '--'}
+                        {item.product?.price ? Number(item.product.price).toFixed(2) : '--'}€
                       </span>
                     </div>
                   ))}
@@ -124,7 +124,7 @@ const Order: React.FC = () => {
                 <div className="flex items-center gap-2 mb-2 sm:mb-0">
                   <FaCreditCard className="text-gray-500" />
                   <span className="text-xl font-bold text-gray-800">
-                    Total: ${order.items.reduce((total: number, item: any) => total + ((item.product?.price ?? 0) * item.quantity), 0).toFixed(2)}
+                    Total: {order.items.reduce((total: number, item: any) => total + ((item.product?.price ?? 0) * item.quantity), 0).toFixed(2)}€
                   </span>
                 </div>
                 <div className="flex gap-2">

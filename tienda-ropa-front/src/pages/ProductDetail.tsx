@@ -132,7 +132,7 @@ const ProductDetail: React.FC = () => {
             />
             <h1 className="text-2xl font-bold">{product.name}</h1>
             <p className="text-gray-700 mb-2">{product.description}</p>
-            <p className="text-xl font-bold text-blue-600 mb-4">${product.price}</p>
+            <p className="text-xl font-bold text-blue-600 mb-4">{product.price}€</p>
 
             {/* Tallas */}
             {product.sizes.length > 1 && (

@@ -11,7 +11,7 @@ Falta:
     - Usuarios              terminado
     - Trabajadores          terminado
     - Login                 terminado
-    - Productos             mejorar (Creacion de tallas y colores/ validar precios mayor a 0)
+    - Productos             terminado
     - Pedidos               terminado
 
 2. Frontend compra
@@ -19,7 +19,7 @@ Falta:
     - Carrito
     - Apartado pago
     - Filtros y buscador tienda
-    - ProductDetail con carrusel de fotos si hay mas de una imagen
-    - Si algun campo de orders viene vacio no mostrarlo en Order Detail
-    - Cambiar valores de dolares a euros y detras de la cifras
-    - Cambiar campos de Order detail de nombres de backend a limpios para front
+    - ProductDetail con carrusel de fotos si hay mas de una imagen    !
+    - Si algun campo de orders viene vacio no mostrarlo en Order Detail !  TERMINADO
+    - Cambiar valores de dolares a euros y detras de la cifras !  TERMINADO
+    - Cambiar campos de Order detail de nombres de backend a limpios para front !
