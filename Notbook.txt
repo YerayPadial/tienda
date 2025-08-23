@@ -18,8 +18,8 @@ Falta:
 
     - Carrito
     - Apartado pago
-    - Filtros y buscador tienda
+    - Filtros y buscador tienda !
     - ProductDetail con carrusel de fotos si hay mas de una imagen    !
     - Si algun campo de orders viene vacio no mostrarlo en Order Detail !  TERMINADO
     - Cambiar valores de dolares a euros y detras de la cifras !  TERMINADO
-    - Cambiar campos de Order detail de nombres de backend a limpios para front !
+    - Cambiar campos de Order detail a limpios para front ! TERMINADO

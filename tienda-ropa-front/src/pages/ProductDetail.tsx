@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react'
 import { useParams, useNavigate } from 'react-router-dom'
-import { FaArrowLeft } from 'react-icons/fa'
+import { FaArrowLeft, FaChevronLeft, FaChevronRight } from 'react-icons/fa'
 import { fetchProductDetail } from '../services/api'
 
 const ProductDetail: React.FC = () => {
@@ -11,6 +11,9 @@ const ProductDetail: React.FC = () => {
     const [selectedColor, setSelectedColor] = useState<string | null>(null)
     const [stock, setStock] = useState<number>(0)
     const [error, setError] = useState('')
+    const [currentImageIndex, setCurrentImageIndex] = useState(0)
+    const [touchStart, setTouchStart] = useState<number | null>(null)
+    const [touchEnd, setTouchEnd] = useState<number | null>(null)
 
     useEffect(() => {
         if (id) {
@@ -19,6 +22,78 @@ const ProductDetail: React.FC = () => {
                 .catch(() => setError('Error al cargar el producto'))
         }
     }, [id])
+
+    // Funciones para el carrusel de imágenes
+    const nextImage = () => {
+        if (product && product.images && product.images.length > 1) {
+            setCurrentImageIndex((prevIndex) =>
+                prevIndex === product.images.length - 1 ? 0 : prevIndex + 1
+            )
+        }
+    }
+
+    const prevImage = () => {
+        if (product && product.images && product.images.length > 1) {
+            setCurrentImageIndex((prevIndex) =>
+                prevIndex === 0 ? product.images.length - 1 : prevIndex - 1
+            )
+        }
+    }
+
+    const goToImage = (index: number) => {
+        setCurrentImageIndex(index)
+    }
+
+    // Funciones para manejar el deslizamiento táctil
+    const minSwipeDistance = 50
+
+    const onTouchStart = (e: React.TouchEvent) => {
+        setTouchEnd(null)
+        setTouchStart(e.targetTouches[0].clientX)
+    }
+
+    const onTouchMove = (e: React.TouchEvent) => {
+        setTouchEnd(e.targetTouches[0].clientX)
+    }
+
+    const onTouchEnd = () => {
+        if (!touchStart || !touchEnd) return
+
+        const distance = touchStart - touchEnd
+        const isLeftSwipe = distance > minSwipeDistance
+        const isRightSwipe = distance < -minSwipeDistance
+
+        if (product && product.images && product.images.length > 1) {
+            if (isLeftSwipe) {
+                nextImage()
+            } else if (isRightSwipe) {
+                prevImage()
+            }
+        }
+    }
+
+    // Resetear índice de imagen cuando cambie el producto
+    useEffect(() => {
+        setCurrentImageIndex(0)
+    }, [product])
+
+    // Navegación con teclado para el carrusel
+    useEffect(() => {
+        const handleKeyDown = (event: KeyboardEvent) => {
+            if (product && product.images && product.images.length > 1) {
+                if (event.key === 'ArrowLeft') {
+                    event.preventDefault()
+                    prevImage()
+                } else if (event.key === 'ArrowRight') {
+                    event.preventDefault()
+                    nextImage()
+                }
+            }
+        }
+
+        window.addEventListener('keydown', handleKeyDown)
+        return () => window.removeEventListener('keydown', handleKeyDown)
+    }, [product, currentImageIndex])
 
     // Funciones auxiliares para determinar disponibilidad
     const getSizeAvailability = (sizeId: string) => {
@@ -122,14 +197,65 @@ const ProductDetail: React.FC = () => {
                 Volver a productos
             </button>
 
-            <img
-                src={product.images && product.images.length > 0 ? product.images[0] : '/placeholder-image.jpg'}
-                alt={product.name}
-                className="w-full h-64 object-cover mb-4"
-                onError={(e: any) => {
-                    e.target.src = 'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNDAwIiBoZWlnaHQ9IjI1NiIgdmlld0JveD0iMCAwIDQwMCAyNTYiIGZpbGw9Im5vbmUiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+CjxyZWN0IHdpZHRoPSI0MDAiIGhlaWdodD0iMjU2IiBmaWxsPSIjRTVFN0VCIi8+CjxwYXRoIGQ9Ik0yMDAgMTUwQzE5MC41IDE1MCAyMDAgMTM4LjggMjAwIDEzMkMyMDAgMTI1LjIgMTkwLjUgMTIwIDIwMCAxMjBDMjA5LjUgMTIwIDIyMCAxMjUuMiAyMjAgMTMyQzIyMCAxMzguOCAyMDkuNSAxNTAgMjAwIDE1MFpNMjAwIDE3MEMxODAuMiAxNzAgMTYwIDE2MC41IDE2MCA2MEMxNjAgMTQzLjUgMTgwLjIgMTMwIDIwMCAxMzBDMjE5LjggMTMwIDI0MCAxNDMuNSAyNDAgMTYwQzI0MCAxNjAuNSAyMTkuOCAxNzAgMjAwIDE3MFoiIGZpbGw9IiM5QzlDQTMiLz4KPC9zdmc+Cg=='
-                }}
-            />
+            {/* Carrusel de imágenes */}
+            <div className="relative mb-4 group">
+                <div
+                    className="w-full h-64 overflow-hidden rounded-lg bg-gray-200 select-none"
+                    onTouchStart={onTouchStart}
+                    onTouchMove={onTouchMove}
+                    onTouchEnd={onTouchEnd}
+                >
+                    <img
+                        src={product.images && product.images.length > 0 ? product.images[currentImageIndex] : '/placeholder-image.jpg'}
+                        alt={`${product.name} - Imagen ${currentImageIndex + 1}`}
+                        className="w-full h-full object-cover transition-opacity duration-300 pointer-events-none"
+                        onError={(e: any) => {
+                            e.target.src = 'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNDAwIiBoZWlnaHQ9IjI1NiIgdmlld0JveD0iMCAwIDQwMCAyNTYiIGZpbGw9Im5vbmUiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+CjxyZWN0IHdpZHRoPSI0MDAiIGhlaWdodD0iMjU2IiBmaWxsPSIjRTVFN0VCIi8+CjxwYXRoIGQ9Ik0yMDAgMTUwQzE5MC41IDE1MCAyMDAgMTM4LjggMjAwIDEzMkMyMDAgMTI1LjIgMTkwLjUgMTIwIDIwMCAxMjBDMjA5LjUgMTIwIDIyMCAxMjUuMiAyMjAgMTMyQzIyMCAxMzguOCAyMDkuNSAxNTAgMjAwIDE1MFpNMjAwIDE3MEMxODAuMiAxNzAgMTYwIDE2MC41IDE2MCA2MEMxNjAgMTQzLjUgMTgwLjIgMTMwIDIwMCAxMzBDMjE5LjggMTMwIDI0MCAxNDMuNSAyNDAgMTYwQzI0MCAxNjAuNSAyMTkuOCAxNzAgMjAwIDE3MFoiIGZpbGw9IiM5QzlDQTMiLz4KPC9zdmc+Cg=='
+                        }}
+                    />
+                </div>
+
+                {/* Flechas de navegación (solo si hay más de una imagen) */}
+                {product && product.images && product.images.length > 1 && (
+                    <>
+                        <button
+                            onClick={prevImage}
+                            className="absolute left-2 top-1/2 transform -translate-y-1/2 bg-black bg-opacity-50 text-white p-2 rounded-full opacity-0 group-hover:opacity-100 transition-opacity duration-300 hover:bg-opacity-70"
+                        >
+                            <FaChevronLeft size={16} />
+                        </button>
+                        <button
+                            onClick={nextImage}
+                            className="absolute right-2 top-1/2 transform -translate-y-1/2 bg-black bg-opacity-50 text-white p-2 rounded-full opacity-0 group-hover:opacity-100 transition-opacity duration-300 hover:bg-opacity-70"
+                        >
+                            <FaChevronRight size={16} />
+                        </button>
+                    </>
+                )}
+
+                {/* Indicadores de imagen (solo si hay más de una imagen) */}
+                {product && product.images && product.images.length > 1 && (
+                    <div className="absolute bottom-4 left-1/2 transform -translate-x-1/2 flex space-x-2">
+                        {product.images.map((_: any, index: number) => (
+                            <button
+                                key={index}
+                                onClick={() => goToImage(index)}
+                                className={`w-3 h-3 rounded-full transition-all duration-300 ${index === currentImageIndex
+                                    ? 'bg-white shadow-lg'
+                                    : 'bg-white bg-opacity-50 hover:bg-opacity-75'
+                                    }`}
+                            />
+                        ))}
+                    </div>
+                )}
+
+                {/* Contador de imágenes */}
+                {product && product.images && product.images.length > 1 && (
+                    <div className="absolute top-4 right-4 bg-black bg-opacity-50 text-white px-2 py-1 rounded text-sm">
+                        {currentImageIndex + 1} / {product.images.length}
+                    </div>
+                )}
+            </div>
             <h1 className="text-2xl font-bold">{product.name}</h1>
             <p className="text-gray-700 mb-2">{product.description}</p>
             <p className="text-xl font-bold text-blue-600 mb-4">{product.price}€</p>
@@ -250,25 +376,24 @@ const ProductDetail: React.FC = () => {
                     const needsSize = product.sizes.length > 1
                     const needsColor = product.colors.length > 1
                     const allSelected = (!needsSize || selectedSize) && (!needsColor || selectedColor)
-                    const NoSelected = (selectedSize && !selectedColor) || (!selectedSize && selectedColor)
-                    if (NoSelected) {
-                        if (!allSelected) {
-                            const missing = []
-                            if (needsSize && !selectedSize) missing.push('talla')
-                            if (needsColor && !selectedColor) missing.push('color')
 
-                            return (
-                                <span className="text-amber-600 italic">
-                                    Selecciona {missing.join(' y ')} para ver el stock disponible
-                                </span>
-                            )
-                        } else {
-                            return (
-                                <span>
-                                    <span className="font-semibold">Stock disponible:</span> {stock}
-                                </span>
-                            )
-                        }
+                    if (!allSelected) {
+                        const missing = []
+                        if (needsSize && !selectedSize) missing.push('talla')
+                        if (needsColor && !selectedColor) missing.push('color')
+
+                        return (
+                            <span className="flex items-center gap-2 text-gray-500 text-sm bg-gray-100 rounded px-2 py-1">
+                                <svg width="16" height="16" fill="none" viewBox="0 0 24 24"><path d="M12 17v.01M12 7a5 5 0 0 1 5 5c0 2.5-2.5 4-5 4s-5-1.5-5-4a5 5 0 0 1 5-5Zm0 0V4m0 13v3" stroke="#6B7280" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" /></svg>
+                                Selecciona {missing.join(' y ')} para ver el stock disponible
+                            </span>
+                        )
+                    } else {
+                        return (
+                            <span>
+                                <span className="font-semibold">Stock disponible:</span> {stock}
+                            </span>
+                        )
                     }
                 })()}
             </div>
