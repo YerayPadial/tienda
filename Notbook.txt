@@ -8,11 +8,11 @@ Falta:
 
 1. Panel administrativo
 
-    - Usuarios              mejorar (estetica table de productos y empleados)
+    - Usuarios              terminado
     - Trabajadores          terminado
     - Login                 terminado
     - Productos             mejorar (Creacion de tallas y colores/ validar precios mayor a 0)
-    - Pedidos               mejorar (estetica table de productos y empleados / Validaciones de campos como direccion, telefono, ciudad, provincia,codigo postal, excepto notas adicionales)
+    - Pedidos               terminado
 
 2. Frontend compra
 
@@ -20,3 +20,6 @@ Falta:
     - Apartado pago
     - Filtros y buscador tienda
     - ProductDetail con carrusel de fotos si hay mas de una imagen
+    - Si algun campo de orders viene vacio no mostrarlo en Order Detail
+    - Cambiar valores de dolares a euros y detras de la cifras
+    - Cambiar campos de Order detail de nombres de backend a limpios para front

@@ -113,8 +113,102 @@ class OrderControllerCrud extends Controller
 
     public function store(Request $request)
     {
-        $order = Order::create($request->all());
-        return response()->json($order, 201);
+        try {
+            // Validación base
+            $rules = [
+                'user_id' => 'required|exists:users,id',
+                'status' => 'sometimes|string|in:pendiente,procesando,enviado,entregado',
+                'shipping_type' => 'required|string|in:domicilio,recogida',
+                'shipping_data' => 'sometimes|array',
+                'payment_completed' => 'sometimes|boolean',
+                'items' => 'required|array|min:1',
+                'items.*.product_id' => 'required|exists:products,id',
+                'items.*.quantity' => 'required|integer|min:1',
+                'items.*.size_id' => 'nullable|exists:sizes,id',
+                'items.*.color_id' => 'nullable|exists:colors,id',
+            ];
+
+            $messages = [
+                'user_id.required' => 'El usuario es obligatorio',
+                'user_id.exists' => 'El usuario no existe',
+                'status.in' => 'El estado debe ser: pendiente, procesando, enviado o entregado',
+                'shipping_type.required' => 'El tipo de envío es obligatorio',
+                'shipping_type.in' => 'El tipo de envío debe ser: domicilio o recogida',
+                'items.required' => 'Los artículos son obligatorios',
+                'items.min' => 'Debe haber al menos un artículo',
+                'items.*.product_id.required' => 'El producto es obligatorio',
+                'items.*.product_id.exists' => 'El producto no existe',
+                'items.*.quantity.required' => 'La cantidad es obligatoria',
+                'items.*.quantity.min' => 'La cantidad debe ser mayor a 0',
+            ];
+
+            // Si el tipo de envío es domicilio, validar campos de envío
+            if ($request->input('shipping_type') === 'domicilio') {
+                $rules = array_merge($rules, [
+                    'shipping_data.address' => 'nullable|string|max:255',
+                    'shipping_data.city' => 'nullable|string|max:100',
+                    'shipping_data.postal_code' => 'nullable|string|max:10',
+                    'shipping_data.province' => 'nullable|string|max:100',
+                    'shipping_data.phone' => 'nullable|string|max:20',
+                    'shipping_data.notes' => 'nullable|string|max:500',
+                ]);
+
+                $messages = array_merge($messages, [
+                    'shipping_data.address.max' => 'La dirección no puede exceder 255 caracteres',
+                    'shipping_data.city.max' => 'La ciudad no puede exceder 100 caracteres',
+                    'shipping_data.postal_code.max' => 'El código postal no puede exceder 10 caracteres',
+                    'shipping_data.province.max' => 'La provincia no puede exceder 100 caracteres',
+                    'shipping_data.phone.max' => 'El teléfono no puede exceder 20 caracteres',
+                    'shipping_data.notes.max' => 'Las notas no pueden exceder 500 caracteres',
+                ]);
+            }
+
+            $validatedData = $request->validate($rules, $messages);
+
+            // Si el tipo de envío es recogida, limpiar datos de envío
+            if ($validatedData['shipping_type'] === 'recogida') {
+                $validatedData['shipping_data'] = null;
+            }
+
+            // Crear el pedido
+            $order = Order::create([
+                'user_id' => $validatedData['user_id'],
+                'status' => $validatedData['status'] ?? 'pendiente',
+                'shipping_type' => $validatedData['shipping_type'],
+                'shipping_data' => $validatedData['shipping_data'],
+                'payment_completed' => $validatedData['payment_completed'] ?? false,
+            ]);
+
+            // Crear los artículos del pedido
+            foreach ($validatedData['items'] as $item) {
+                $order->items()->create([
+                    'product_id' => $item['product_id'],
+                    'quantity' => $item['quantity'],
+                    'size_id' => $item['size_id'] ?? null,
+                    'color_id' => $item['color_id'] ?? null,
+                ]);
+            }
+
+            // Cargar relaciones para la respuesta
+            $order->load(['items.product', 'items.size', 'items.color', 'user']);
+            $order->calculated_total = $order->formatted_total;
+            $order->items_count = $order->items->count();
+
+            return response()->json([
+                'data' => $order,
+                'message' => 'Pedido creado exitosamente'
+            ], 201);
+        } catch (\Illuminate\Validation\ValidationException $e) {
+            return response()->json([
+                'message' => 'Error de validación',
+                'errors' => $e->errors()
+            ], 422);
+        } catch (\Exception $e) {
+            return response()->json([
+                'message' => 'Error al crear el pedido',
+                'error' => $e->getMessage()
+            ], 500);
+        }
     }
 
     // Mostrar un pedido específico con todos sus detalles
@@ -169,14 +263,14 @@ class OrderControllerCrud extends Controller
 
             // Si el tipo de envío es domicilio, validar campos de envío
             $shippingType = $request->input('shipping_type', $order->shipping_type);
-            if ($shippingType === 'domicilio') {
+            if ($shippingType === 'domicilio' && $request->has('shipping_data') && $request->input('shipping_data') !== null) {
                 $rules = array_merge($rules, [
-                    'shipping_data.address' => 'sometimes|string|max:255',
-                    'shipping_data.city' => 'sometimes|string|max:100',
-                    'shipping_data.postal_code' => 'sometimes|string|max:10',
-                    'shipping_data.province' => 'sometimes|string|max:100',
-                    'shipping_data.phone' => 'sometimes|string|max:20',
-                    'shipping_data.notes' => 'sometimes|string|max:500',
+                    'shipping_data.address' => 'nullable|string|max:255',
+                    'shipping_data.city' => 'nullable|string|max:100',
+                    'shipping_data.postal_code' => 'nullable|string|max:10',
+                    'shipping_data.province' => 'nullable|string|max:100',
+                    'shipping_data.phone' => 'nullable|string|max:20',
+                    'shipping_data.notes' => 'nullable|string|max:500',
                 ]);
 
                 $messages = array_merge($messages, [

@@ -892,7 +892,18 @@ export default function OrderManagement() {
                                                     <Controller
                                                         name="shipping_data.address"
                                                         control={control}
-                                                        render={({ field }) => (
+                                                        rules={{
+                                                            required: shippingType === 'domicilio' ? 'La dirección es obligatoria' : false,
+                                                            minLength: {
+                                                                value: 6,
+                                                                message: 'La dirección debe tener al menos 6 caracteres'
+                                                            },
+                                                            maxLength: {
+                                                                value: 255,
+                                                                message: 'La dirección no puede exceder 255 caracteres'
+                                                            }
+                                                        }}
+                                                        render={({ field, fieldState }) => (
                                                             <TextField
                                                                 {...field}
                                                                 label="Dirección"
@@ -900,6 +911,9 @@ export default function OrderManagement() {
                                                                 multiline
                                                                 rows={2}
                                                                 placeholder="Calle, número, piso, puerta..."
+                                                                error={!!fieldState.error}
+                                                                helperText={fieldState.error?.message}
+                                                                required={shippingType === 'domicilio'}
                                                             />
                                                         )}
                                                     />
@@ -907,33 +921,86 @@ export default function OrderManagement() {
                                                         <Controller
                                                             name="shipping_data.city"
                                                             control={control}
-                                                            render={({ field }) => (
+                                                            rules={{
+                                                                required: shippingType === 'domicilio' ? 'La ciudad es obligatoria' : false,
+                                                                minLength: {
+                                                                    value: 2,
+                                                                    message: 'La ciudad debe tener al menos 2 caracteres'
+                                                                },
+                                                                maxLength: {
+                                                                    value: 50,
+                                                                    message: 'La ciudad no puede exceder 50 caracteres'
+                                                                },
+                                                                pattern: {
+                                                                    value: /^[a-zA-ZáéíóúÁÉÍÓÚñÑ\s-]+$/,
+                                                                    message: 'La ciudad solo puede contener letras, espacios y guiones'
+                                                                }
+                                                            }}
+                                                            render={({ field, fieldState }) => (
                                                                 <TextField
                                                                     {...field}
                                                                     label="Ciudad"
                                                                     fullWidth
+                                                                    error={!!fieldState.error}
+                                                                    helperText={fieldState.error?.message}
+                                                                    required={shippingType === 'domicilio'}
                                                                 />
                                                             )}
                                                         />
                                                         <Controller
                                                             name="shipping_data.postal_code"
                                                             control={control}
-                                                            render={({ field }) => (
+                                                            rules={{
+                                                                required: shippingType === 'domicilio' ? 'El código postal es obligatorio' : false,
+                                                                pattern: {
+                                                                    value: /^[0-9]{5}$/,
+                                                                    message: 'El código postal debe tener exactamente 5 dígitos'
+                                                                }
+                                                            }}
+                                                            render={({ field, fieldState }) => (
                                                                 <TextField
                                                                     {...field}
                                                                     label="Código Postal"
                                                                     fullWidth
+                                                                    placeholder="12345"
+                                                                    error={!!fieldState.error}
+                                                                    helperText={fieldState.error?.message}
+                                                                    required={shippingType === 'domicilio'}
+                                                                    slotProps={{
+                                                                        htmlInput: {
+                                                                            maxLength: 5,
+                                                                            pattern: "[0-9]{5}"
+                                                                        }
+                                                                    }}
                                                                 />
                                                             )}
                                                         />
                                                         <Controller
                                                             name="shipping_data.province"
                                                             control={control}
-                                                            render={({ field }) => (
+                                                            rules={{
+                                                                required: shippingType === 'domicilio' ? 'La provincia es obligatoria' : false,
+                                                                minLength: {
+                                                                    value: 2,
+                                                                    message: 'La provincia debe tener al menos 2 caracteres'
+                                                                },
+                                                                maxLength: {
+                                                                    value: 50,
+                                                                    message: 'La provincia no puede exceder 50 caracteres'
+                                                                },
+                                                                pattern: {
+                                                                    value: /^[a-zA-ZáéíóúÁÉÍÓÚñÑ\s-]+$/,
+                                                                    message: 'La provincia solo puede contener letras, espacios y guiones'
+                                                                }
+                                                            }}
+                                                            render={({ field, fieldState }) => (
                                                                 <TextField
                                                                     {...field}
                                                                     label="Provincia"
                                                                     fullWidth
+                                                                    error={!!fieldState.error}
+                                                                    helperText={fieldState.error?.message}
+                                                                    required={shippingType === 'domicilio'}
                                                                 />
                                                             )}
                                                         />
@@ -941,12 +1008,22 @@ export default function OrderManagement() {
                                                     <Controller
                                                         name="shipping_data.phone"
                                                         control={control}
-                                                        render={({ field }) => (
+                                                        rules={{
+                                                            required: shippingType === 'domicilio' ? 'El teléfono es obligatorio' : false,
+                                                            pattern: {
+                                                                value: /^(\+34|0034|34)?[6789]\d{8}$/,
+                                                                message: 'Introduce un número de teléfono español válido (ej: +34 600 000 000, 600 000 000)'
+                                                            }
+                                                        }}
+                                                        render={({ field, fieldState }) => (
                                                             <TextField
                                                                 {...field}
                                                                 label="Teléfono de contacto"
                                                                 fullWidth
                                                                 placeholder="+34 600 000 000"
+                                                                error={!!fieldState.error}
+                                                                helperText={fieldState.error?.message || 'Formato: +34 600 000 000 o 600 000 000'}
+                                                                required={shippingType === 'domicilio'}
                                                             />
                                                         )}
                                                     />
