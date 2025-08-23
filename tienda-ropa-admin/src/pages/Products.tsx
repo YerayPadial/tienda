@@ -24,7 +24,8 @@ import {
     Select,
     MenuItem,
     Tooltip,
-    Avatar
+    Avatar,
+    CircularProgress
 } from '@mui/material'
 import {
     Add,
@@ -115,6 +116,7 @@ export default function Products() {
     const [sizes, setSizes] = useState<Size[]>([])
     const [colors, setColors] = useState<Color[]>([])
     const [loading, setLoading] = useState(false)
+    const [initialLoading, setInitialLoading] = useState(true)
     const [error, setError] = useState<string | null>(null)
     const [success, setSuccess] = useState<string | null>(null)
     const [openDialog, setOpenDialog] = useState(false)
@@ -313,11 +315,16 @@ export default function Products() {
 
     // Fetch initial data
     useEffect(() => {
-        fetchAll()
+        fetchAll(true)
     }, [])
 
-    const fetchAll = async () => {
-        setLoading(true)
+    const fetchAll = async (isInitial = false) => {
+        if (isInitial) {
+            setInitialLoading(true)
+        } else {
+            setLoading(true)
+        }
+
         try {
             const [productsRes, sizesRes, colorsRes] = await Promise.all([
                 getProducts(),
@@ -338,7 +345,12 @@ export default function Products() {
             setSizes([])
             setColors([])
         }
-        setLoading(false)
+
+        if (isInitial) {
+            setInitialLoading(false)
+        } else {
+            setLoading(false)
+        }
     }
 
     // Obtener categorías únicas
@@ -443,6 +455,25 @@ export default function Products() {
             setError('Error al eliminar el producto')
         }
         setLoading(false)
+    }
+
+    // Mostrar spinner durante la carga inicial
+    if (initialLoading) {
+        return (
+            <Box
+                display="flex"
+                flexDirection="column"
+                alignItems="center"
+                justifyContent="center"
+                minHeight="50vh"
+                gap={2}
+            >
+                <CircularProgress size={48} />
+                <Typography variant="h6" color="textSecondary">
+                    Cargando productos...
+                </Typography>
+            </Box>
+        )
     }
 
     return (

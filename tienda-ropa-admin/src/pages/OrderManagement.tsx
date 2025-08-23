@@ -410,7 +410,6 @@ export default function OrderManagement() {
         }
     }
 
-    // Efectos
     useEffect(() => {
         // Carga inicial
         fetchOrders(true)
@@ -420,9 +419,9 @@ export default function OrderManagement() {
     useEffect(() => {
         // Cargas posteriores (sin mostrar spinner inicial)
         if (!initialLoading) {
-            fetchOrders()
+            fetchOrders(false)
         }
-    }, [pagination, sorting, globalFilter, statusFilter, initialLoading])
+    }, [pagination, sorting, globalFilter, statusFilter])
 
     // Limpiar datos de envío cuando se cambia a recogida
     useEffect(() => {
@@ -681,7 +680,7 @@ export default function OrderManagement() {
                                     ))}
                                 </TableHead>
                                 <TableBody>
-                                    {loading ? (
+                                    {loading && !initialLoading ? (
                                         <TableRow>
                                             <TableCell colSpan={columns.length} align="center">
                                                 <Typography>Cargando...</Typography>

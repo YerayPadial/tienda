@@ -262,7 +262,6 @@ export default function UserManagement() {
         }
     }
 
-    // Efectos
     useEffect(() => {
         // Carga inicial
         fetchUsers(true)
@@ -271,9 +270,9 @@ export default function UserManagement() {
     useEffect(() => {
         // Cargas posteriores (sin mostrar spinner inicial)
         if (!initialLoading) {
-            fetchUsers()
+            fetchUsers(false)
         }
-    }, [pagination, sorting, globalFilter, initialLoading])
+    }, [pagination, sorting, globalFilter])
 
     // Handlers del diálogo
     const handleOpenDialog = async (user?: User) => {
@@ -461,7 +460,7 @@ export default function UserManagement() {
                                     ))}
                                 </TableHead>
                                 <TableBody>
-                                    {loading ? (
+                                    {loading && !initialLoading ? (
                                         <TableRow>
                                             <TableCell colSpan={columns.length} align="center">
                                                 <Typography>Cargando...</Typography>

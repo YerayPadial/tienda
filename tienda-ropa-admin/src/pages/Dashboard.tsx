@@ -157,8 +157,18 @@ const Dashboard: React.FC = () => {
 
     if (loading) {
         return (
-            <Box display="flex" justifyContent="center" alignItems="center" minHeight="50vh">
-                <CircularProgress />
+            <Box
+                display="flex"
+                flexDirection="column"
+                alignItems="center"
+                justifyContent="center"
+                minHeight="50vh"
+                gap={2}
+            >
+                <CircularProgress size={48} />
+                <Typography variant="h6" color="textSecondary">
+                    Cargando Estadísticas...
+                </Typography>
             </Box>
         )
     }
