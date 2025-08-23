@@ -200,7 +200,7 @@ const ProductDetail: React.FC = () => {
             {/* Carrusel de imágenes */}
             <div className="relative mb-4 group">
                 <div
-                    className="w-full h-64 overflow-hidden rounded-lg bg-gray-200 select-none"
+                    className="w-full h-80 flex items-center justify-center rounded-lg bg-gray-100 select-none"
                     onTouchStart={onTouchStart}
                     onTouchMove={onTouchMove}
                     onTouchEnd={onTouchEnd}
@@ -208,7 +208,7 @@ const ProductDetail: React.FC = () => {
                     <img
                         src={product.images && product.images.length > 0 ? product.images[currentImageIndex] : '/placeholder-image.jpg'}
                         alt={`${product.name} - Imagen ${currentImageIndex + 1}`}
-                        className="w-full h-full object-cover transition-opacity duration-300 pointer-events-none"
+                        className="max-w-full max-h-full object-contain transition-opacity duration-300 pointer-events-none"
                         onError={(e: any) => {
                             e.target.src = 'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNDAwIiBoZWlnaHQ9IjI1NiIgdmlld0JveD0iMCAwIDQwMCAyNTYiIGZpbGw9Im5vbmUiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+CjxyZWN0IHdpZHRoPSI0MDAiIGhlaWdodD0iMjU2IiBmaWxsPSIjRTVFN0VCIi8+CjxwYXRoIGQ9Ik0yMDAgMTUwQzE5MC41IDE1MCAyMDAgMTM4LjggMjAwIDEzMkMyMDAgMTI1LjIgMTkwLjUgMTIwIDIwMCAxMjBDMjA5LjUgMTIwIDIyMCAxMjUuMiAyMjAgMTMyQzIyMCAxMzguOCAyMDkuNSAxNTAgMjAwIDE1MFpNMjAwIDE3MEMxODAuMiAxNzAgMTYwIDE2MC41IDE2MCA2MEMxNjAgMTQzLjUgMTgwLjIgMTMwIDIwMCAxMzBDMjE5LjggMTMwIDI0MCAxNDMuNSAyNDAgMTYwQzI0MCAxNjAuNSAyMTkuOCAxNzAgMjAwIDE3MFoiIGZpbGw9IiM5QzlDQTMiLz4KPC9zdmc+Cg=='
                         }}
