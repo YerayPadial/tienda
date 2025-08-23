@@ -3,6 +3,25 @@ import { useParams, useNavigate } from 'react-router-dom'
 import { FaArrowLeft, FaBox, FaCreditCard, FaTag } from 'react-icons/fa'
 import { fetchOrderDetail } from '../services/api'
 
+const getStatusColor = (status: string) => {
+    switch (status.toLowerCase()) {
+        case 'entregado':
+            return 'text-green-600 bg-green-100'
+        case 'enviado':
+            return 'text-blue-600 bg-blue-100'
+        case 'procesando':
+            return 'text-yellow-600 bg-yellow-100'
+        case 'pendiente':
+            return 'text-orange-600 bg-orange-100'
+        default:
+            return 'text-gray-600 bg-gray-100'
+    }
+}
+
+const capitalizeStatus = (status: string) => {
+    return status.charAt(0).toUpperCase() + status.slice(1).toLowerCase()
+}
+
 const OrderDetail: React.FC = () => {
     const { id } = useParams<{ id: string }>()
     const navigate = useNavigate()
@@ -39,7 +58,9 @@ const OrderDetail: React.FC = () => {
                 </div>
                 <div className="mb-4">
                     <span className="font-semibold">Estado: </span>
-                    <span>{order.status}</span>
+                    <span className={`px-3 py-1 rounded-full text-sm font-medium ${getStatusColor(order.status)}`}>
+                        {capitalizeStatus(order.status)}
+                    </span>
                 </div>
                 <div className="mb-4">
                     <span className="font-semibold">Fecha: </span>

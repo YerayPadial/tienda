@@ -5,16 +5,22 @@ import { fetchUserOrders } from '../services/api'
 import { useUser } from '../context/UserContext'
 
 const getStatusColor = (status: string) => {
-  switch (status) {
-    case 'Entregado':
+  switch (status.toLowerCase()) {
+    case 'entregado':
       return 'text-green-600 bg-green-100'
-    case 'Enviado':
+    case 'enviado':
       return 'text-blue-600 bg-blue-100'
-    case 'Procesando':
+    case 'procesando':
       return 'text-yellow-600 bg-yellow-100'
+    case 'pendiente':
+      return 'text-orange-600 bg-orange-100'
     default:
       return 'text-gray-600 bg-gray-100'
   }
+}
+
+const capitalizeStatus = (status: string) => {
+  return status.charAt(0).toUpperCase() + status.slice(1).toLowerCase()
 }
 
 const Order: React.FC = () => {
@@ -87,7 +93,7 @@ const Order: React.FC = () => {
                 <div className="flex items-center gap-4 mb-2 sm:mb-0">
                   <h3 className="text-lg font-semibold">Pedido #{order.id}</h3>
                   <span className={`px-3 py-1 rounded-full text-sm font-medium ${getStatusColor(order.status)}`}>
-                    {order.status}
+                    {capitalizeStatus(order.status)}
                   </span>
                 </div>
                 <div className="text-sm text-gray-500 flex items-center gap-2">
