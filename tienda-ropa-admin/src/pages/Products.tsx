@@ -32,7 +32,7 @@ import {
     Delete,
     ArrowUpward,
     ArrowDownward,
-    FilterList,
+    Search,
     ShoppingBag,
     Euro,
     Inventory,
@@ -478,7 +478,7 @@ export default function Products() {
                         sx={{ minWidth: 250 }}
                         slotProps={{
                             input: {
-                                startAdornment: <FilterList sx={{ mr: 1, color: 'text.secondary' }} />
+                                startAdornment: <Search sx={{ mr: 1, color: 'text.secondary' }} />
                             }
                         }}
                     />

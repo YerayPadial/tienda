@@ -34,7 +34,7 @@ import {
     Delete,
     ArrowUpward,
     ArrowDownward,
-    FilterList,
+    Search,
     Person,
     Email,
     CalendarToday
@@ -436,8 +436,18 @@ const EmployeeManagement: React.FC = () => {
 
     if (loading) {
         return (
-            <Box display="flex" justifyContent="center" alignItems="center" minHeight="50vh">
-                <CircularProgress />
+            <Box
+                display="flex"
+                flexDirection="column"
+                alignItems="center"
+                justifyContent="center"
+                minHeight="50vh"
+                gap={2}
+            >
+                <CircularProgress size={48} />
+                <Typography variant="h6" color="textSecondary">
+                    Cargando empleados...
+                </Typography>
             </Box>
         )
     }
@@ -475,7 +485,7 @@ const EmployeeManagement: React.FC = () => {
                         sx={{ minWidth: 250 }}
                         slotProps={{
                             input: {
-                                startAdornment: <FilterList sx={{ mr: 1, color: 'text.secondary' }} />
+                                startAdornment: <Search sx={{ mr: 1, color: 'text.secondary' }} />
                             }
                         }}
                     />

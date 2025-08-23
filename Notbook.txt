@@ -12,9 +12,11 @@ Falta:
     - Trabajadores          mejorar (Mejorar scroll progress "Cargando empleados...")
     - Login                 terminado
     - Productos             mejorar (Creacion de tallas y colores/ validar precios mayor a 0/ Añadir scroll progress)
-    - Pedidos               mejorar (estetica table de productos y empleados)
+    - Pedidos               mejorar (estetica table de productos y empleados / Validaciones de campos como direccion, telefono, ciudad, provincia,codigo postal, excepto notas adicionales)
 
 2. Frontend compra
 
     - Carrito
     - Apartado pago
+    - Filtros y buscador tienda
+    - ProductDetail con carrusel de fotos si hay mas de una imagen
