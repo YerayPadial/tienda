@@ -168,6 +168,17 @@ export const createOrder = async (orderData: {
   return response.data
 }
 
+// Función para verificar stock antes del pago
+export const checkStock = async (items: Array<{
+  product_id: number
+  size_id: number | null
+  color_id: number | null
+  quantity: number
+}>) => {
+  const response = await api.post('/check-stock', { items })
+  return response.data
+}
+
 // Funciones para productos
 export const fetchProductDetail = async (productId: string | number) => {
   const response = await api.get(`/products/${productId}/detail`);

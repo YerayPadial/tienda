@@ -42,6 +42,43 @@ class OrderController extends Controller
         ]);
 
         try {
+            // Verificar stock antes de crear el pedido
+            $stockErrors = [];
+            foreach ($request->items as $item) {
+                $stock = \App\Models\ProductStock::where('product_id', $item['product_id'])
+                    ->where('size_id', $item['size_id'])
+                    ->where('color_id', $item['color_id'])
+                    ->first();
+
+                if (!$stock) {
+                    $product = \App\Models\Product::find($item['product_id']);
+                    $size = $item['size_id'] ? \App\Models\Size::find($item['size_id']) : null;
+                    $color = $item['color_id'] ? \App\Models\Color::find($item['color_id']) : null;
+
+                    $stockErrors[] = "No hay stock disponible para {$product->name}" .
+                        ($size ? " talla {$size->name}" : "") .
+                        ($color ? " color {$color->name}" : "");
+                } elseif ($stock->stock < $item['quantity']) {
+                    $product = \App\Models\Product::find($item['product_id']);
+                    $size = $item['size_id'] ? \App\Models\Size::find($item['size_id']) : null;
+                    $color = $item['color_id'] ? \App\Models\Color::find($item['color_id']) : null;
+
+                    $stockErrors[] = "Stock insuficiente para {$product->name}" .
+                        ($size ? " talla {$size->name}" : "") .
+                        ($color ? " color {$color->name}" : "") .
+                        ". Disponible: {$stock->stock}, solicitado: {$item['quantity']}";
+                }
+            }
+
+            // Si hay errores de stock, devolver error
+            if (!empty($stockErrors)) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Errores de stock detectados',
+                    'stock_errors' => $stockErrors
+                ], 422);
+            }
+
             // Crear el pedido
             $order = Order::create([
                 'user_id' => $request->user_id,
@@ -51,7 +88,7 @@ class OrderController extends Controller
                 'payment_completed' => false,
             ]);
 
-            // Crear los items del pedido
+            // Crear los items del pedido y actualizar stock
             foreach ($request->items as $item) {
                 $order->items()->create([
                     'product_id' => $item['product_id'],
@@ -59,6 +96,16 @@ class OrderController extends Controller
                     'color_id' => $item['color_id'],
                     'quantity' => $item['quantity'],
                 ]);
+
+                // Actualizar stock
+                $stock = \App\Models\ProductStock::where('product_id', $item['product_id'])
+                    ->where('size_id', $item['size_id'])
+                    ->where('color_id', $item['color_id'])
+                    ->first();
+
+                if ($stock) {
+                    $stock->decrement('stock', $item['quantity']);
+                }
             }
 
             // Cargar las relaciones para la respuesta
@@ -80,6 +127,77 @@ class OrderController extends Controller
                 'message' => 'Error al crear el pedido: ' . $e->getMessage()
             ], 500);
         }
+    }
+
+    // Método para verificar stock antes del pago
+    public function checkStock(Request $request)
+    {
+        $request->validate([
+            'items' => 'required|array|min:1',
+            'items.*.product_id' => 'required|exists:products,id',
+            'items.*.size_id' => 'nullable|exists:sizes,id',
+            'items.*.color_id' => 'nullable|exists:colors,id',
+            'items.*.quantity' => 'required|integer|min:1',
+        ]);
+
+        $stockErrors = [];
+        $stockInfo = [];
+
+        foreach ($request->items as $item) {
+            $stock = \App\Models\ProductStock::where('product_id', $item['product_id'])
+                ->where('size_id', $item['size_id'])
+                ->where('color_id', $item['color_id'])
+                ->first();
+
+            $product = \App\Models\Product::find($item['product_id']);
+            $size = $item['size_id'] ? \App\Models\Size::find($item['size_id']) : null;
+            $color = $item['color_id'] ? \App\Models\Color::find($item['color_id']) : null;
+
+            $productName = $product->name .
+                ($size ? " talla {$size->name}" : "") .
+                ($color ? " color {$color->name}" : "");
+
+            if (!$stock) {
+                $stockErrors[] = "No hay stock disponible para {$productName}";
+                $stockInfo[] = [
+                    'product_id' => $item['product_id'],
+                    'size_id' => $item['size_id'],
+                    'color_id' => $item['color_id'],
+                    'product_name' => $productName,
+                    'requested' => $item['quantity'],
+                    'available' => 0,
+                    'has_stock' => false
+                ];
+            } elseif ($stock->stock < $item['quantity']) {
+                $stockErrors[] = "Stock insuficiente para {$productName}. Disponible: {$stock->stock}, solicitado: {$item['quantity']}";
+                $stockInfo[] = [
+                    'product_id' => $item['product_id'],
+                    'size_id' => $item['size_id'],
+                    'color_id' => $item['color_id'],
+                    'product_name' => $productName,
+                    'requested' => $item['quantity'],
+                    'available' => $stock->stock,
+                    'has_stock' => false
+                ];
+            } else {
+                $stockInfo[] = [
+                    'product_id' => $item['product_id'],
+                    'size_id' => $item['size_id'],
+                    'color_id' => $item['color_id'],
+                    'product_name' => $productName,
+                    'requested' => $item['quantity'],
+                    'available' => $stock->stock,
+                    'has_stock' => true
+                ];
+            }
+        }
+
+        return response()->json([
+            'success' => empty($stockErrors),
+            'message' => empty($stockErrors) ? 'Stock verificado correctamente' : 'Errores de stock detectados',
+            'stock_errors' => $stockErrors,
+            'stock_info' => $stockInfo
+        ]);
     }
 
     public function show(Order $order)

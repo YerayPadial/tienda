@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useCart } from '../context/CartContext'
 import { useUser } from '../context/UserContext'
-import { createOrder } from '../services/api'
+import { createOrder, checkStock } from '../services/api'
 import CheckoutSteps from '../components/CheckoutSteps'
 import CustomerDataForm from '../components/CustomerDataForm'
 import ShippingDataForm from '../components/ShippingDataForm'
@@ -91,6 +91,26 @@ const Checkout: React.FC = () => {
                 throw new Error('Usuario no autenticado')
             }
 
+            // Preparar items para verificación de stock
+            const itemsToCheck = items.map(item => ({
+                product_id: item.product_id,
+                size_id: item.size_id,
+                color_id: item.color_id,
+                quantity: item.quantity
+            }))
+
+            console.log('Verificando stock...', itemsToCheck)
+
+            // Verificar stock antes de proceder
+            const stockCheck = await checkStock(itemsToCheck)
+
+            if (!stockCheck.success) {
+                // Mostrar errores de stock al usuario
+                const errorMessage = stockCheck.stock_errors.join('\n')
+                alert(`Problemas de stock detectados:\n\n${errorMessage}\n\nPor favor, ajusta las cantidades en tu carrito.`)
+                return
+            }
+
             // Preparar datos del pedido según el formato esperado por el backend
             const orderData = {
                 user_id: user.id,
@@ -106,12 +126,7 @@ const Checkout: React.FC = () => {
                     phone: customerData.phone,
                     notes: shippingData.notes
                 },
-                items: items.map(item => ({
-                    product_id: item.product_id,
-                    size_id: item.size_id,
-                    color_id: item.color_id,
-                    quantity: item.quantity
-                }))
+                items: itemsToCheck
             }
 
             console.log('Enviando pedido al backend:', orderData)
@@ -126,7 +141,13 @@ const Checkout: React.FC = () => {
                 clearCart()
                 navigate('/pedido-confirmado')
             } else {
-                throw new Error(response.message || 'Error al crear el pedido')
+                // Si hay errores de stock en la creación del pedido
+                if (response.stock_errors) {
+                    const errorMessage = response.stock_errors.join('\n')
+                    alert(`Problemas de stock detectados:\n\n${errorMessage}\n\nAlgún producto se agotó mientras procesábamos tu pedido.`)
+                } else {
+                    throw new Error(response.message || 'Error al crear el pedido')
+                }
             }
 
         } catch (error) {
