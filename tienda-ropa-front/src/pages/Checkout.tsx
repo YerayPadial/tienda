@@ -11,7 +11,6 @@ interface CustomerData {
     lastName: string
     email: string
     phone: string
-    dni: string
 }
 
 interface ShippingData {
@@ -31,8 +30,7 @@ const Checkout: React.FC = () => {
         firstName: '',
         lastName: '',
         email: '',
-        phone: '',
-        dni: ''
+        phone: ''
     })
     const [shippingData, setShippingData] = useState<ShippingData>({
         deliveryType: 'home',

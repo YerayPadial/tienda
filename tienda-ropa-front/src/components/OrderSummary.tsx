@@ -6,7 +6,6 @@ interface CustomerData {
     lastName: string
     email: string
     phone: string
-    dni: string
 }
 
 interface ShippingData {
@@ -70,7 +69,6 @@ const OrderSummary: React.FC<OrderSummaryProps> = ({
                                 <p><span className="font-medium">Nombre:</span> {customerData.firstName} {customerData.lastName}</p>
                                 <p><span className="font-medium">Email:</span> {customerData.email}</p>
                                 <p><span className="font-medium">Teléfono:</span> {customerData.phone}</p>
-                                <p><span className="font-medium">DNI:</span> {customerData.dni}</p>
                             </div>
                         </div>
 

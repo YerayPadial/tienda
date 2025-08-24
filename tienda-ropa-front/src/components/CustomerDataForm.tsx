@@ -1,11 +1,11 @@
-import React, { useState } from 'react'
+import React, { useState, useEffect } from 'react'
+import { useUser } from '../context/UserContext'
 
 interface CustomerData {
     firstName: string
     lastName: string
     email: string
     phone: string
-    dni: string
 }
 
 interface CustomerDataFormProps {
@@ -14,10 +14,24 @@ interface CustomerDataFormProps {
 }
 
 const CustomerDataForm: React.FC<CustomerDataFormProps> = ({ initialData, onSubmit }) => {
+    const { user } = useUser()
     const [formData, setFormData] = useState<CustomerData>(initialData)
     const [errors, setErrors] = useState<Partial<CustomerData>>({})
     const [touched, setTouched] = useState<Partial<Record<keyof CustomerData, boolean>>>({})
 
+    // Llenar datos del usuario logueado si están disponibles y los campos están vacíos
+    useEffect(() => {
+        if (user && (!initialData.firstName || !initialData.email)) {
+            const [firstName = '', lastName = ''] = (user.name || '').split(' ', 2)
+
+            setFormData(prev => ({
+                ...prev,
+                firstName: prev.firstName || firstName,
+                lastName: prev.lastName || lastName,
+                email: prev.email || user.email || ''
+            }))
+        }
+    }, [user, initialData])
     const validateField = (name: keyof CustomerData, value: string): string => {
         switch (name) {
             case 'firstName':
@@ -40,12 +54,6 @@ const CustomerDataForm: React.FC<CustomerDataFormProps> = ({ initialData, onSubm
                 if (!value.trim()) return 'El teléfono es obligatorio'
                 const phoneRegex = /^[6-9]\d{8}$/
                 if (!phoneRegex.test(value.replace(/\s/g, ''))) return 'Introduce un teléfono español válido (9 dígitos)'
-                return ''
-
-            case 'dni':
-                if (!value.trim()) return 'El DNI es obligatorio'
-                const dniRegex = /^\d{8}[A-Z]$/
-                if (!dniRegex.test(value.toUpperCase())) return 'Introduce un DNI válido (12345678A)'
                 return ''
 
             default:
@@ -108,8 +116,7 @@ const CustomerDataForm: React.FC<CustomerDataFormProps> = ({ initialData, onSubm
             firstName: true,
             lastName: true,
             email: true,
-            phone: true,
-            dni: true
+            phone: true
         })
 
         if (!hasErrors) {
@@ -139,8 +146,8 @@ const CustomerDataForm: React.FC<CustomerDataFormProps> = ({ initialData, onSubm
                             onChange={handleInputChange}
                             onBlur={handleBlur}
                             className={`w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 transition-colors ${errors.firstName && touched.firstName
-                                    ? 'border-red-300 focus:ring-red-500 focus:border-red-500'
-                                    : 'border-gray-300 focus:ring-blue-500 focus:border-blue-500'
+                                ? 'border-red-300 focus:ring-red-500 focus:border-red-500'
+                                : 'border-gray-300 focus:ring-blue-500 focus:border-blue-500'
                                 }`}
                             placeholder="Introduce tu nombre"
                         />
@@ -162,8 +169,8 @@ const CustomerDataForm: React.FC<CustomerDataFormProps> = ({ initialData, onSubm
                             onChange={handleInputChange}
                             onBlur={handleBlur}
                             className={`w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 transition-colors ${errors.lastName && touched.lastName
-                                    ? 'border-red-300 focus:ring-red-500 focus:border-red-500'
-                                    : 'border-gray-300 focus:ring-blue-500 focus:border-blue-500'
+                                ? 'border-red-300 focus:ring-red-500 focus:border-red-500'
+                                : 'border-gray-300 focus:ring-blue-500 focus:border-blue-500'
                                 }`}
                             placeholder="Introduce tus apellidos"
                         />
@@ -186,8 +193,8 @@ const CustomerDataForm: React.FC<CustomerDataFormProps> = ({ initialData, onSubm
                         onChange={handleInputChange}
                         onBlur={handleBlur}
                         className={`w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 transition-colors ${errors.email && touched.email
-                                ? 'border-red-300 focus:ring-red-500 focus:border-red-500'
-                                : 'border-gray-300 focus:ring-blue-500 focus:border-blue-500'
+                            ? 'border-red-300 focus:ring-red-500 focus:border-red-500'
+                            : 'border-gray-300 focus:ring-blue-500 focus:border-blue-500'
                             }`}
                         placeholder="correo@ejemplo.com"
                     />
@@ -210,8 +217,8 @@ const CustomerDataForm: React.FC<CustomerDataFormProps> = ({ initialData, onSubm
                             onChange={handleInputChange}
                             onBlur={handleBlur}
                             className={`w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 transition-colors ${errors.phone && touched.phone
-                                    ? 'border-red-300 focus:ring-red-500 focus:border-red-500'
-                                    : 'border-gray-300 focus:ring-blue-500 focus:border-blue-500'
+                                ? 'border-red-300 focus:ring-red-500 focus:border-red-500'
+                                : 'border-gray-300 focus:ring-blue-500 focus:border-blue-500'
                                 }`}
                             placeholder="123456789"
                         />
@@ -220,29 +227,6 @@ const CustomerDataForm: React.FC<CustomerDataFormProps> = ({ initialData, onSubm
                         )}
                     </div>
 
-                    {/* DNI */}
-                    <div>
-                        <label htmlFor="dni" className="block text-sm font-medium text-gray-700 mb-2">
-                            DNI <span className="text-red-500">*</span>
-                        </label>
-                        <input
-                            type="text"
-                            id="dni"
-                            name="dni"
-                            value={formData.dni}
-                            onChange={handleInputChange}
-                            onBlur={handleBlur}
-                            className={`w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 transition-colors ${errors.dni && touched.dni
-                                    ? 'border-red-300 focus:ring-red-500 focus:border-red-500'
-                                    : 'border-gray-300 focus:ring-blue-500 focus:border-blue-500'
-                                }`}
-                            placeholder="12345678A"
-                            style={{ textTransform: 'uppercase' }}
-                        />
-                        {errors.dni && touched.dni && (
-                            <p className="mt-1 text-sm text-red-600">{errors.dni}</p>
-                        )}
-                    </div>
                 </div>
 
                 {/* Submit button */}
