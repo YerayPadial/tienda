@@ -152,6 +152,22 @@ export const fetchOrderDetail = async (orderId: string | number) => {
   return response.data.order;
 }
 
+// Función para crear un nuevo pedido
+export const createOrder = async (orderData: {
+  user_id: number
+  shipping_type: 'domicilio' | 'recogida'
+  shipping_data: any
+  items: Array<{
+    product_id: number
+    size_id: number | null
+    color_id: number | null
+    quantity: number
+  }>
+}) => {
+  const response = await api.post('/orders', orderData)
+  return response.data
+}
+
 // Funciones para productos
 export const fetchProductDetail = async (productId: string | number) => {
   const response = await api.get(`/products/${productId}/detail`);

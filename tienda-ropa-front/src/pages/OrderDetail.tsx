@@ -80,13 +80,21 @@ const OrderDetail: React.FC = () => {
                         {order.shipping_data && typeof order.shipping_data === 'object' ? (
                             <ul className="list-disc ml-6">
                                 {Object.entries(order.shipping_data)
-                                    .filter(([, value]) => value !== null && value !== undefined && value !== '')
+                                    .filter(([key, value]) => {
+                                        // Excluir campos que no queremos mostrar
+                                        const excludeFields = ['firstName', 'lastName', 'email']
+                                        return !excludeFields.includes(key) &&
+                                            value !== null &&
+                                            value !== undefined &&
+                                            value !== ''
+                                    })
                                     .map(([key, value]) => {
                                         // Mapear nombres técnicos a nombres amigables
                                         const fieldNames: { [key: string]: string } = {
                                             address: 'Dirección',
                                             city: 'Ciudad',
                                             postal_code: 'Código postal',
+                                            postalCode: 'Código postal',
                                             province: 'Provincia',
                                             phone: 'Teléfono',
                                             notes: 'Notas'

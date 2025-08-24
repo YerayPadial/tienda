@@ -46,6 +46,7 @@ Route::middleware('auth:sanctum')->group(function () {
 
     Route::get('/user-orders', [OrderController::class, 'userOrders']);
     Route::get('/orders/{order}', [OrderController::class, 'orderDetail']);
+    Route::post('/orders', [OrderController::class, 'store']);
 });
 
 // Rutas que requieren autenticación de EMPLEADOS (Panel Admin)

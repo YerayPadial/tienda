@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useCart } from '../context/CartContext'
 import { useUser } from '../context/UserContext'
+import { createOrder } from '../services/api'
 import CheckoutSteps from '../components/CheckoutSteps'
 import CustomerDataForm from '../components/CustomerDataForm'
 import ShippingDataForm from '../components/ShippingDataForm'
@@ -47,9 +48,9 @@ const Checkout: React.FC = () => {
     // Verificar autenticación
     useEffect(() => {
         if (!loading && !user) {
-            navigate('/login', { 
+            navigate('/login', {
                 replace: true,
-                state: { 
+                state: {
                     from: '/checkout',
                     message: 'Debes iniciar sesión para proceder con el pago'
                 }
@@ -86,23 +87,51 @@ const Checkout: React.FC = () => {
         setIsProcessing(true)
 
         try {
-            // lógica de crear el pedido
-            console.log('Procesando pedido...', {
-                customerData,
-                shippingData,
-                items,
-                totalPrice
-            })
+            if (!user) {
+                throw new Error('Usuario no autenticado')
+            }
 
-            // Simular procesamiento
-            await new Promise(resolve => setTimeout(resolve, 2000))
+            // Preparar datos del pedido según el formato esperado por el backend
+            const orderData = {
+                user_id: user.id,
+                shipping_type: (shippingData.deliveryType === 'home' ? 'domicilio' : 'recogida') as 'domicilio' | 'recogida',
+                shipping_data: shippingData.deliveryType === 'home' ? {
+                    address: shippingData.address,
+                    city: shippingData.city,
+                    postal_code: shippingData.postalCode,
+                    province: shippingData.province,
+                    phone: customerData.phone,
+                    notes: shippingData.notes
+                } : {
+                    phone: customerData.phone,
+                    notes: shippingData.notes
+                },
+                items: items.map(item => ({
+                    product_id: item.product_id,
+                    size_id: item.size_id,
+                    color_id: item.color_id,
+                    quantity: item.quantity
+                }))
+            }
 
-            // Limpiar carrito y redirigir
-            clearCart()
-            navigate('/pedido-confirmado')
+            console.log('Enviando pedido al backend:', orderData)
+
+            // Crear el pedido en el backend
+            const response = await createOrder(orderData)
+
+            if (response.success) {
+                console.log('Pedido creado exitosamente:', response.order)
+
+                // Limpiar carrito y redirigir
+                clearCart()
+                navigate('/pedido-confirmado')
+            } else {
+                throw new Error(response.message || 'Error al crear el pedido')
+            }
 
         } catch (error) {
             console.error('Error al procesar el pedido:', error)
+            alert('Error al procesar el pedido. Por favor, inténtalo de nuevo.')
         } finally {
             setIsProcessing(false)
         }

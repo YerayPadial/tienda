@@ -30,8 +30,56 @@ class OrderController extends Controller
 
     public function store(Request $request)
     {
-        $order = Order::create($request->all());
-        return response()->json($order, 201);
+        $request->validate([
+            'user_id' => 'required|exists:users,id',
+            'shipping_type' => 'required|in:domicilio,recogida',
+            'shipping_data' => 'nullable|array',
+            'items' => 'required|array|min:1',
+            'items.*.product_id' => 'required|exists:products,id',
+            'items.*.size_id' => 'nullable|exists:sizes,id',
+            'items.*.color_id' => 'nullable|exists:colors,id',
+            'items.*.quantity' => 'required|integer|min:1',
+        ]);
+
+        try {
+            // Crear el pedido
+            $order = Order::create([
+                'user_id' => $request->user_id,
+                'status' => 'pendiente',
+                'shipping_type' => $request->shipping_type,
+                'shipping_data' => $request->shipping_data,
+                'payment_completed' => false,
+            ]);
+
+            // Crear los items del pedido
+            foreach ($request->items as $item) {
+                $order->items()->create([
+                    'product_id' => $item['product_id'],
+                    'size_id' => $item['size_id'],
+                    'color_id' => $item['color_id'],
+                    'quantity' => $item['quantity'],
+                ]);
+            }
+
+            // Cargar las relaciones para la respuesta
+            $order->load([
+                'items.product',
+                'items.size',
+                'items.color',
+                'user'
+            ]);
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Pedido creado exitosamente',
+                'order' => $order
+            ], 201);
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Error al crear el pedido: ' . $e->getMessage()
+            ], 500);
+        }
     }
 
     public function show(Order $order)
