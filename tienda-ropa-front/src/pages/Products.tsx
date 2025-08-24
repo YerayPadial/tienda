@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback } from 'react'
+import React, { useState, useEffect, useCallback, useRef } from 'react'
 import { useNavigate } from 'react-router-dom'
 import ProductFilters from '../components/ProductFilters'
 import type { ProductFilters as FilterType } from '../components/ProductFilters'
@@ -28,7 +28,8 @@ interface ProductResponse {
 
 const Products: React.FC = () => {
   const [products, setProducts] = useState<Product[]>([])
-  const [loading, setLoading] = useState<boolean>(true)
+  const [loading, setLoading] = useState(true)
+  const [isInitialLoad, setIsInitialLoad] = useState(true)
   const [currentPage, setCurrentPage] = useState<number>(1)
   const [totalPages, setTotalPages] = useState<number>(1)
   const [totalProducts, setTotalProducts] = useState<number>(0)
@@ -44,13 +45,49 @@ const Products: React.FC = () => {
   })
   const [sortBy, setSortBy] = useState<string>('created_at')
   const navigate = useNavigate()
+  const abortControllerRef = useRef<AbortController | null>(null)
+  const fetchTimeoutRef = useRef<number | null>(null)
 
   useEffect(() => {
     fetchFiltersData()
   }, [])
 
   useEffect(() => {
-    fetchProducts()
+    // Cancelar petición anterior si existe
+    if (abortControllerRef.current) {
+      abortControllerRef.current.abort()
+    }
+
+    // Limpiar timeout anterior
+    if (fetchTimeoutRef.current) {
+      clearTimeout(fetchTimeoutRef.current)
+    }
+
+    // Debounce para filtros (no para paginación ni ordenación)
+    const isFilterChange = JSON.stringify(filters) !== JSON.stringify({
+      category: '',
+      gender: '',
+      sizes: [],
+      colors: [],
+      priceRange: { min: 0, max: 1000 },
+      search: ''
+    })
+
+    if (isFilterChange) {
+      // Aplicar debounce solo para cambios de filtros
+      fetchTimeoutRef.current = setTimeout(() => {
+        fetchProducts()
+      }, 300)
+    } else {
+      // Sin debounce para carga inicial, paginación o ordenación
+      fetchProducts()
+    }
+
+    return () => {
+      if (fetchTimeoutRef.current) {
+        clearTimeout(fetchTimeoutRef.current)
+      }
+    }
   }, [currentPage, filters, sortBy])
 
   const fetchFiltersData = async () => {
@@ -64,7 +101,14 @@ const Products: React.FC = () => {
   }
 
   const fetchProducts = async () => {
-    setLoading(true)
+    // Crear nuevo AbortController para esta petición
+    abortControllerRef.current = new AbortController()
+
+    // Solo mostrar loading en carga inicial o cambio de página
+    if (isInitialLoad || currentPage > 1) {
+      setLoading(true)
+    }
+
     try {
       const params = new URLSearchParams({
         page: currentPage.toString(),
@@ -81,23 +125,40 @@ const Products: React.FC = () => {
       if (filters.sizes.length > 0) params.append('sizes', filters.sizes.join(','))
       if (filters.colors.length > 0) params.append('colors', filters.colors.join(','))
 
-      const response = await api.get(`/products?${params}`)
+      const response = await api.get(`/products?${params}`, {
+        signal: abortControllerRef.current.signal
+      })
       const data: ProductResponse = response.data
       setProducts(data.data)
       setCurrentPage(data.current_page)
       setTotalPages(data.last_page)
       setTotalProducts(data.total)
-    } catch (error) {
-      console.error('Error fetching products:', error)
+
+      // Marcar que ya no es la carga inicial
+      if (isInitialLoad) {
+        setIsInitialLoad(false)
+      }
+    } catch (error: any) {
+      // No mostrar error si la petición fue cancelada
+      if (error.name !== 'CanceledError' && error.name !== 'AbortError') {
+        console.error('Error fetching products:', error)
+      }
     } finally {
       setLoading(false)
     }
   }
 
   const handleFiltersChange = useCallback((newFilters: FilterType) => {
+    // Detectar si realmente cambió algún filtro
+    const filtersChanged = JSON.stringify(filters) !== JSON.stringify(newFilters)
+
     setFilters(newFilters)
-    setCurrentPage(1) // Resetea a la primera pagina cuando los filtros cambian
-  }, [])
+
+    // Solo resetear página si los filtros realmente cambiaron
+    if (filtersChanged && currentPage !== 1) {
+      setCurrentPage(1)
+    }
+  }, [filters, currentPage])
 
   const handleSearch = useCallback((searchTerm: string) => {
     setFilters(prev => ({ ...prev, search: searchTerm }))

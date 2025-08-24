@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback } from 'react'
+import React, { useState, useEffect, useCallback, useRef } from 'react'
 import { api } from '../services/api'
 import PriceRangeSlider from './PriceRangeSlider'
 
@@ -90,34 +90,39 @@ const ProductFilters: React.FC<FilterProps> = ({
     })
 
     const [searchTerm, setSearchTerm] = useState('')
+    const [isFirstRender, setIsFirstRender] = useState(true)
 
     useEffect(() => {
         fetchSizes()
         fetchColors()
     }, [])
 
-    // Efecto para notificar cambios de filtros (excepto el primer render)
-    useEffect(() => {
-        // Solo notificar si no es el estado inicial
-        const isInitialState = filters.category === '' &&
-            filters.gender === '' &&
-            filters.sizes.length === 0 &&
-            filters.colors.length === 0 &&
-            filters.priceRange.min === 0 &&
-            filters.priceRange.max === 1000 &&
-            filters.search === ''
+    const onFiltersChangeRef = useRef(onFiltersChange)
+    const onSearchRef = useRef(onSearch)
 
-        if (!isInitialState) {
-            onFiltersChange(filters)
-        }
-    }, [filters, onFiltersChange])
-
-    // Efecto para notificar cambios de búsqueda
+    // Mantener las referencias actualizadas
     useEffect(() => {
-        if (filters.search !== '') {
-            onSearch(filters.search)
+        onFiltersChangeRef.current = onFiltersChange
+        onSearchRef.current = onSearch
+    })
+
+    // Efecto para notificar cambios de filtros inmediatamente
+    useEffect(() => {
+        if (isFirstRender) {
+            setIsFirstRender(false)
+            return
         }
-    }, [filters.search, onSearch])
+
+        // Notificar cambios inmediatamente (el debounce está en el padre)
+        onFiltersChangeRef.current(filters)
+    }, [filters, isFirstRender])
+
+    // Efecto para notificar cambios de búsqueda  
+    useEffect(() => {
+        if (!isFirstRender) {
+            onSearchRef.current(filters.search)
+        }
+    }, [filters.search, isFirstRender])
 
     const fetchSizes = async () => {
         try {
@@ -161,6 +166,9 @@ const ProductFilters: React.FC<FilterProps> = ({
         }
         setFilters(clearedFilters)
         setSearchTerm('')
+
+        // Notificar inmediatamente
+        onFiltersChangeRef.current(clearedFilters)
     }, [])
 
     const toggleSection = (section: keyof typeof expandedSections) => {
@@ -188,8 +196,13 @@ const ProductFilters: React.FC<FilterProps> = ({
         })
     }, [])
 
-    const hasActiveFilters = filters.category || filters.gender || filters.sizes.length > 0 ||
-        filters.colors.length > 0 || filters.search
+    const hasActiveFilters = filters.category !== '' ||
+        filters.gender !== '' ||
+        filters.sizes.length > 0 ||
+        filters.colors.length > 0 ||
+        filters.search !== '' ||
+        filters.priceRange.min > 0 ||
+        filters.priceRange.max < 1000
 
     return (
         <>
@@ -203,8 +216,14 @@ const ProductFilters: React.FC<FilterProps> = ({
                     <span>Filtros</span>
                     {hasActiveFilters && (
                         <span className="bg-blue-500 text-white text-xs px-2 py-1 rounded-full">
-                            {[filters.category, filters.gender, ...filters.sizes, ...filters.colors, filters.search]
-                                .filter(Boolean).length}
+                            {[
+                                filters.category !== '' ? 1 : 0,
+                                filters.gender !== '' ? 1 : 0,
+                                filters.sizes.length,
+                                filters.colors.length,
+                                filters.search !== '' ? 1 : 0,
+                                (filters.priceRange.min > 0 || filters.priceRange.max < 1000) ? 1 : 0
+                            ].reduce((total, count) => total + count, 0)}
                         </span>
                     )}
                 </button>
