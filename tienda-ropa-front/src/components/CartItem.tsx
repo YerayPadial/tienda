@@ -82,11 +82,11 @@ const CartItem: React.FC<CartItemProps> = ({ item }) => {
                     {/* Precio total del item */}
                     <div className="text-right">
                         <p className="text-sm font-medium text-gray-900">
-                            {(item.product_price * item.quantity).toFixed(2)} €
+                            {((Number(item.product_price) || 0) * item.quantity).toFixed(2)} €
                         </p>
                         {item.quantity > 1 && (
                             <p className="text-xs text-gray-500">
-                                {item.product_price.toFixed(2)}€ c/u
+                                {(Number(item.product_price) || 0).toFixed(2)}€ c/u
                             </p>
                         )}
                     </div>
