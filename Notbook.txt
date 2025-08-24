@@ -16,9 +16,9 @@ Falta:
 
 2. Frontend compra
 
-    - Carrito
-    - Apartado pago
-    - Filtros y buscador tienda, Limitar cantidad de productos de 10 en 10 !
+    - Carrito !
+    - Apartado pago !
+    - Filtros y buscador tienda, Limitar cantidad de productos de 10 en 10 ! TERMINADO
     - ProductDetail con carrusel de fotos si hay mas de una imagen    ! TERMINADO
     - Si algun campo de orders viene vacio no mostrarlo en Order Detail !  TERMINADO
     - Cambiar valores de dolares a euros y detras de la cifras !  TERMINADO

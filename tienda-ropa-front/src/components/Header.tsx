@@ -1,6 +1,7 @@
 import { Link, useNavigate } from 'react-router-dom'
 import { FaSignOutAlt, FaUser, FaShoppingBag, FaHome, FaBars, FaTimes } from 'react-icons/fa'
 import { useUser } from '../context/UserContext'
+import CartIcon from './CartIcon'
 import { useState } from 'react'
 
 const Header: React.FC = () => {
@@ -52,6 +53,9 @@ const Header: React.FC = () => {
               <span>Productos</span>
             </Link>
 
+            {/* Icono del carrito */}
+            <CartIcon />
+
             {user ? (
               <div className="flex items-center gap-3">
 
@@ -90,14 +94,17 @@ const Header: React.FC = () => {
             )}
           </nav>
 
-          {/* Botón hamburguesa para móvil */}
-          <button
-            onClick={() => setIsMenuOpen(!isMenuOpen)}
-            className="md:hidden p-2 text-gray-600 hover:text-blue-600 transition-colors"
-            aria-label="Abrir menú"
-          >
-            {isMenuOpen ? <FaTimes size={24} /> : <FaBars size={24} />}
-          </button>
+          {/* Botones móviles (carrito y hamburguesa) */}
+          <div className="md:hidden flex items-center gap-2">
+            <CartIcon />
+            <button
+              onClick={() => setIsMenuOpen(!isMenuOpen)}
+              className="p-2 text-gray-600 hover:text-blue-600 transition-colors"
+              aria-label="Abrir menú"
+            >
+              {isMenuOpen ? <FaTimes size={24} /> : <FaBars size={24} />}
+            </button>
+          </div>
         </div>
 
         {/* Menú móvil */}

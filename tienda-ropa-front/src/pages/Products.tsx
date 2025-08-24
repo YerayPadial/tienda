@@ -303,7 +303,7 @@ const Products: React.FC = () => {
                       <div className="flex items-center justify-between">
                         <div className="flex items-center gap-2">
                           <span className="text-2xl font-bold text-gray-900">
-                            €{product.price}
+                            {product.price}€
                           </span>
                         </div>
 

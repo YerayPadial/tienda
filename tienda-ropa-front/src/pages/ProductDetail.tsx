@@ -1,11 +1,13 @@
 import React, { useEffect, useState } from 'react'
 import { useParams, useNavigate } from 'react-router-dom'
 import { FaArrowLeft, FaChevronLeft, FaChevronRight } from 'react-icons/fa'
+import { useCart } from '../context/CartContext'
 import { fetchProductDetail } from '../services/api'
 
 const ProductDetail: React.FC = () => {
     const { id } = useParams<{ id: string }>()
     const navigate = useNavigate()
+    const { addItem } = useCart()
     const [product, setProduct] = useState<any>(null)
     const [selectedSize, setSelectedSize] = useState<string | null>(null)
     const [selectedColor, setSelectedColor] = useState<string | null>(null)
@@ -197,6 +199,30 @@ const ProductDetail: React.FC = () => {
             }
         }
     }, [selectedSize, selectedColor, product])
+
+    // Función para agregar al carrito
+    const handleAddToCart = () => {
+        if (!product) return
+
+        // Obtener la información de talla y color seleccionados
+        const selectedSizeInfo = product.sizes.find((s: any) => s.id === selectedSize)
+        const selectedColorInfo = product.colors.find((c: any) => c.id === selectedColor)
+
+        addItem({
+            product_id: product.id,
+            product_name: product.name,
+            product_price: product.price,
+            product_image: product.images?.[0] || '',
+            product_category: product.category,
+            size_id: selectedSizeInfo?.id || 0,
+            size_name: selectedSizeInfo?.name || '',
+            color_id: selectedColorInfo?.id || 0,
+            color_name: selectedColorInfo?.name || '',
+            color_hex: selectedColorInfo?.hex || '',
+            quantity: 1,
+            stock_available: stock
+        })
+    }
 
     if (error) return (
         <div className="min-h-screen bg-gray-50 flex items-center justify-center">
@@ -514,7 +540,7 @@ const ProductDetail: React.FC = () => {
                                         const allSelected = (!needsSize || selectedSize) && (!needsColor || selectedColor)
                                         return !(allSelected && stock > 0)
                                     })()}
-                                // onClick={...} // función de añadir al carrito
+                                    onClick={handleAddToCart}
                                 >
                                     <div className="flex items-center justify-center gap-3">
                                         <svg width="24" height="24" fill="none" viewBox="0 0 24 24">
