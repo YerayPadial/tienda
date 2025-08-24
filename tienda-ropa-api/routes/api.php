@@ -26,8 +26,9 @@ Route::prefix('admin')->group(function () {
 });
 
 Route::get('/products', [ProductController::class, 'index']);
+Route::get('/products/filters', [ProductController::class, 'getFilters']);
+Route::get('/products/{product}/detail', [ProductController::class, 'showDetail']);
 Route::get('/products/{product}', [ProductController::class, 'show']);
-Route::get('/products/{product}', [ProductController::class, 'showDetail']);
 Route::get('/sizes', [SizeController::class, 'index']);
 Route::get('/colors', [ColorController::class, 'index']);
 Route::get('/product-stocks', [ProductStockController::class, 'index']);

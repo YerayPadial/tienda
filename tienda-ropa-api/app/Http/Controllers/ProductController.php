@@ -7,11 +7,83 @@ use Illuminate\Http\Request;
 
 class ProductController extends Controller
 {
-    public function index()
+    public function index(Request $request)
     {
-        $products = Product::all();
+        $query = Product::query();
 
-        $products = $products->map(function ($product) {
+        // Búsqueda por nombre o descripción
+        if ($request->has('search') && !empty($request->search)) {
+            $searchTerm = $request->search;
+            $query->where(function ($q) use ($searchTerm) {
+                $q->where('name', 'LIKE', "%{$searchTerm}%")
+                    ->orWhere('description', 'LIKE', "%{$searchTerm}%");
+            });
+        }
+
+        // Filtro por categoría
+        if ($request->has('category') && !empty($request->category)) {
+            $query->where('category', $request->category);
+        }
+
+        // Filtro por género
+        if ($request->has('gender') && !empty($request->gender)) {
+            $query->where('gender', $request->gender);
+        }
+
+        // Filtro por rango de precio
+        if ($request->has('min_price') && is_numeric($request->min_price)) {
+            $query->where('price', '>=', $request->min_price);
+        }
+
+        if ($request->has('max_price') && is_numeric($request->max_price)) {
+            $query->where('price', '<=', $request->max_price);
+        }
+
+        // Filtro por tallas
+        if ($request->has('sizes') && !empty($request->sizes)) {
+            $sizeIds = is_array($request->sizes) ? $request->sizes : explode(',', $request->sizes);
+            $query->whereHas('stocks', function ($q) use ($sizeIds) {
+                $q->whereIn('size_id', $sizeIds)->where('stock', '>', 0);
+            });
+        }
+
+        // Filtro por colores
+        if ($request->has('colors') && !empty($request->colors)) {
+            $colorIds = is_array($request->colors) ? $request->colors : explode(',', $request->colors);
+            $query->whereHas('stocks', function ($q) use ($colorIds) {
+                $q->whereIn('color_id', $colorIds)->where('stock', '>', 0);
+            });
+        }
+
+        // Ordenamiento
+        $sortBy = $request->get('sort_by', 'created_at');
+        $sortOrder = $request->get('sort_order', 'desc');
+
+        switch ($sortBy) {
+            case 'price_asc':
+                $query->orderBy('price', 'asc');
+                break;
+            case 'price_desc':
+                $query->orderBy('price', 'desc');
+                break;
+            case 'name':
+                $query->orderBy('name', 'asc');
+                break;
+            case 'popularity':
+                $query->orderBy('created_at', 'desc');
+                break;
+            default:
+                $query->orderBy($sortBy, $sortOrder);
+        }
+
+        // Paginación
+        $perPage = $request->get('per_page', 10);
+        $page = $request->get('page', 1);
+
+        $products = $query->paginate($perPage, ['*'], 'page', $page);
+
+        // Limpiar URLs de imágenes
+        $products->getCollection()->transform(function ($product) {
             if ($product->images && is_array($product->images)) {
                 $product->images = array_map(function ($imageUrl) {
                     return str_replace('/index.php/', '/', $imageUrl);
@@ -20,7 +92,15 @@ class ProductController extends Controller
             return $product;
         });
 
-        return $products;
+        return response()->json([
+            'data' => $products->items(),
+            'current_page' => $products->currentPage(),
+            'last_page' => $products->lastPage(),
+            'per_page' => $products->perPage(),
+            'total' => $products->total(),
+            'from' => $products->firstItem(),
+            'to' => $products->lastItem(),
+        ]);
     }
 
     public function store(Request $request)
@@ -85,6 +165,28 @@ class ProductController extends Controller
                 'colors' => $colors,
                 'stocks' => $stocks,
             ]
+        ]);
+    }
+
+    public function getFilters()
+    {
+        $categories = Product::select('category')
+            ->distinct()
+            ->whereNotNull('category')
+            ->where('category', '!=', '')
+            ->pluck('category')
+            ->toArray();
+
+        $genders = Product::select('gender')
+            ->distinct()
+            ->whereNotNull('gender')
+            ->where('gender', '!=', '')
+            ->pluck('gender')
+            ->toArray();
+
+        return response()->json([
+            'categories' => $categories,
+            'genders' => $genders,
         ]);
     }
 }

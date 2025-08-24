@@ -154,7 +154,7 @@ export const fetchOrderDetail = async (orderId: string | number) => {
 
 // Funciones para productos
 export const fetchProductDetail = async (productId: string | number) => {
-  const response = await api.get(`/products/${productId}`);
+  const response = await api.get(`/products/${productId}/detail`);
   return response.data;
 }
 

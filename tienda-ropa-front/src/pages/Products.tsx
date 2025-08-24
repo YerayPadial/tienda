@@ -1,66 +1,129 @@
-import React, { useEffect, useState } from 'react'
+import React, { useState, useEffect, useCallback } from 'react'
 import { useNavigate } from 'react-router-dom'
+import ProductFilters from '../components/ProductFilters'
+import type { ProductFilters as FilterType } from '../components/ProductFilters'
+import Pagination from '../components/Pagination'
+import ProductSort from '../components/ProductSort'
 import { api } from '../services/api'
 
-type Product = {
+interface Product {
   id: number
   name: string
-  description: string
-  category: string
-  gender: string
   price: number
   images: string[]
+  category: string
+  gender: string
+  description: string
+}
+
+interface ProductResponse {
+  data: Product[]
+  current_page: number
+  last_page: number
+  per_page: number
+  total: number
+  from: number
+  to: number
 }
 
 const Products: React.FC = () => {
   const [products, setProducts] = useState<Product[]>([])
   const [loading, setLoading] = useState<boolean>(true)
-  const [hoveredProduct, setHoveredProduct] = useState<number | null>(null)
+  const [currentPage, setCurrentPage] = useState<number>(1)
+  const [totalPages, setTotalPages] = useState<number>(1)
+  const [totalProducts, setTotalProducts] = useState<number>(0)
+  const [categories, setCategories] = useState<string[]>([])
+  const [genders, setGenders] = useState<string[]>([])
+  const [filters, setFilters] = useState<FilterType>({
+    category: '',
+    gender: '',
+    sizes: [],
+    colors: [],
+    priceRange: { min: 0, max: 1000 },
+    search: ''
+  })
+  const [sortBy, setSortBy] = useState<string>('created_at')
   const navigate = useNavigate()
 
   useEffect(() => {
-    api.get('/products')
-      .then(response => {
-        setProducts(response.data)
-      })
-      .catch(error => {
-        console.error('Error al obtener productos:', error)
-      })
-      .finally(() => setLoading(false))
+    fetchFiltersData()
   }, [])
 
-  const getCategoryColor = (category: string) => {
-    const colors = {
-      'camisetas': 'bg-blue-100 text-blue-800',
-      'pantalones': 'bg-green-100 text-green-800',
-      'zapatos': 'bg-purple-100 text-purple-800',
-      'accesorios': 'bg-pink-100 text-pink-800',
-      'abrigos': 'bg-orange-100 text-orange-800',
-    }
-    return colors[category.toLowerCase() as keyof typeof colors] || 'bg-gray-100 text-gray-800'
-  }
+  useEffect(() => {
+    fetchProducts()
+  }, [currentPage, filters, sortBy])
 
-  const getGenderIcon = (gender: string) => {
-    switch (gender.toLowerCase()) {
-      case 'hombre':
-        return '👨'
-      case 'mujer':
-        return '👩'
-      case 'unisex':
-        return '👤'
-      default:
-        return '👤'
+  const fetchFiltersData = async () => {
+    try {
+      const response = await api.get('/products/filters')
+      setCategories(response.data.categories || [])
+      setGenders(response.data.genders || [])
+    } catch (error) {
+      console.error('Error fetching filters:', error)
     }
   }
 
-  if (loading) {
+  const fetchProducts = async () => {
+    setLoading(true)
+    try {
+      const params = new URLSearchParams({
+        page: currentPage.toString(),
+        per_page: '10',
+        sort_by: sortBy,
+      })
+
+      // Agregar filtros a los parámetros
+      if (filters.search) params.append('search', filters.search)
+      if (filters.category) params.append('category', filters.category)
+      if (filters.gender) params.append('gender', filters.gender)
+      if (filters.priceRange.min > 0) params.append('min_price', filters.priceRange.min.toString())
+      if (filters.priceRange.max < 1000) params.append('max_price', filters.priceRange.max.toString())
+      if (filters.sizes.length > 0) params.append('sizes', filters.sizes.join(','))
+      if (filters.colors.length > 0) params.append('colors', filters.colors.join(','))
+
+      const response = await api.get(`/products?${params}`)
+      const data: ProductResponse = response.data
+      setProducts(data.data)
+      setCurrentPage(data.current_page)
+      setTotalPages(data.last_page)
+      setTotalProducts(data.total)
+    } catch (error) {
+      console.error('Error fetching products:', error)
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  const handleFiltersChange = useCallback((newFilters: FilterType) => {
+    setFilters(newFilters)
+    setCurrentPage(1) // Resetea a la primera pagina cuando los filtros cambian
+  }, [])
+
+  const handleSearch = useCallback((searchTerm: string) => {
+    setFilters(prev => ({ ...prev, search: searchTerm }))
+    setCurrentPage(1)
+  }, [])
+
+  const handleSortChange = useCallback((sort: string) => {
+    setSortBy(sort)
+    setCurrentPage(1)
+  }, [])
+
+  const handlePageChange = useCallback((page: number) => {
+    setCurrentPage(page)
+    window.scrollTo({ top: 0, behavior: 'smooth' })
+  }, [])
+
+  const handleProductClick = useCallback((productId: number) => {
+    navigate(`/productos/${productId}`)
+  }, [navigate])
+
+  if (loading && products.length === 0) {
     return (
-      <div className="min-h-screen bg-gray-50">
-        <div className="max-w-7xl mx-auto px-4 py-12">
-          <div className="text-center">
-            <div className="animate-spin rounded-full h-16 w-16 border-b-2 border-gray-900 mx-auto mb-6"></div>
-            <h2 className="text-2xl font-semibold text-gray-900 mb-2">Cargando productos</h2>
-            <p className="text-gray-600">Estamos preparando lo mejor para ti...</p>
+      <div className="min-h-screen bg-gradient-to-br from-gray-50 via-white to-gray-100">
+        <div className="container mx-auto px-4 py-8">
+          <div className="flex items-center justify-center h-64">
+            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
           </div>
         </div>
       </div>
@@ -68,162 +131,145 @@ const Products: React.FC = () => {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50">
-      {/* Hero Section */}
-      <div className="bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900 text-white">
-        <div className="max-w-7xl mx-auto px-4 py-16">
-          <div className="text-center">
-            <h1 className="text-4xl lg:text-5xl font-bold mb-6 leading-tight">
-              Nuestra Colección
-            </h1>
-            <p className="text-xl text-gray-300 mb-8 max-w-2xl mx-auto">
-              Descubre piezas únicas y tendencias de moda que definen tu estilo personal
-            </p>
-            <div className="flex items-center justify-center gap-6 text-sm text-gray-400">
-              <div className="flex items-center gap-2">
-                <svg width="16" height="16" fill="none" viewBox="0 0 24 24">
-                  <path d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
-                </svg>
-                <span>Calidad premium</span>
-              </div>
-              <div className="flex items-center gap-2">
-                <svg width="16" height="16" fill="none" viewBox="0 0 24 24">
-                  <path d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
-                </svg>
-                <span>Envío gratuito</span>
-              </div>
-              <div className="flex items-center gap-2">
-                <svg width="16" height="16" fill="none" viewBox="0 0 24 24">
-                  <path d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
-                </svg>
-                <span>Devolución fácil</span>
-              </div>
-            </div>
-          </div>
+    <div className="min-h-screen bg-gradient-to-br from-gray-50 via-white to-gray-100">
+      <div className="container mx-auto px-4 py-8">
+        {/* Header */}
+        <div className="text-center mb-12">
+          <h1 className="text-4xl font-bold text-gray-900 mb-4">
+            Nuestra Colección
+          </h1>
+          <p className="text-lg text-gray-600 max-w-2xl mx-auto">
+            Descubre las últimas tendencias en moda con nuestra selección cuidadosamente curada
+          </p>
         </div>
-      </div>
-      {/* Products Grid */}
-      <div className="max-w-7xl mx-auto px-4 py-12">
-        {products.length > 0 ? (
-          <>
-            <div className="flex items-center justify-between mb-8">
-              <div>
-                <h2 className="text-2xl font-bold text-gray-900">
-                  {products.length} {products.length === 1 ? 'Producto' : 'Productos'}
-                </h2>
-                <p className="text-gray-600 mt-1">Encuentra tu estilo perfecto</p>
-              </div>
 
-              {/* Filter/Sort placeholder */}
-              <div className="flex items-center gap-4">
-                <div className="text-sm text-gray-500">
-                  Ordenar por popularidad
-                </div>
-              </div>
-            </div>
+        <div className="flex flex-col lg:flex-row gap-8">
+          {/* Sidebar - Filters */}
+          <div className="lg:w-1/4">
+            <ProductFilters
+              onFiltersChange={handleFiltersChange}
+              onSearch={handleSearch}
+              categories={categories}
+              genders={genders}
+            />
+          </div>
 
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8">
-              {products.map(product => (
-                <div
-                  key={product.id}
-                  className="group bg-white rounded-xl shadow-sm hover:shadow-xl transition-all duration-300 overflow-hidden border border-gray-200 hover:border-gray-300"
-                  onMouseEnter={() => setHoveredProduct(product.id)}
-                  onMouseLeave={() => setHoveredProduct(null)}
-                >
-                  {/* Image Container */}
-                  <div className="relative overflow-hidden bg-gray-100 aspect-square">
-                    {product.images && product.images.length > 0 ? (
-                      <img
-                        src={product.images[0]}
-                        alt={product.name}
-                        className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
-                        onError={(e: any) => {
-                          e.target.src = 'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNDAwIiBoZWlnaHQ9IjQwMCIgdmlld0JveD0iMCAwIDQwMCA0MDAiIGZpbGw9Im5vbmUiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+CjxyZWN0IHdpZHRoPSI0MDAiIGhlaWdodD0iNDAwIiBmaWxsPSIjRjlGQUZCIi8+CjxwYXRoIGQ9Ik0yMDAgMjIwQzE4NS44IDIyMCAyMDAgMjAyLjQgMjAwIDIwMEMyMDAgMTk3LjYgMTg1LjggMTgwIDIwMCAxODBDMjE0LjIgMTgwIDIzMCAxOTcuNiAyMzAgMjAwQzIzMCAyMDIuNCAyMTQuMiAyMjAgMjAwIDIyMFpNMjAwIDI2MEMxNzIuNCAyNjAgMTUwIDIzNy42IDE1MCAyMTBDMTUwIDI1Mi40IDE3Mi40IDIzMCAyMDAgMjMwQzIyNy42IDIzMCAyNTAgMjUyLjQgMjUwIDIxMEMyNTAgMjM3LjYgMjI3LjYgMjYwIDIwMCAyNjBaIiBmaWxsPSIjRDFENURCIi8+Cjwvc3ZnPgo='
-                        }}
-                      />
-                    ) : (
-                      <div className="w-full h-full flex items-center justify-center bg-gray-100">
-                        <svg width="48" height="48" fill="none" viewBox="0 0 24 24" className="text-gray-400">
-                          <path d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
-                        </svg>
-                      </div>
-                    )}
+          {/* Main Content */}
+          <div className="lg:w-3/4">
+            {/* Sort and Results Count */}
+            <ProductSort
+              currentSort={sortBy}
+              onSortChange={handleSortChange}
+              totalProducts={totalProducts}
+            />
 
-                    {/* Hover overlay */}
-                    <div className="absolute inset-0 bg-black bg-opacity-0 group-hover:bg-opacity-20 transition-all duration-300 flex items-center justify-center">
-                      <button
-                        onClick={() => navigate(`/productos/${product.id}`)}
-                        className="opacity-0 group-hover:opacity-100 transform translate-y-4 group-hover:translate-y-0 transition-all duration-300 bg-white text-gray-900 px-6 py-3 rounded-lg font-semibold shadow-lg hover:shadow-xl"
-                      >
-                        Ver detalles
-                      </button>
-                    </div>
-
-                    {/* Badges */}
-                    <div className="absolute top-3 left-3 flex flex-col gap-2">
-                      <span className={`px-2 py-1 rounded-full text-xs font-medium ${getCategoryColor(product.category)}`}>
-                        {product.category}
-                      </span>
-                    </div>
-
-                    <div className="absolute top-3 right-3">
-                      <span className="text-2xl" title={product.gender}>
-                        {getGenderIcon(product.gender)}
-                      </span>
+            {/* Products Grid */}
+            {loading ? (
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
+                {[...Array(6)].map((_, index) => (
+                  <div key={index} className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden animate-pulse">
+                    <div className="aspect-square bg-gray-200"></div>
+                    <div className="p-6">
+                      <div className="h-4 bg-gray-200 rounded mb-2"></div>
+                      <div className="h-4 bg-gray-200 rounded w-2/3 mb-4"></div>
+                      <div className="h-6 bg-gray-200 rounded w-1/3"></div>
                     </div>
                   </div>
+                ))}
+              </div>
+            ) : products.length === 0 ? (
+              <div className="text-center py-16">
+                <div className="mb-4">
+                  <svg className="mx-auto h-24 w-24 text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1} d="M20 13V6a2 2 0 00-2-2H6a2 2 0 00-2 2v7m16 0v5a2 2 0 01-2 2H6a2 2 0 01-2-2v-5m16 0h-2M4 13h2m13-8V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v1M9 6V4a1 1 0 011-1h4a1 1 0 011 1v2" />
+                  </svg>
+                </div>
+                <h3 className="text-lg font-medium text-gray-900 mb-2">No se encontraron productos</h3>
+                <p className="text-gray-500">Intenta ajustar tus filtros o términos de búsqueda</p>
+              </div>
+            ) : (
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
+                {products.map(product => (
+                  <div
+                    key={product.id}
+                    className="group bg-white rounded-xl shadow-sm hover:shadow-xl transition-all duration-300 overflow-hidden border border-gray-200 hover:border-gray-300 cursor-pointer"
+                    onClick={() => handleProductClick(product.id)}
+                  >
+                    {/* Image Container */}
+                    <div className="relative overflow-hidden bg-gray-100 aspect-square">
+                      {product.images && product.images.length > 0 ? (
+                        <img
+                          src={product.images[0]}
+                          alt={product.name}
+                          className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+                          onError={(e: any) => {
+                            e.target.src = '/placeholder-image.jpg'
+                          }}
+                        />
+                      ) : (
+                        <div className="w-full h-full flex items-center justify-center bg-gray-200">
+                          <svg className="w-16 h-16 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                          </svg>
+                        </div>
+                      )}
 
-                  {/* Product Info */}
-                  <div className="p-6">
-                    <div className="mb-4">
-                      <h3 className="font-bold text-lg text-gray-900 mb-2 group-hover:text-gray-700 transition-colors">
+                      {/* Category Badge */}
+                      <div className="absolute top-3 left-3">
+                        <span className="inline-block bg-white/90 backdrop-blur-sm text-gray-800 text-xs font-medium px-2 py-1 rounded-full">
+                          {product.category}
+                        </span>
+                      </div>
+
+                      {/* Quick View Overlay */}
+                      <div className="absolute inset-0 bg-black/0 group-hover:bg-black/20 transition-all duration-300 flex items-center justify-center opacity-0 group-hover:opacity-100">
+                        <span className="bg-white text-gray-800 px-4 py-2 rounded-lg font-medium transform translate-y-4 group-hover:translate-y-0 transition-transform duration-300">
+                          Ver detalles
+                        </span>
+                      </div>
+                    </div>
+
+                    {/* Product Info */}
+                    <div className="p-6">
+                      <h3 className="text-lg font-semibold text-gray-900 mb-2 group-hover:text-blue-600 transition-colors">
                         {product.name}
                       </h3>
-                      <p className="text-gray-600 text-sm line-clamp-2 leading-relaxed">
+
+                      <p className="text-gray-600 text-sm mb-4 line-clamp-2">
                         {product.description}
                       </p>
-                    </div>
 
-                    <div className="flex items-center justify-between">
-                      <div className="text-right">
-                        <div className="text-2xl font-bold text-gray-900">
-                          {product.price}€
+                      <div className="flex items-center justify-between">
+                        <div className="flex items-center gap-2">
+                          <span className="text-2xl font-bold text-gray-900">
+                            €{product.price}
+                          </span>
                         </div>
-                        <div className="text-xs text-gray-500">
-                          IVA incluido
+
+                        <div className="flex items-center gap-2">
+                          <span className="text-xs text-gray-500 bg-gray-100 px-2 py-1 rounded">
+                            {product.gender}
+                          </span>
                         </div>
                       </div>
-
-                      <button
-                        onClick={() => navigate(`/productos/${product.id}`)}
-                        className="p-3 bg-gray-900 text-white rounded-lg hover:bg-gray-800 transition-colors shadow-md hover:shadow-lg"
-                        title="Ver producto"
-                      >
-                        <svg width="20" height="20" fill="none" viewBox="0 0 24 24">
-                          <path d="M9 5l7 7-7 7" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
-                        </svg>
-                      </button>
                     </div>
                   </div>
-                </div>
-              ))}
-            </div>
-          </>
-        ) : (
-          <div className="text-center py-16">
-            <div className="text-6xl mb-6">🛍️</div>
-            <h2 className="text-2xl font-bold text-gray-900 mb-4">No hay productos disponibles</h2>
-            <p className="text-gray-600 mb-8 max-w-md mx-auto">
-              Estamos trabajando para traerte los mejores productos. Vuelve pronto para descubrir nuestra colección.
-            </p>
-            <button
-              onClick={() => window.location.reload()}
-              className="bg-gray-900 text-white px-6 py-3 rounded-lg hover:bg-gray-800 transition-colors"
-            >
-              Actualizar página
-            </button>
+                ))}
+              </div>
+            )}
+
+            {/* Pagination */}
+            {totalPages > 1 && (
+              <Pagination
+                currentPage={currentPage}
+                totalPages={totalPages}
+                onPageChange={handlePageChange}
+                itemsPerPage={10}
+                totalItems={totalProducts}
+              />
+            )}
           </div>
-        )}
+        </div>
       </div>
     </div>
   )
