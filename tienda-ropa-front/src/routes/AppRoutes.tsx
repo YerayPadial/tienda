@@ -8,6 +8,8 @@ import Profile from '../pages/Profile'
 import Order from '../pages/Order'
 import OrderDetail from '../pages/OrderDetail'
 import ProductDetail from '../pages/ProductDetail'
+import Checkout from '../pages/Checkout'
+import OrderConfirmation from '../pages/OrderConfirmation'
 import ProtectedRoute from '../components/ProtectedRoute'
 import { useUser } from '../context/UserContext'
 
@@ -19,6 +21,8 @@ const AppRoutes: React.FC = () => {
       <Route path="/" element={<Home />} />
       <Route path="/productos" element={<Products />} />
       <Route path="/productos/:id" element={<ProductDetail />} />
+      <Route path="/checkout" element={<Checkout />} />
+      <Route path="/pedido-confirmado" element={<OrderConfirmation />} />
       <Route path="/login" element={<Login />} />
       <Route path="/registro" element={<Register />} />
 

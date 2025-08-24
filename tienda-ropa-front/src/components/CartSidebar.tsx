@@ -1,8 +1,10 @@
 import React from 'react'
+import { useNavigate } from 'react-router-dom'
 import { useCart } from '../context/CartContext'
 import CartItem from './CartItem'
 
 const CartSidebar: React.FC = () => {
+    const navigate = useNavigate()
     const {
         items,
         isOpen,
@@ -11,6 +13,11 @@ const CartSidebar: React.FC = () => {
         totalItems,
         clearCart
     } = useCart()
+
+    const handleCheckout = () => {
+        toggleCart() 
+        navigate('/checkout') 
+    }
 
     return (
         <>
@@ -87,9 +94,7 @@ const CartSidebar: React.FC = () => {
                                 {/* Botón de checkout */}
                                 <button
                                     className="w-full bg-blue-600 text-white py-3 px-4 rounded-lg font-medium hover:bg-blue-700 transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
-                                    onClick={() => {
-                                        console.log('Proceder al checkout')
-                                    }}
+                                    onClick={handleCheckout}
                                 >
                                     Proceder al Pago
                                 </button>

@@ -16,7 +16,7 @@ Falta:
 
 2. Frontend compra
 
-    - Carrito !
+    - Carrito ! TERMINADO
     - Apartado pago !
     - Filtros y buscador tienda, Limitar cantidad de productos de 10 en 10 ! TERMINADO
     - ProductDetail con carrusel de fotos si hay mas de una imagen    ! TERMINADO
