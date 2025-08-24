@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useCart } from '../context/CartContext'
+import { useUser } from '../context/UserContext'
 import CheckoutSteps from '../components/CheckoutSteps'
 import CustomerDataForm from '../components/CustomerDataForm'
 import ShippingDataForm from '../components/ShippingDataForm'
@@ -25,6 +26,7 @@ interface ShippingData {
 const Checkout: React.FC = () => {
     const navigate = useNavigate()
     const { items, totalPrice, clearCart } = useCart()
+    const { user, loading } = useUser()
     const [currentStep, setCurrentStep] = useState(1)
     const [customerData, setCustomerData] = useState<CustomerData>({
         firstName: '',
@@ -41,6 +43,19 @@ const Checkout: React.FC = () => {
         notes: ''
     })
     const [isProcessing, setIsProcessing] = useState(false)
+
+    // Verificar autenticación
+    useEffect(() => {
+        if (!loading && !user) {
+            navigate('/login', { 
+                replace: true,
+                state: { 
+                    from: '/checkout',
+                    message: 'Debes iniciar sesión para proceder con el pago'
+                }
+            })
+        }
+    }, [user, loading, navigate])
 
     // Redirigir si el carrito está vacío
     useEffect(() => {
@@ -94,6 +109,23 @@ const Checkout: React.FC = () => {
     }
 
     if (items.length === 0) {
+        return null
+    }
+
+    // Mostrar loading mientras se verifica la autenticación
+    if (loading) {
+        return (
+            <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+                <div className="text-center">
+                    <div className="animate-spin rounded-full h-16 w-16 border-b-2 border-blue-600 mx-auto mb-4"></div>
+                    <p className="text-gray-600">Verificando autenticación...</p>
+                </div>
+            </div>
+        )
+    }
+
+    // Si no hay usuario autenticado, no mostrar nada (se redirigirá)
+    if (!user) {
         return null
     }
 

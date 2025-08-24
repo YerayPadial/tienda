@@ -1,10 +1,12 @@
 import React from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useCart } from '../context/CartContext'
+import { useUser } from '../context/UserContext'
 import CartItem from './CartItem'
 
 const CartSidebar: React.FC = () => {
     const navigate = useNavigate()
+    const { user } = useUser()
     const {
         items,
         isOpen,
@@ -15,8 +17,20 @@ const CartSidebar: React.FC = () => {
     } = useCart()
 
     const handleCheckout = () => {
-        toggleCart() 
-        navigate('/checkout') 
+        toggleCart()
+
+        if (!user) {
+            // Si no está logueado, redirigir al login
+            navigate('/login', {
+                state: {
+                    from: '/checkout',
+                    message: 'Debes iniciar sesión para proceder con el pago'
+                }
+            })
+        } else {
+            // Si está logueado, ir al checkout
+            navigate('/checkout')
+        }
     }
 
     return (
