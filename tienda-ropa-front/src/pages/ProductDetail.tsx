@@ -23,6 +23,21 @@ const ProductDetail: React.FC = () => {
         }
     }, [id])
 
+    // Efecto para seleccionar automáticamente talla y color únicos
+    useEffect(() => {
+        if (product) {
+            // Auto-seleccionar si solo hay una talla disponible
+            if (product.sizes.length === 1 && !selectedSize) {
+                setSelectedSize(product.sizes[0].id)
+            }
+
+            // Auto-seleccionar si solo hay un color disponible
+            if (product.colors.length === 1 && !selectedColor) {
+                setSelectedColor(product.colors[0].id)
+            }
+        }
+    }, [product, selectedSize, selectedColor])
+
     // Funciones para el carrusel de imágenes
     const nextImage = () => {
         if (product && product.images && product.images.length > 1) {
@@ -295,6 +310,49 @@ const ProductDetail: React.FC = () => {
                                         <span className="text-gray-500 text-lg">IVA incluido</span>
                                     </div>
                                 </div>
+
+                                {/* Especificaciones únicas (cuando solo hay una talla y/o un color) */}
+                                {(product.sizes.length === 1 && product.colors.length === 1 || product.sizes.length === 1 && product.colors.length > 1 || product.sizes.length > 1 && product.colors.length === 1) && (
+                                    <div className="mb-8 bg-gradient-to-r from-blue-50 to-indigo-50 border border-blue-200 rounded-xl p-6">
+                                        <h3 className="text-lg font-semibold text-gray-900 mb-4 flex items-center gap-2">
+                                            <svg className="w-5 h-5 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                            </svg>
+                                            Especificaciones del producto
+                                        </h3>
+                                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                                            {product.sizes.length === 1 && (
+                                                <div className="flex items-center gap-3 bg-white rounded-lg p-4 border border-blue-100">
+                                                    <div className="w-8 h-8 bg-blue-100 rounded-full flex items-center justify-center">
+                                                        <svg className="w-4 h-4 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                                        </svg>
+                                                    </div>
+                                                    <div>
+                                                        <span className="text-sm text-gray-600 font-medium">Talla disponible:</span>
+                                                        <p className="text-lg font-semibold text-gray-900">{product.sizes[0].name}</p>
+                                                    </div>
+                                                </div>
+                                            )}
+                                            {product.colors.length === 1 && (
+                                                <div className="flex items-center gap-3 bg-white rounded-lg p-4 border border-blue-100">
+                                                    <div className="w-8 h-8 rounded-full border-2 border-gray-300 flex items-center justify-center" style={{ backgroundColor: product.colors[0].hex }}>
+                                                        {/* Checkmark si el color es muy claro */}
+                                                        <svg className="w-4 h-4 text-white drop-shadow-sm" fill="currentColor" viewBox="0 0 20 20">
+                                                            <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
+                                                        </svg>
+                                                    </div>
+                                                    <div>
+                                                        <span className="text-sm text-gray-600 font-medium">Color disponible:</span>
+                                                        <p className="text-lg font-semibold text-gray-900">{product.colors[0].name}</p>
+                                                    </div>
+                                                </div>
+                                            )}
+                                        </div>
+                                    </div>
+                                )}
+
+
 
                                 {/* Tallas */}
                                 {product.sizes.length > 1 && (
