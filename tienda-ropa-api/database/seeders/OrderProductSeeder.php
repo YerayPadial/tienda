@@ -10,28 +10,93 @@ class OrderProductSeeder extends Seeder
     public function run()
     {
         $orderProducts = [
-            // Pedido 2 (id=2): Sudadera Unisex, S (21), Negro (20), 2 unidades
+            // Pedidos de Cliente Prueba (id=1, orders 1 y 2)
             [
-                'order_id' => 2,
-                'product_id' => 20,
-                'size_id' => 21,
-                'color_id' => 20,
-                'quantity' => 2,
-            ],
-            // Pedido 3 (id=3): Pantalón Deportivo, M (22), Blanco (21), 1 unidad
-            [
-                'order_id' => 3,
-                'product_id' => 21,
-                'size_id' => 22,
-                'color_id' => 21,
+                'order_id' => 1,
+                'product_id' => 20, // Collar Rojo
+                'size_id' => 25,    // Única
+                'color_id' => 23,   // Rojo
                 'quantity' => 1,
             ],
-            // Pedido 4 (id=4): Vestido Elegante, Única (25), Rojo (23), 1 unidad
+            [
+                'order_id' => 1,
+                'product_id' => 24, // Camiseta Blanca
+                'size_id' => 22,    // M
+                'color_id' => 21,   // Blanco
+                'quantity' => 2,
+            ],
+            [
+                'order_id' => 2,
+                'product_id' => 21, // Sudadera Básica
+                'size_id' => 21,    // S
+                'color_id' => 21,   // Blanco
+                'quantity' => 1,
+            ],
+            [
+                'order_id' => 2,
+                'product_id' => 25, // Gorra Verde
+                'size_id' => 25,    // Única
+                'color_id' => 24,   // Verde
+                'quantity' => 1,
+            ],
+
+            // Pedidos de Yeray Padial (id=2, orders 3 y 4)
+            [
+                'order_id' => 3,
+                'product_id' => 22, // Pantalón Deportivo
+                'size_id' => 22,    // M
+                'color_id' => 22,   // Azul
+                'quantity' => 1,
+            ],
+            [
+                'order_id' => 3,
+                'product_id' => 27, // Falda Negra
+                'size_id' => 25,    // Única
+                'color_id' => 20,   // Negro
+                'quantity' => 2,
+            ],
             [
                 'order_id' => 4,
-                'product_id' => 22,
-                'size_id' => 25,
-                'color_id' => 23,
+                'product_id' => 23, // Vestido Elegante
+                'size_id' => 25,    // Única
+                'color_id' => 22,   // Azul
+                'quantity' => 1,
+            ],
+            [
+                'order_id' => 4,
+                'product_id' => 29, // Polo Verde
+                'size_id' => 22,    // M
+                'color_id' => 24,   // Verde
+                'quantity' => 2,
+            ],
+
+            // Pedidos de Admin (id=3, orders 5 y 6)
+            [
+                'order_id' => 5,
+                'product_id' => 26, // Chaqueta Azul
+                'size_id' => 21,    // S
+                'color_id' => 22,   // Azul
+                'quantity' => 1,
+            ],
+            [
+                'order_id' => 5,
+                'product_id' => 28, // Bufanda Azul
+                'size_id' => 25,    // Única
+                'color_id' => 22,   // Azul
+                'quantity' => 1,
+            ],
+            [
+                'order_id' => 6,
+                'product_id' => 30, // Blusa Blanca
+                'size_id' => 21,    // S
+                'color_id' => 21,   // Blanco
+                'quantity' => 1,
+            ],
+            [
+                'order_id' => 6,
+                'product_id' => 24, // Camiseta Blanca
+                'size_id' => 20,    // XS
+                'color_id' => 21,   // Blanco
                 'quantity' => 1,
             ],
         ];
