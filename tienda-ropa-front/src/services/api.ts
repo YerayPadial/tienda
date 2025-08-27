@@ -190,6 +190,12 @@ export const fetchProducts = async () => {
   return response.data;
 }
 
+// Función para obtener productos recientes
+export const fetchRecentProducts = async (limit: number = 4) => {
+  const response = await api.get(`/products/recent?limit=${limit}`);
+  return response.data;
+}
+
 // Función helper para verificar si el usuario está autenticado
 export const isAuthenticated = (): boolean => {
   const token = localStorage.getItem('token')

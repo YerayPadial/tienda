@@ -1,74 +1,97 @@
-import React from 'react'
+import React, { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { FaArrowRight, FaShoppingBag, FaFire, FaGem } from 'react-icons/fa'
+import { FaArrowRight, FaShoppingBag, FaSpinner } from 'react-icons/fa'
+import { fetchRecentProducts } from '../services/api'
 
-const featuredProducts = [
-    {
-        id: 1,
-        name: "Vestido Elegante Azul",
-        price: 89.99,
-        originalPrice: 119.99,
-        image: "https://images.unsplash.com/photo-1572804013309-59a88b7e92f1?w=400&h=500&fit=crop",
-        badge: "Trending",
-        category: "Mujer"
-    },
-    {
-        id: 2,
-        name: "Camisa Premium Hombre",
-        price: 65.99,
-        originalPrice: 85.99,
-        image: "https://images.unsplash.com/photo-1602810318383-e386cc2a3ccf?w=400&h=500&fit=crop",
-        badge: "Bestseller",
-        category: "Hombre"
-    },
-    {
-        id: 3,
-        name: "Conjunto Deportivo",
-        price: 45.99,
-        originalPrice: 65.99,
-        image: "https://images.unsplash.com/photo-1578662996442-48f60103fc96?w=400&h=500&fit=crop",
-        badge: "Oferta",
-        category: "Deportivo"
-    },
-    {
-        id: 4,
-        name: "Chaqueta Moderna",
-        price: 125.99,
-        originalPrice: 165.99,
-        image: "https://images.unsplash.com/photo-1551028719-00167b16eac5?w=400&h=500&fit=crop",
-        badge: "Premium",
-        category: "Unisex"
-    }
-]
+interface Product {
+  id: number
+  name: string
+  price: number
+  image_url?: string
+  category?: {
+    name: string
+  }
+  created_at: string
+}
 
 const FeaturedProducts: React.FC = () => {
-    const navigate = useNavigate()
+  const navigate = useNavigate()
+  const [products, setProducts] = useState<Product[]>([])
+  const [loading, setLoading] = useState(true)
+  const [error, setError] = useState<string | null>(null)
 
-    const getBadgeColor = (badge: string) => {
-        switch (badge) {
-            case 'Trending':
-                return 'bg-gradient-to-r from-pink-500 to-red-500'
-            case 'Bestseller':
-                return 'bg-gradient-to-r from-green-500 to-emerald-500'
-            case 'Oferta':
-                return 'bg-gradient-to-r from-yellow-500 to-orange-500'
-            case 'Premium':
-                return 'bg-gradient-to-r from-purple-500 to-indigo-500'
-            default:
-                return 'bg-gradient-to-r from-blue-500 to-purple-500'
-        }
+  useEffect(() => {
+    const loadRecentProducts = async () => {
+      try {
+        setLoading(true)
+        const response = await fetchRecentProducts(4)
+        setProducts(response.products || response.data || response)
+      } catch (err) {
+        console.error('Error fetching recent products:', err)
+        setError('Error al cargar productos recientes')
+      } finally {
+        setLoading(false)
+      }
     }
 
-    const getBadgeIcon = (badge: string) => {
-        switch (badge) {
-            case 'Trending':
-                return <FaFire />
-            case 'Premium':
-                return <FaGem />
-            default:
-                return null
-        }
-    }
+    loadRecentProducts()
+  }, [])
+
+  const formatDate = (dateString: string) => {
+    const date = new Date(dateString)
+    return date.toLocaleDateString('es-ES', { 
+      day: 'numeric', 
+      month: 'short',
+      year: 'numeric'
+    })
+  }
+
+  const getDefaultImage = () => {
+    return "https://images.unsplash.com/photo-1441986300917-64674bd600d8?w=400&h=500&fit=crop"
+  }
+
+  if (loading) {
+    return (
+      <section className="py-20 bg-white">
+        <div className="max-w-7xl mx-auto px-6">
+          <div className="text-center">
+            <FaSpinner className="animate-spin text-4xl text-blue-600 mx-auto mb-4" />
+            <p className="text-gray-600">Cargando productos recientes...</p>
+          </div>
+        </div>
+      </section>
+    )
+  }
+
+  if (error) {
+    return (
+      <section className="py-20 bg-white">
+        <div className="max-w-7xl mx-auto px-6">
+          <div className="text-center">
+            <p className="text-red-600 mb-4">{error}</p>
+            <button
+              onClick={() => window.location.reload()}
+              className="bg-blue-600 text-white px-6 py-2 rounded-lg hover:bg-blue-700 transition-colors"
+            >
+              Reintentar
+            </button>
+          </div>
+        </div>
+      </section>
+    )
+  }
+
+  if (!products || products.length === 0) {
+    return (
+      <section className="py-20 bg-white">
+        <div className="max-w-7xl mx-auto px-6">
+          <div className="text-center">
+            <p className="text-gray-600">No hay productos recientes disponibles.</p>
+          </div>
+        </div>
+      </section>
+    )
+  }
 
     return (
         <section className="py-20 bg-white">
@@ -77,17 +100,17 @@ const FeaturedProducts: React.FC = () => {
                     <h2 className="text-5xl font-bold text-gray-800 mb-6">
                         Productos
                         <span className="block bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
-                            Destacados
+                            Recientes
                         </span>
                     </h2>
                     <div className="w-32 h-2 bg-gradient-to-r from-blue-600 to-purple-600 mx-auto mb-8 rounded-full"></div>
                     <p className="text-xl text-gray-600 max-w-2xl mx-auto">
-                        Descubre nuestra selección especial de prendas más populares y exclusivas
+                        Descubre nuestros últimos productos añadidos a la colección
                     </p>
                 </div>
 
                 <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-8 mb-12">
-                    {featuredProducts.map((product, index) => (
+                    {products.map((product, index) => (
                         <div
                             key={product.id}
                             className="group bg-white rounded-3xl shadow-xl hover:shadow-2xl transition-all duration-500 overflow-hidden border border-gray-100 hover:border-blue-200 transform hover:-translate-y-2"
@@ -96,21 +119,25 @@ const FeaturedProducts: React.FC = () => {
                             {/* Imagen del producto */}
                             <div className="relative overflow-hidden">
                                 <img
-                                    src={product.image}
+                                    src={product.image_url || getDefaultImage()}
                                     alt={product.name}
                                     className="w-full h-64 object-cover group-hover:scale-110 transition-transform duration-700"
+                                    onError={(e) => {
+                                      const target = e.target as HTMLImageElement
+                                      target.src = getDefaultImage()
+                                    }}
                                 />
 
-                                {/* Badge */}
-                                <div className={`absolute top-4 left-4 ${getBadgeColor(product.badge)} text-white px-3 py-1 rounded-full text-sm font-bold shadow-lg flex items-center gap-1`}>
-                                    {getBadgeIcon(product.badge)}
-                                    {product.badge}
+                                {/* Badge de Nuevo */}
+                                <div className="absolute top-4 left-4 bg-gradient-to-r from-green-500 to-emerald-500 text-white px-3 py-1 rounded-full text-sm font-bold shadow-lg flex items-center gap-1">
+                                    <span className="w-2 h-2 bg-white rounded-full animate-pulse"></span>
+                                    Nuevo
                                 </div>
 
                                 {/* Overlay con acción */}
                                 <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-center justify-center">
                                     <button
-                                        onClick={() => navigate('/productos')}
+                                        onClick={() => navigate(`/productos/${product.id}`)}
                                         className="bg-white text-blue-600 px-6 py-3 rounded-full font-semibold hover:bg-blue-600 hover:text-white transition-all duration-300 transform hover:scale-105 shadow-lg flex items-center gap-2"
                                     >
                                         <FaShoppingBag />
@@ -121,24 +148,31 @@ const FeaturedProducts: React.FC = () => {
 
                             {/* Información del producto */}
                             <div className="p-6">
-                                <div className="text-sm text-blue-600 font-medium mb-2">{product.category}</div>
-                                <h3 className="text-lg font-bold text-gray-800 mb-3 group-hover:text-blue-600 transition-colors duration-300">
+                                <div className="text-sm text-blue-600 font-medium mb-2">
+                                  {product.category?.name || 'General'}
+                                </div>
+                                <h3 className="text-lg font-bold text-gray-800 mb-3 group-hover:text-blue-600 transition-colors duration-300 line-clamp-2">
                                     {product.name}
                                 </h3>
 
-                                <div className="flex items-center justify-between">
+                                <div className="flex items-center justify-between mb-3">
                                     <div className="flex items-center gap-2">
                                         <span className="text-xl font-bold text-blue-600">
-                                            €{product.price}
-                                        </span>
-                                        <span className="text-sm text-gray-500 line-through">
-                                            €{product.originalPrice}
+                                            €{Number(product.price).toFixed(2)}
                                         </span>
                                     </div>
-                                    <div className="text-sm bg-green-100 text-green-800 px-2 py-1 rounded-full font-medium">
-                                        -{Math.round(((product.originalPrice - product.price) / product.originalPrice) * 100)}%
+                                    <div className="text-xs bg-green-100 text-green-800 px-2 py-1 rounded-full font-medium">
+                                        {formatDate(product.created_at)}
                                     </div>
                                 </div>
+
+                                {/* Botón de acción */}
+                                <button
+                                  onClick={() => navigate(`/productos/${product.id}`)}
+                                  className="w-full bg-gradient-to-r from-blue-600 to-purple-600 text-white py-2 rounded-xl font-semibold hover:from-blue-700 hover:to-purple-700 transition-all duration-300 transform hover:scale-105 shadow-md hover:shadow-lg"
+                                >
+                                  Ver Detalles
+                                </button>
                             </div>
                         </div>
                     ))}

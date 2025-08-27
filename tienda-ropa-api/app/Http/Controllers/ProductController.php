@@ -189,4 +189,33 @@ class ProductController extends Controller
             'genders' => $genders,
         ]);
     }
+
+    public function recent(Request $request)
+    {
+        $limit = $request->query('limit', 8); 
+
+        $products = Product::orderBy('created_at', 'desc')
+            ->limit($limit)
+            ->get()
+            ->map(function ($product) {
+                // Obtener la primera imagen del array o null
+                $imageUrl = null;
+                if ($product->images && is_array($product->images) && count($product->images) > 0) {
+                    $imageUrl = str_replace('/index.php/', '/', $product->images[0]);
+                }
+
+                return [
+                    'id' => $product->id,
+                    'name' => $product->name,
+                    'price' => $product->price,
+                    'image_url' => $imageUrl,
+                    'created_at' => $product->created_at,
+                    'category' => $product->category ? [
+                        'name' => $product->category
+                    ] : null
+                ];
+            });
+
+        return response()->json($products);
+    }
 }
