@@ -207,10 +207,10 @@ const ProductFilters: React.FC<FilterProps> = ({
     return (
         <>
             {/* Mobile Filter Button */}
-            <div className="lg:hidden mb-6">
+            <div className="lg:hidden mb-4">
                 <button
                     onClick={() => setIsOpen(!isOpen)}
-                    className="flex items-center gap-2 bg-white px-4 py-2 rounded-lg border border-gray-300 shadow-sm hover:bg-gray-50 transition-colors"
+                    className="flex items-center gap-2 bg-white/80 backdrop-blur-sm px-4 py-2 rounded-lg border border-white/30 shadow-sm hover:bg-white/90 transition-colors"
                 >
                     <FunnelIcon className="h-5 w-5" />
                     <span>Filtros</span>
@@ -232,7 +232,7 @@ const ProductFilters: React.FC<FilterProps> = ({
             {/* Filters Panel */}
             <div className={`
         ${isOpen ? 'block' : 'hidden'} lg:block
-        bg-white rounded-xl shadow-sm border border-gray-200 p-6 h-fit sticky top-4
+        lg:bg-white lg:rounded-xl lg:shadow-sm lg:border lg:border-gray-200 lg:p-6 p-4 h-fit lg:sticky lg:top-4
       `}>
                 <div className="flex items-center justify-between mb-6">
                     <h3 className="text-lg font-semibold text-gray-900 flex items-center gap-2">
