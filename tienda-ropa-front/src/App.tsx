@@ -11,9 +11,9 @@ const App: React.FC = () => {
     <BrowserRouter basename="/tienda">
       <UserProvider>
         <CartProvider>
-          <div className="bg-gray-50 min-h-screen">
+          <div className="bg-gray-50 min-h-screen flex flex-col">
             <Header />
-            <main className="container mx-auto px-4 py-6">
+            <main className="flex-1">
               <AppRoutes />
             </main>
             <CartSidebar />

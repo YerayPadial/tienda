@@ -27,41 +27,48 @@ const Header: React.FC = () => {
   }
 
   return (
-    <header className="bg-white shadow-lg border-b border-gray-100 sticky top-0 z-50">
+    <header className="bg-white shadow-xl border-b border-gray-200 sticky top-0 z-50 backdrop-blur-sm bg-white/95">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="flex items-center justify-between h-16">
-          {/* Logo */}
+
+        <div className="flex items-center justify-between h-20">
+          {/* Logo mejorado */}
           <Link
             to="/"
-            className="flex items-center gap-3 text-2xl font-bold text-gray-800 hover:text-blue-600 transition-colors duration-300"
+            className="flex items-center gap-3 text-2xl font-bold text-gray-800 hover:text-blue-600 transition-all duration-300 group"
             onClick={closeMenu}
           >
-            <div className="w-10 h-10 bg-gradient-to-br from-blue-600 to-purple-600 rounded-lg flex items-center justify-center">
-              <FaHome className="text-white text-lg" />
+            <div className="w-12 h-12 bg-gradient-to-br from-blue-600 via-purple-600 to-pink-500 rounded-xl flex items-center justify-center shadow-lg group-hover:shadow-xl transition-shadow duration-300 group-hover:scale-105 transform">
+              <FaHome className="text-white text-xl" />
             </div>
-            <span className="hidden sm:block">Tienda San Juan</span>
-            <span className="sm:hidden">Tienda San Juan</span>
+            <div className="hidden sm:block">
+              <span className="bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
+                Tienda San Juan
+              </span>
+              <div className="text-xs text-gray-500 font-normal -mt-1">
+                Moda & Estilo
+              </div>
+            </div>
           </Link>
 
-          {/* Navegación Desktop */}
-          <nav className="hidden md:flex items-center gap-6">
+          {/* Navegación Desktop mejorada */}
+          <nav className="hidden md:flex items-center gap-8">
             <Link
               to="/productos"
-              className="flex items-center gap-2 px-3 py-2 text-gray-600 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-all duration-300 font-medium"
+              className="flex items-center gap-2 px-4 py-2 text-gray-700 hover:text-blue-600 hover:bg-blue-50 rounded-xl transition-all duration-300 font-medium group"
             >
-              <FaShoppingBag className="text-sm" />
+              <FaShoppingBag className="text-sm group-hover:scale-110 transition-transform" />
               <span>Productos</span>
             </Link>
 
-            {/* Icono del carrito */}
+            {/* Icono del carrito mejorado */}
             <CartIcon />
 
             {user ? (
-              <div className="flex items-center gap-3">
+              <div className="flex items-center gap-4">
 
                 <Link
                   to="/usuario"
-                  className="flex items-center gap-2 px-4 py-2 text-blue-600 hover:text-blue-700 hover:bg-blue-50 rounded-lg transition-all duration-300 font-medium border border-blue-200"
+                  className="flex items-center gap-2 px-4 py-2 text-blue-600 hover:text-blue-700 hover:bg-blue-50 rounded-xl transition-all duration-300 font-medium border border-blue-200 hover:border-blue-300 shadow-sm hover:shadow-md"
                 >
                   <FaUser className="text-sm" />
                   <span>Mi Cuenta</span>
@@ -69,24 +76,24 @@ const Header: React.FC = () => {
 
                 <button
                   onClick={handleLogout}
-                  className="flex items-center gap-2 px-4 py-2 bg-red-500 text-white hover:bg-red-600 rounded-lg transition-all duration-300 font-medium shadow-md hover:shadow-lg"
+                  className="flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-red-500 to-red-600 text-white hover:from-red-600 hover:to-red-700 rounded-xl transition-all duration-300 font-medium shadow-md hover:shadow-lg transform hover:scale-105"
                 >
                   <FaSignOutAlt className="text-sm" />
                   <span>Salir</span>
                 </button>
               </div>
             ) : (
-              <div className="flex items-center gap-3">
+              <div className="flex items-center gap-4">
                 <Link
                   to="/login"
-                  className="px-4 py-2 text-blue-600 hover:text-blue-700 hover:bg-blue-50 rounded-lg transition-all duration-300 font-medium"
+                  className="px-4 py-2 text-blue-600 hover:text-blue-700 hover:bg-blue-50 rounded-xl transition-all duration-300 font-medium"
                 >
                   Iniciar sesión
                 </Link>
 
                 <Link
                   to="/registro"
-                  className="px-4 py-2 bg-blue-600 text-white hover:bg-blue-700 rounded-lg transition-all duration-300 font-medium shadow-md hover:shadow-lg"
+                  className="px-6 py-2 bg-gradient-to-r from-blue-600 to-purple-600 text-white hover:from-blue-700 hover:to-purple-700 rounded-xl transition-all duration-300 font-medium shadow-lg hover:shadow-xl transform hover:scale-105"
                 >
                   Crear cuenta
                 </Link>
@@ -94,12 +101,12 @@ const Header: React.FC = () => {
             )}
           </nav>
 
-          {/* Botones móviles (carrito y hamburguesa) */}
-          <div className="md:hidden flex items-center gap-2">
+          {/* Botones móviles mejorados */}
+          <div className="md:hidden flex items-center gap-3">
             <CartIcon />
             <button
               onClick={() => setIsMenuOpen(!isMenuOpen)}
-              className="p-2 text-gray-600 hover:text-blue-600 transition-colors"
+              className="p-3 text-gray-600 hover:text-blue-600 hover:bg-blue-50 rounded-xl transition-all duration-300"
               aria-label="Abrir menú"
             >
               {isMenuOpen ? <FaTimes size={24} /> : <FaBars size={24} />}
@@ -107,38 +114,42 @@ const Header: React.FC = () => {
           </div>
         </div>
 
-        {/* Menú móvil */}
+        {/* Menú móvil mejorado */}
         {isMenuOpen && (
-          <div className="md:hidden border-t border-gray-100 bg-white">
-            <div className="py-4 space-y-2">
+          <div className="md:hidden border-t border-gray-200 bg-white/95 backdrop-blur-sm">
+            <div className="py-6 space-y-3">
               {/* Productos */}
               <Link
                 to="/productos"
-                className="flex items-center gap-3 px-4 py-3 text-gray-600 hover:text-blue-600 hover:bg-blue-50 transition-all duration-300 font-medium"
+                className="flex items-center gap-4 px-6 py-4 text-gray-700 hover:text-blue-600 hover:bg-blue-50 transition-all duration-300 font-medium rounded-xl mx-4"
                 onClick={closeMenu}
               >
-                <FaShoppingBag className="text-lg" />
+                <FaShoppingBag className="text-xl" />
                 <span>Productos</span>
               </Link>
 
               {user ? (
                 <>
+                  <div className="px-6 py-2 text-sm text-gray-500 border-b border-gray-100 mx-4">
+                    Hola, <span className="font-semibold text-blue-600">{user.name}</span> 👋
+                  </div>
+
                   {/* Mi cuenta */}
                   <Link
                     to="/usuario"
-                    className="flex items-center gap-3 px-4 py-3 text-gray-600 hover:text-blue-600 hover:bg-blue-50 transition-all duration-300 font-medium"
+                    className="flex items-center gap-4 px-6 py-4 text-gray-700 hover:text-blue-600 hover:bg-blue-50 transition-all duration-300 font-medium rounded-xl mx-4"
                     onClick={closeMenu}
                   >
-                    <FaUser className="text-lg" />
+                    <FaUser className="text-xl" />
                     <span>Mi Cuenta</span>
                   </Link>
 
                   {/* Cerrar sesión */}
                   <button
                     onClick={handleLogout}
-                    className="flex items-center gap-3 px-4 py-3 text-red-600 hover:text-red-700 hover:bg-red-50 transition-all duration-300 font-medium w-full text-left"
+                    className="flex items-center gap-4 px-6 py-4 text-red-600 hover:text-red-700 hover:bg-red-50 transition-all duration-300 font-medium w-full text-left rounded-xl mx-4"
                   >
-                    <FaSignOutAlt className="text-lg" />
+                    <FaSignOutAlt className="text-xl" />
                     <span>Cerrar sesión</span>
                   </button>
                 </>
@@ -147,17 +158,17 @@ const Header: React.FC = () => {
                   {/* Iniciar sesión */}
                   <Link
                     to="/login"
-                    className="flex items-center gap-3 px-4 py-3 text-blue-600 hover:text-blue-700 hover:bg-blue-50 transition-all duration-300 font-medium"
+                    className="flex items-center gap-4 px-6 py-4 text-blue-600 hover:text-blue-700 hover:bg-blue-50 transition-all duration-300 font-medium rounded-xl mx-4"
                     onClick={closeMenu}
                   >
-                    <FaUser className="text-lg" />
+                    <FaUser className="text-xl" />
                     <span>Iniciar sesión</span>
                   </Link>
 
                   {/* Crear cuenta */}
                   <Link
                     to="/registro"
-                    className="flex items-center justify-center gap-2 mx-4 mt-2 px-4 py-3 bg-blue-600 text-white hover:bg-blue-700 rounded-lg transition-all duration-300 font-medium shadow-md"
+                    className="flex items-center justify-center gap-3 mx-6 mt-4 px-6 py-4 bg-gradient-to-r from-blue-600 to-purple-600 text-white hover:from-blue-700 hover:to-purple-700 rounded-xl transition-all duration-300 font-medium shadow-lg"
                     onClick={closeMenu}
                   >
                     <FaUser className="text-lg" />
