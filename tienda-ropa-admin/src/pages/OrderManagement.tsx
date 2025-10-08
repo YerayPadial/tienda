@@ -487,6 +487,12 @@ export default function OrderManagement() {
         setDeleteDialog(true)
     }
 
+    // Normalize phone: remove spaces, dots and hyphens
+    const normalizePhone = (phone?: string) => {
+        if (!phone) return phone
+        return phone.replace(/[^+\d]/g, '')
+    }
+
     // Submit del formulario
     const onSubmit = async (data: OrderFormData) => {
         setLoading(true)
@@ -508,6 +514,11 @@ export default function OrderManagement() {
                         phone: '',
                         notes: ''
                     }
+                }
+
+                // Normalizar teléfono si existe y no es recogida
+                if (shippingData && shippingData.phone) {
+                    shippingData.phone = normalizePhone(shippingData.phone)
                 }
 
                 // Actualizar estado y datos de envío del pedido
@@ -1010,9 +1021,21 @@ export default function OrderManagement() {
                                                         control={control}
                                                         rules={{
                                                             required: shippingType === 'domicilio' ? 'El teléfono es obligatorio' : false,
-                                                            pattern: {
-                                                                value: /^(\+34|0034|34)?[6789]\d{8}$/,
-                                                                message: 'Introduce un número de teléfono español válido (ej: +34 600 000 000, 600 000 000)'
+                                                            validate: (value: any) => {
+                                                                if (!value) return true
+                                                                // Remove any character except digits and plus
+                                                                const cleaned = String(value).replace(/[^+\d]/g, '')
+
+                                                                // Strip country code if present for validation
+                                                                let local = cleaned
+                                                                if (local.startsWith('+34')) local = local.slice(3)
+                                                                else if (local.startsWith('0034')) local = local.slice(4)
+                                                                else if (local.startsWith('34') && local.length > 9) local = local.slice(2)
+
+                                                                if (!/^[6789]\d{8}$/.test(local)) {
+                                                                    return 'Introduce un número de teléfono español válido (ej: +34 600 000 000, 600 00 00 00, 600-00-00-00)'
+                                                                }
+                                                                return true
                                                             }
                                                         }}
                                                         render={({ field, fieldState }) => (
@@ -1020,9 +1043,9 @@ export default function OrderManagement() {
                                                                 {...field}
                                                                 label="Teléfono de contacto"
                                                                 fullWidth
-                                                                placeholder="+34 600 000 000"
+                                                                placeholder="600 000 000"
                                                                 error={!!fieldState.error}
-                                                                helperText={fieldState.error?.message || 'Formato: +34 600 000 000 o 600 000 000'}
+                                                                helperText={fieldState.error?.message || 'Formato: 600 00 00 00 '}
                                                                 required={shippingType === 'domicilio'}
                                                             />
                                                         )}
