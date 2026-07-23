@@ -9,8 +9,8 @@ const isDevelopment = import.meta.env.MODE === 'development'
 const API_URL = import.meta.env.VITE_API_URL || (
   isLocal || isDevelopment
     // Mismo enlace, pero configurado para posible cambios en futuro
-    ? 'https://padiyera.com/api-tienda/public/index.php/api'  // Desarrollo local
-    : 'https://padiyera.com/api-tienda/public/index.php/api'  // Producción
+    ? 'https://padiyera.ososportgym.es/ecommerce-api/api'  // Desarrollo local
+    : 'https://padiyera.ososportgym.es/ecommerce-api/api'  // Producción
 )
 
 // Solo mostrar logs en desarrollo

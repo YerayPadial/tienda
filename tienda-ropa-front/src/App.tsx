@@ -8,7 +8,7 @@ import { Toaster } from 'react-hot-toast'
 
 const App: React.FC = () => {
   return (
-    <BrowserRouter basename="/tienda">
+    <BrowserRouter basename="/ecommerce">
       <UserProvider>
         <CartProvider>
           <div className="bg-gray-50 min-h-screen flex flex-col">

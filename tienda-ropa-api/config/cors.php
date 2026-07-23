@@ -28,6 +28,7 @@ return [
         'https://padiyera.com',
         'https://padiyera.com/tienda',
         'https://padiyera.com/panelTienda',
+        'https://padiyera.ososportgym.es',
     ],
 
     'allowed_origins_patterns' => [],

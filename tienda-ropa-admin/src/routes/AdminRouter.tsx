@@ -59,7 +59,7 @@ export const adminRouter = createBrowserRouter([
     element: <Navigate to="/admin/login" replace />
   }
 ], {
-  basename: '/panelTienda'
+  basename: '/ecommerce-admin'
 })
 
 export default adminRouter

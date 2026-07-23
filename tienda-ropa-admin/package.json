@@ -5,8 +5,8 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
-    "build": "tsc -b && vite build --base=/panelTienda/ --mode production",
-    "build:dev": "tsc -b && vite build --base=/panelTienda/ --mode development",
+    "build": "tsc -b && vite build --base=/ecommerce-admin/ --mode production",
+    "build:dev": "tsc -b && vite build --base=/ecommerce-admin/ --mode development",
     "lint": "eslint .",
     "preview": "vite preview"
   },

@@ -7,8 +7,8 @@ const isDevelopment = import.meta.env.MODE === 'development'
 // Configurar URL de API según el entorno
 const API_URL = import.meta.env.VITE_API_URL || (
   isLocal || isDevelopment
-    ? 'https://padiyera.com/api-tienda/public/index.php/api'  // Desarrollo local
-    : 'https://padiyera.com/api-tienda/public/index.php/api'  // Producción
+    ? 'https://padiyera.ososportgym.es/ecommerce-api/api'  // Desarrollo local
+    : 'https://padiyera.ososportgym.es/ecommerce-api/api'  // Producción
 )
 
 // Solo mostrar logs en desarrollo
@@ -58,7 +58,7 @@ api.interceptors.response.use(
 
         // Solo redirigir si no estamos ya en la página de login
         if (!window.location.pathname.includes('/admin/login')) {
-          window.location.href = '/panelTienda/admin/login'
+          window.location.href = '/ecommerce-admin/admin/login'
         }
       }
     }
