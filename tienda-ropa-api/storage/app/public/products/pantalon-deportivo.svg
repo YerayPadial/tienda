@@ -1,0 +1,7 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 900 1100">
+  <rect width="900" height="1100" fill="#eef2ff"/>
+  <path d="M330 200h240l45 760H500l-50-480-50 480H285l45-760z" fill="#111827"/>
+  <path d="M330 200h240v85H330z" fill="#4f46e5"/>
+  <path d="M450 285v210" stroke="#64748b" stroke-width="14"/>
+  <text x="450" y="1010" text-anchor="middle" font-family="Arial, sans-serif" font-size="48" font-weight="800" fill="#111827">Pantalon deportivo</text>
+</svg>

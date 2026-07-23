@@ -1,0 +1,7 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 900 1100">
+  <rect width="900" height="1100" fill="#fff1f2"/>
+  <path d="M380 190h140l55 190 135 560H190l135-560 55-190z" fill="#881337"/>
+  <path d="M380 190c20 54 120 54 140 0l35 120H345l35-120z" fill="#be123c"/>
+  <path d="M270 790h360" stroke="#fda4af" stroke-width="20"/>
+  <text x="450" y="1010" text-anchor="middle" font-family="Arial, sans-serif" font-size="48" font-weight="800" fill="#881337">Vestido elegante</text>
+</svg>

@@ -1,0 +1,7 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 900 1100">
+  <rect width="900" height="1100" fill="#eff6ff"/>
+  <path d="M310 220h280l115 145-80 90-55-52v450H330V403l-55 52-80-90 115-145z" fill="#1d4ed8"/>
+  <path d="M450 235v610" stroke="#bfdbfe" stroke-width="18"/>
+  <path d="M360 220c20 42 160 42 180 0" fill="none" stroke="#93c5fd" stroke-width="22"/>
+  <text x="450" y="980" text-anchor="middle" font-family="Arial, sans-serif" font-size="52" font-weight="800" fill="#1e3a8a">Chaqueta</text>
+</svg>

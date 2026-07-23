@@ -1,0 +1,8 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 900 1100">
+  <rect width="900" height="1100" fill="#faf7f2"/>
+  <circle cx="450" cy="500" r="340" fill="#efe3d5"/>
+  <path d="M280 270c40 210 300 210 340 0" fill="none" stroke="#c9a46a" stroke-width="42" stroke-linecap="round"/>
+  <circle cx="450" cy="560" r="66" fill="#1f2937"/>
+  <circle cx="450" cy="560" r="34" fill="#f8fafc"/>
+  <text x="450" y="920" text-anchor="middle" font-family="Arial, sans-serif" font-size="58" font-weight="800" fill="#1f2937">Collar</text>
+</svg>

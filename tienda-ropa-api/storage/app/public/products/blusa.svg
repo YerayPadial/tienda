@@ -1,0 +1,7 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 900 1100">
+  <rect width="900" height="1100" fill="#fff7ed"/>
+  <path d="M315 245l80-55h110l80 55 110 120-92 78-48-45v432H345V398l-48 45-92-78 110-120z" fill="#fff" stroke="#fed7aa" stroke-width="10"/>
+  <path d="M395 190c22 48 88 48 110 0v105c-24 22-86 22-110 0V190z" fill="#fdba74"/>
+  <path d="M450 310v420" stroke="#f97316" stroke-width="10"/>
+  <text x="450" y="985" text-anchor="middle" font-family="Arial, sans-serif" font-size="58" font-weight="800" fill="#9a3412">Blusa</text>
+</svg>

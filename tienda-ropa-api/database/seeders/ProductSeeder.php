@@ -18,7 +18,7 @@ class ProductSeeder extends Seeder
                 'category' => 'Accesorios',
                 'gender' => 'Unisex',
                 'price' => 12.99,
-                'images' => [],
+                'images' => ['https://padiyera.ososportgym.es/ecommerce-api/storage/products/collar.svg'],
             ],
             // 2 Sudadera Unisex (todas menos Única)
             [
@@ -28,7 +28,7 @@ class ProductSeeder extends Seeder
                 'category' => 'Sudaderas',
                 'gender' => 'Unisex',
                 'price' => 29.99,
-                'images' => [],
+                'images' => ['https://padiyera.ososportgym.es/ecommerce-api/storage/products/sudadera-basica.svg'],
             ],
             // 3 Pantalón Deportivo
             [
@@ -38,7 +38,7 @@ class ProductSeeder extends Seeder
                 'category' => 'Pantalones',
                 'gender' => 'Hombre',
                 'price' => 24.99,
-                'images' => [],
+                'images' => ['https://padiyera.ososportgym.es/ecommerce-api/storage/products/pantalon-deportivo.svg'],
             ],
             // 4 Vestido Elegante
             [
@@ -48,7 +48,7 @@ class ProductSeeder extends Seeder
                 'category' => 'Vestidos',
                 'gender' => 'Mujer',
                 'price' => 49.99,
-                'images' => [],
+                'images' => ['https://padiyera.ososportgym.es/ecommerce-api/storage/products/vestido-elegante.svg'],
             ],
             // 5 Camiseta Blanca
             [
@@ -58,7 +58,7 @@ class ProductSeeder extends Seeder
                 'category' => 'Camisetas',
                 'gender' => 'Unisex',
                 'price' => 14.99,
-                'images' => [],
+                'images' => ['https://padiyera.ososportgym.es/ecommerce-api/storage/products/camiseta.svg'],
             ],
             // 6 Gorra Verde Única
             [
@@ -68,7 +68,7 @@ class ProductSeeder extends Seeder
                 'category' => 'Accesorios',
                 'gender' => 'Unisex',
                 'price' => 9.99,
-                'images' => [],
+                'images' => ['https://padiyera.ososportgym.es/ecommerce-api/storage/products/gorra.svg'],
             ],
             // 7 Chaqueta Azul
             [
@@ -78,7 +78,7 @@ class ProductSeeder extends Seeder
                 'category' => 'Chaquetas',
                 'gender' => 'Hombre',
                 'price' => 39.99,
-                'images' => [],
+                'images' => ['https://padiyera.ososportgym.es/ecommerce-api/storage/products/chaqueta.svg'],
             ],
             // 8 Falda Negra
             [
@@ -88,7 +88,7 @@ class ProductSeeder extends Seeder
                 'category' => 'Faldas',
                 'gender' => 'Mujer',
                 'price' => 34.99,
-                'images' => [],
+                'images' => ['https://padiyera.ososportgym.es/ecommerce-api/storage/products/falda.svg'],
             ],
             // 9 Bufanda Azul Única
             [
@@ -98,7 +98,7 @@ class ProductSeeder extends Seeder
                 'category' => 'Accesorios',
                 'gender' => 'Unisex',
                 'price' => 11.99,
-                'images' => [],
+                'images' => ['https://padiyera.ososportgym.es/ecommerce-api/storage/products/bufanda.svg'],
             ],
             // 10 Polo Verde
             [
@@ -108,7 +108,7 @@ class ProductSeeder extends Seeder
                 'category' => 'Polos',
                 'gender' => 'Hombre',
                 'price' => 19.99,
-                'images' => [],
+                'images' => ['https://padiyera.ososportgym.es/ecommerce-api/storage/products/polo.svg'],
             ],
             // 11 Blusa Blanca
             [
@@ -118,7 +118,7 @@ class ProductSeeder extends Seeder
                 'category' => 'Blusas',
                 'gender' => 'Mujer',
                 'price' => 27.99,
-                'images' => [],
+                'images' => ['https://padiyera.ososportgym.es/ecommerce-api/storage/products/blusa.svg'],
             ],
         ];
 
