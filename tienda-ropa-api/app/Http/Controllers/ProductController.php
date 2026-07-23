@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Product;
+use App\Support\ProductImages;
 use Illuminate\Http\Request;
 
 class ProductController extends Controller
@@ -82,13 +83,9 @@ class ProductController extends Controller
 
         $products = $query->paginate($perPage, ['*'], 'page', $page);
 
-        // Limpiar URLs de imágenes
+        // Mostrar solo imágenes de variantes con stock disponible.
         $products->getCollection()->transform(function ($product) {
-            if ($product->images && is_array($product->images)) {
-                $product->images = array_map(function ($imageUrl) {
-                    return str_replace('/index.php/', '/', $imageUrl);
-                }, $product->images);
-            }
+            $product->images = ProductImages::forAvailableColors($product);
             return $product;
         });
 
@@ -145,12 +142,7 @@ class ProductController extends Controller
         $sizes = $sizes->whereIn('id', $product_sizes)->values();
         $colors = $colors->whereIn('id', $product_colors)->values();
 
-        $cleanImages = $product->images;
-        if ($cleanImages && is_array($cleanImages)) {
-            $cleanImages = array_map(function ($imageUrl) {
-                return str_replace('/index.php/', '/', $imageUrl);
-            }, $cleanImages);
-        }
+        $cleanImages = ProductImages::forAvailableColors($product);
 
         return response()->json([
             'product' => [
@@ -198,11 +190,8 @@ class ProductController extends Controller
             ->limit($limit)
             ->get()
             ->map(function ($product) {
-                // Obtener la primera imagen del array o null
-                $imageUrl = null;
-                if ($product->images && is_array($product->images) && count($product->images) > 0) {
-                    $imageUrl = str_replace('/index.php/', '/', $product->images[0]);
-                }
+                $images = ProductImages::forAvailableColors($product);
+                $imageUrl = $images[0] ?? null;
 
                 return [
                     'id' => $product->id,

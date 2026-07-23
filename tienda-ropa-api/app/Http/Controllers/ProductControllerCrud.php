@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Product;
+use App\Support\ProductImages;
 use App\Models\ProductStock;
 use App\Models\Size;
 use App\Models\Color;
@@ -28,13 +29,7 @@ class ProductControllerCrud extends Controller
                 $product->available_sizes = $product->stocks->where('stock', '>', 0)->pluck('size.name')->unique()->values();
                 $product->available_colors = $product->stocks->where('stock', '>', 0)->pluck('color.name')->unique()->values();
 
-                // Limpiar URLs de imágenes
-                if ($product->images && is_array($product->images)) {
-                    $product->images = array_map(function ($imageUrl) {
-                        // Si la URL contiene index.php, la limpiamos
-                        return str_replace('/index.php/', '/', $imageUrl);
-                    }, $product->images);
-                }
+                $product->available_images = ProductImages::forAvailableColors($product);
 
                 return $product;
             });
@@ -136,12 +131,7 @@ class ProductControllerCrud extends Controller
         try {
             $product->load(['stocks.size', 'stocks.color']);
 
-            // Limpiar URLs de imágenes
-            if ($product->images && is_array($product->images)) {
-                $product->images = array_map(function ($imageUrl) {
-                    return str_replace('/index.php/', '/', $imageUrl);
-                }, $product->images);
-            }
+            $product->available_images = ProductImages::forAvailableColors($product);
 
             return response()->json([
                 'data' => $product,
@@ -285,13 +275,7 @@ class ProductControllerCrud extends Controller
         $sizes = $sizes->whereIn('id', $product_sizes)->values();
         $colors = $colors->whereIn('id', $product_colors)->values();
 
-        // Limpiar URLs de imágenes
-        $cleanImages = $product->images;
-        if ($cleanImages && is_array($cleanImages)) {
-            $cleanImages = array_map(function ($imageUrl) {
-                return str_replace('/index.php/', '/', $imageUrl);
-            }, $cleanImages);
-        }
+        $cleanImages = ProductImages::forAvailableColors($product);
 
         return response()->json([
             'product' => [

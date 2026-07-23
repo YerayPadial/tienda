@@ -9,6 +9,8 @@ class ProductSeeder extends Seeder
 {
     public function run()
     {
+        $img = fn (string $file) => "https://padiyera.ososportgym.es/ecommerce-api/storage/products/{$file}.svg";
+
         $products = [
             // 1 Collar Rojo Única
             [
@@ -18,7 +20,7 @@ class ProductSeeder extends Seeder
                 'category' => 'Accesorios',
                 'gender' => 'Unisex',
                 'price' => 12.99,
-                'images' => ['https://padiyera.ososportgym.es/ecommerce-api/storage/products/collar.svg'],
+                'images' => [$img('collar-rojo')],
             ],
             // 2 Sudadera Unisex (todas menos Única)
             [
@@ -28,7 +30,12 @@ class ProductSeeder extends Seeder
                 'category' => 'Sudaderas',
                 'gender' => 'Unisex',
                 'price' => 29.99,
-                'images' => ['https://padiyera.ososportgym.es/ecommerce-api/storage/products/sudadera-basica.svg'],
+                'images' => [
+                    $img('sudadera-basica-negro'),
+                    $img('sudadera-basica-blanco'),
+                    $img('sudadera-basica-azul'),
+                    $img('sudadera-basica-verde'),
+                ],
             ],
             // 3 Pantalón Deportivo
             [
@@ -38,7 +45,10 @@ class ProductSeeder extends Seeder
                 'category' => 'Pantalones',
                 'gender' => 'Hombre',
                 'price' => 24.99,
-                'images' => ['https://padiyera.ososportgym.es/ecommerce-api/storage/products/pantalon-deportivo.svg'],
+                'images' => [
+                    $img('pantalon-deportivo-negro'),
+                    $img('pantalon-deportivo-azul'),
+                ],
             ],
             // 4 Vestido Elegante
             [
@@ -48,7 +58,10 @@ class ProductSeeder extends Seeder
                 'category' => 'Vestidos',
                 'gender' => 'Mujer',
                 'price' => 49.99,
-                'images' => ['https://padiyera.ososportgym.es/ecommerce-api/storage/products/vestido-elegante.svg'],
+                'images' => [
+                    $img('vestido-elegante-rojo'),
+                    $img('vestido-elegante-azul'),
+                ],
             ],
             // 5 Camiseta Blanca
             [
@@ -58,7 +71,10 @@ class ProductSeeder extends Seeder
                 'category' => 'Camisetas',
                 'gender' => 'Unisex',
                 'price' => 14.99,
-                'images' => ['https://padiyera.ososportgym.es/ecommerce-api/storage/products/camiseta.svg'],
+                'images' => [
+                    $img('camiseta-blanco'),
+                    $img('camiseta-negro'),
+                ],
             ],
             // 6 Gorra Verde Única
             [
@@ -68,7 +84,7 @@ class ProductSeeder extends Seeder
                 'category' => 'Accesorios',
                 'gender' => 'Unisex',
                 'price' => 9.99,
-                'images' => ['https://padiyera.ososportgym.es/ecommerce-api/storage/products/gorra.svg'],
+                'images' => [$img('gorra-verde')],
             ],
             // 7 Chaqueta Azul
             [
@@ -78,7 +94,10 @@ class ProductSeeder extends Seeder
                 'category' => 'Chaquetas',
                 'gender' => 'Hombre',
                 'price' => 39.99,
-                'images' => ['https://padiyera.ososportgym.es/ecommerce-api/storage/products/chaqueta.svg'],
+                'images' => [
+                    $img('chaqueta-azul'),
+                    $img('chaqueta-negro'),
+                ],
             ],
             // 8 Falda Negra
             [
@@ -88,7 +107,10 @@ class ProductSeeder extends Seeder
                 'category' => 'Faldas',
                 'gender' => 'Mujer',
                 'price' => 34.99,
-                'images' => ['https://padiyera.ososportgym.es/ecommerce-api/storage/products/falda.svg'],
+                'images' => [
+                    $img('falda-negro'),
+                    $img('falda-blanco'),
+                ],
             ],
             // 9 Bufanda Azul Única
             [
@@ -98,7 +120,7 @@ class ProductSeeder extends Seeder
                 'category' => 'Accesorios',
                 'gender' => 'Unisex',
                 'price' => 11.99,
-                'images' => ['https://padiyera.ososportgym.es/ecommerce-api/storage/products/bufanda.svg'],
+                'images' => [$img('bufanda-azul')],
             ],
             // 10 Polo Verde
             [
@@ -108,7 +130,7 @@ class ProductSeeder extends Seeder
                 'category' => 'Polos',
                 'gender' => 'Hombre',
                 'price' => 19.99,
-                'images' => ['https://padiyera.ososportgym.es/ecommerce-api/storage/products/polo.svg'],
+                'images' => [$img('polo-verde')],
             ],
             // 11 Blusa Blanca
             [
@@ -118,7 +140,7 @@ class ProductSeeder extends Seeder
                 'category' => 'Blusas',
                 'gender' => 'Mujer',
                 'price' => 27.99,
-                'images' => ['https://padiyera.ososportgym.es/ecommerce-api/storage/products/blusa.svg'],
+                'images' => [$img('blusa-blanco')],
             ],
         ];
 
