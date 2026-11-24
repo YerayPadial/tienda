@@ -30,6 +30,7 @@ class ProductControllerCrud extends Controller
                 $product->available_colors = $product->stocks->where('stock', '>', 0)->pluck('color.name')->unique()->values();
 
                 $product->available_images = ProductImages::forAvailableColors($product);
+                $product->images = ProductImages::withCatalogPhotos($product->images ?? []);
 
                 return $product;
             });
@@ -132,6 +133,7 @@ class ProductControllerCrud extends Controller
             $product->load(['stocks.size', 'stocks.color']);
 
             $product->available_images = ProductImages::forAvailableColors($product);
+            $product->images = ProductImages::withCatalogPhotos($product->images ?? []);
 
             return response()->json([
                 'data' => $product,

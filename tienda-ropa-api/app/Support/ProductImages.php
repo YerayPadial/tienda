@@ -3,6 +3,7 @@
 namespace App\Support;
 
 use App\Models\Product;
+use Illuminate\Support\Facades\Storage;
 
 class ProductImages
 {
@@ -40,8 +41,26 @@ class ProductImages
             return [];
         }
 
-        return $colors
+        $images = $colors
             ->map(fn (string $color) => self::BASE_URL . "{$slug}-{$color}.svg")
             ->all();
+
+        return self::withCatalogPhotos($images);
+    }
+
+    public static function withCatalogPhotos(array $images): array
+    {
+        $disk = Storage::disk('public');
+        $placeholder = '~^'.preg_quote(self::BASE_URL, '~').'([a-z0-9-]+)\.svg$~D';
+
+        return array_map(function ($image) use ($disk, $placeholder) {
+            if (! is_string($image) || ! preg_match($placeholder, $image, $match)) {
+                return $image;
+            }
+
+            $photo = $match[1].'.webp';
+
+            return $disk->exists('products/'.$photo) ? self::BASE_URL.$photo : $image;
+        }, $images);
     }
 }
