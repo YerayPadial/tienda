@@ -1,0 +1,11 @@
+{
+  "canvas": "#f7f4ee",
+  "paper": "#fffdf9",
+  "sand": "#e9dfd1",
+  "line": "#d9d0c4",
+  "ink": "#25221f",
+  "muted": "#625c55",
+  "accent": "#74523b",
+  "hover": "#44362d",
+  "focus": "#8b654b"
+}

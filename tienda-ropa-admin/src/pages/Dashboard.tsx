@@ -23,6 +23,7 @@ import {
 } from '@mui/icons-material'
 import { useEmployee } from '../context/EmployeeContext'
 import { getEmployees, getProducts, getUsers, getOrders } from '../services/api'
+import palette from '../../../shared/palette.json'
 
 interface DashboardStats {
     totalEmployees: number
@@ -186,25 +187,25 @@ const Dashboard: React.FC = () => {
             title: 'Empleados',
             value: stats?.totalEmployees || 0,
             icon: <People fontSize="large" />,
-            color: '#1976d2'
+            color: palette.accent
         },
         {
             title: 'Productos',
             value: stats?.totalProducts || 0,
             icon: <Inventory fontSize="large" />,
-            color: '#388e3c'
+            color: palette.ink
         },
         {
             title: 'Usuarios',
             value: stats?.totalUsers || 0,
             icon: <People fontSize="large" />,
-            color: '#f57c00'
+            color: palette.muted
         },
         {
             title: 'Pedidos',
             value: stats?.totalOrders || 0,
             icon: <ShoppingCart fontSize="large" />,
-            color: '#7b1fa2'
+            color: palette.hover
         }
     ]
 

@@ -181,7 +181,7 @@ const Products: React.FC = () => {
 
   if (loading && products.length === 0) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-50">
+      <div className="min-h-screen bg-canvas">
         <div className="container mx-auto px-4 py-12">
           <div className="flex items-center justify-center h-96">
             <div className="text-center">
@@ -207,110 +207,18 @@ const Products: React.FC = () => {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-50">
+    <div className="min-h-screen bg-canvas">
       <div className="container mx-auto px-4 py-12">
-        {/* Enhanced Professional Header */}
-        <div className="text-center mb-8 md:mb-12 relative overflow-hidden">
-          {/* Sophisticated Background Elements */}
-          <div className="absolute inset-0 bg-gradient-to-r from-blue-600/5 to-purple-600/5 rounded-3xl -z-10 transform -skew-y-1"></div>
-          <div className="absolute -top-10 -left-10 w-96 h-96 bg-gradient-to-r from-blue-400/5 to-purple-400/5 rounded-full blur-3xl"></div>
-          <div className="absolute -bottom-10 -right-10 w-96 h-96 bg-gradient-to-r from-purple-400/5 to-pink-400/5 rounded-full blur-3xl"></div>
+        <header className="mb-8 border-b border-line pb-7 md:mb-10 md:pb-9">
+          <h1 className="font-display text-5xl font-normal tracking-tight text-ink md:text-6xl">Catálogo</h1>
+          <p className="mt-3 text-base text-muted">Encuentra prendas por categoría, talla, color o precio.</p>
+        </header>
 
-          <div className="relative py-8 md:py-12">
-            {/* Premium Quality Badge */}
-            <div className="inline-flex items-center gap-2 bg-white/80 backdrop-blur-sm border border-gray-200 text-gray-800 px-6 py-2 rounded-full text-sm font-semibold mb-4 md:mb-6 shadow-lg">
-              <div className="w-2 h-2 bg-gradient-to-r from-blue-600 to-purple-600 rounded-full"></div>
-              <span>Colección Premium</span>
-              <div className="w-2 h-2 bg-gradient-to-r from-purple-600 to-pink-600 rounded-full"></div>
-            </div>
-
-            <h1 className="text-5xl md:text-7xl font-black text-gray-900 mb-4 md:mb-6 leading-tight tracking-tight">
-              <span className="relative inline-block">
-                Nuestra
-                <div className="absolute -top-2 md:-top-3 -right-4 md:-right-6 w-4 h-4 md:w-6 md:h-6 bg-gradient-to-r from-yellow-400 to-orange-400 rounded-full opacity-80 animate-pulse"></div>
-              </span>
-              <span className="block bg-gradient-to-r from-blue-600 via-purple-600 to-pink-600 bg-clip-text text-transparent font-extrabold">
-                Colección Exclusiva
-              </span>
-            </h1>
-
-            {/* Elegant Divider */}
-            <div className="flex justify-center items-center gap-4 mb-6 md:mb-8">
-              <div className="w-24 h-px bg-gradient-to-r from-transparent via-gray-300 to-transparent"></div>
-              <div className="w-3 h-3 bg-gradient-to-r from-blue-600 to-purple-600 rounded-full shadow-lg"></div>
-              <div className="w-16 h-px bg-gradient-to-r from-gray-300 via-gray-400 to-gray-300"></div>
-              <div className="w-2 h-2 bg-gradient-to-r from-purple-600 to-pink-600 rounded-full"></div>
-              <div className="w-24 h-px bg-gradient-to-r from-transparent via-gray-300 to-transparent"></div>
-            </div>
-
-            <p className="text-xl md:text-2xl text-gray-700 max-w-4xl mx-auto leading-relaxed mb-6 md:mb-8 font-light">
-              <span className="font-semibold text-blue-600">Descubre</span> las últimas tendencias en moda con nuestra selección
-              <span className="font-semibold bg-gradient-to-r from-purple-600 to-pink-600 bg-clip-text text-transparent"> meticulosamente curada</span> de prendas
-              <span className="font-semibold text-gray-900">excepcionales y de calidad superior</span>
-            </p>
-
-            {/* Professional Quality Indicators */}
-            <div className="flex flex-wrap justify-center gap-4 md:gap-8 mb-6 md:mb-8">
-              <div className="flex items-center gap-3 bg-white/60 backdrop-blur-sm px-4 md:px-6 py-2 md:py-3 rounded-full shadow-lg border border-white/30">
-                <div className="w-6 h-6 md:w-8 md:h-8 bg-gradient-to-r from-blue-500 to-blue-600 rounded-full flex items-center justify-center">
-                  <svg className="w-3 h-3 md:w-4 md:h-4 text-white" fill="currentColor" viewBox="0 0 20 20">
-                    <path fillRule="evenodd" d="M6.267 3.455a3.066 3.066 0 001.745-.723 3.066 3.066 0 013.976 0 3.066 3.066 0 001.745.723 3.066 3.066 0 012.812 2.812c.051.643.304 1.254.723 1.745a3.066 3.066 0 010 3.976 3.066 3.066 0 00-.723 1.745 3.066 3.066 0 01-2.812 2.812 3.066 3.066 0 00-1.745.723 3.066 3.066 0 01-3.976 0 3.066 3.066 0 00-1.745-.723 3.066 3.066 0 01-2.812-2.812 3.066 3.066 0 00-.723-1.745 3.066 3.066 0 010-3.976 3.066 3.066 0 00.723-1.745 3.066 3.066 0 012.812-2.812zm7.44 5.252a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
-                  </svg>
-                </div>
-                <span className="text-gray-700 font-semibold text-sm md:text-base">Calidad Certificada</span>
-              </div>
-
-              <div className="flex items-center gap-3 bg-white/60 backdrop-blur-sm px-4 md:px-6 py-2 md:py-3 rounded-full shadow-lg border border-white/30">
-                <div className="w-6 h-6 md:w-8 md:h-8 bg-gradient-to-r from-purple-500 to-purple-600 rounded-full flex items-center justify-center">
-                  <svg className="w-3 h-3 md:w-4 md:h-4 text-white" fill="currentColor" viewBox="0 0 20 20">
-                    <path d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
-                  </svg>
-                </div>
-                <span className="text-gray-700 font-semibold text-sm md:text-base">Diseños Únicos</span>
-              </div>
-
-              <div className="flex items-center gap-3 bg-white/60 backdrop-blur-sm px-4 md:px-6 py-2 md:py-3 rounded-full shadow-lg border border-white/30">
-                <div className="w-6 h-6 md:w-8 md:h-8 bg-gradient-to-r from-green-500 to-green-600 rounded-full flex items-center justify-center">
-                  <svg className="w-3 h-3 md:w-4 md:h-4 text-white" fill="currentColor" viewBox="0 0 20 20">
-                    <path fillRule="evenodd" d="M11.49 3.17c-.38-1.56-2.6-1.56-2.98 0a1.532 1.532 0 01-2.286.948c-1.372-.836-2.942.734-2.106 2.106.54.886.061 2.042-.947 2.287-1.561.379-1.561 2.6 0 2.978a1.532 1.532 0 01.947 2.287c-.836 1.372.734 2.942 2.106 2.106a1.532 1.532 0 012.287.947c.379 1.561 2.6 1.561 2.978 0a1.533 1.533 0 012.287-.947c1.372.836 2.942-.734 2.106-2.106a1.533 1.533 0 01.947-2.287c1.561-.379 1.561-2.6 0-2.978a1.532 1.532 0 01-.947-2.287c.836-1.372-.734-2.942-2.106-2.106a1.532 1.532 0 01-2.287-.947zM10 13a3 3 0 100-6 3 3 0 000 6z" clipRule="evenodd" />
-                  </svg>
-                </div>
-                <span className="text-gray-700 font-semibold text-sm md:text-base">Tendencias Actuales</span>
-              </div>
-            </div>
-
-            {/* Professional Stats */}
-            <div className="max-w-3xl mx-auto mb-4 md:mb-6">
-              <div className="bg-white/50 backdrop-blur-sm rounded-2xl p-6 md:p-8 shadow-xl border border-white/20">
-                <div className="grid grid-cols-3 gap-4 md:gap-8 text-center">
-                  <div>
-                    <div className="text-2xl md:text-3xl font-black text-blue-600 mb-2">500+</div>
-                    <div className="text-xs md:text-sm text-gray-600 font-medium">Productos Únicos</div>
-                  </div>
-                  <div>
-                    <div className="text-2xl md:text-3xl font-black text-purple-600 mb-2">15</div>
-                    <div className="text-xs md:text-sm text-gray-600 font-medium">Años de Experiencia</div>
-                  </div>
-                  <div>
-                    <div className="text-2xl md:text-3xl font-black text-pink-600 mb-2">50+</div>
-                    <div className="text-xs md:text-sm text-gray-600 font-medium">Marcas Selectas</div>
-                  </div>
-                </div>
-              </div>
-            </div>
-
-            {/* Subtle Call to Action */}
-            <div className="mt-4 md:mt-6">
-              <p className="text-base md:text-lg text-gray-600 font-medium">
-                <span className="text-gray-800 font-semibold">Explora nuestra colección</span> y encuentra tu estilo perfecto
-              </p>
-            </div>
-          </div>
-        </div>        <div className="flex flex-col xl:flex-row gap-10">
+        <div className="flex flex-col xl:flex-row gap-10">
           {/* Enhanced Sidebar - Filters */}
           <div className="xl:w-1/4">
             <div className="sticky top-8">
-              <div className="bg-white/80 backdrop-blur-sm rounded-2xl p-8 shadow-xl border border-white/20">
+              <div className="border border-line bg-paper p-4 sm:p-6">
                 <ProductFilters
                   onFiltersChange={handleFiltersChange}
                   onSearch={handleSearch}
@@ -323,7 +231,7 @@ const Products: React.FC = () => {
 
           {/* Enhanced Main Content */}
           <div className="xl:w-3/4">
-            <div className="bg-white/60 backdrop-blur-sm rounded-2xl p-8 shadow-xl border border-white/20">
+            <div className="min-w-0">
               {/* Sort and Results Count */}
               <ProductSort
                 currentSort={sortBy}
@@ -368,12 +276,12 @@ const Products: React.FC = () => {
                   {products.map((product, index) => (
                     <div
                       key={product.id}
-                      className="group bg-white/80 backdrop-blur-sm rounded-2xl shadow-xl hover:shadow-2xl transition-all duration-500 overflow-hidden border border-white/20 hover:border-blue-200 cursor-pointer transform hover:-translate-y-2"
+                      className="group cursor-pointer overflow-hidden border border-line bg-paper transition-colors hover:border-brand-400"
                       onClick={() => handleProductClick(product.id)}
                       style={{ animationDelay: `${index * 0.1}s` }}
                     >
                       {/* Enhanced Image Container */}
-                      <div className="relative overflow-hidden bg-gradient-to-br from-gray-50 to-gray-100 aspect-square">
+                      <div className="relative aspect-[4/5] overflow-hidden bg-gray-100">
                         {product.images && product.images.length > 0 ? (
                           <img
                             src={product.images[0]}
@@ -441,7 +349,7 @@ const Products: React.FC = () => {
                         </p>
 
                         {/* Enhanced Action Button */}
-                        <button className="w-full bg-gradient-to-r from-blue-600 to-purple-600 text-white py-3 rounded-xl font-bold hover:from-blue-700 hover:to-purple-700 transition-all duration-300 transform group-hover:scale-105 shadow-lg hover:shadow-xl flex items-center justify-center gap-2">
+                        <button className="shop-button shop-button-primary w-full">
                           <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z" />
                           </svg>

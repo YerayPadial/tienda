@@ -45,7 +45,7 @@ const CartSidebar: React.FC = () => {
 
             {/* Sidebar */}
             <div
-                className={`fixed top-0 right-0 h-full w-96 bg-white shadow-xl z-50 transform transition-transform duration-300 ease-in-out ${isOpen ? 'translate-x-0' : 'translate-x-full'
+                className={`fixed top-0 right-0 h-full w-96 max-w-full bg-paper shadow-xl z-50 transform transition-transform duration-300 ease-in-out ${isOpen ? 'translate-x-0' : 'translate-x-full'
                     }`}
             >
                 {/* Header del carrito */}

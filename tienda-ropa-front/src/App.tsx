@@ -11,7 +11,7 @@ const App: React.FC = () => {
     <BrowserRouter basename="/ecommerce">
       <UserProvider>
         <CartProvider>
-          <div className="bg-gray-50 min-h-screen flex flex-col">
+          <div className="bg-canvas min-h-screen flex flex-col">
             <Header />
             <main className="flex-1">
               <AppRoutes />
@@ -22,9 +22,9 @@ const App: React.FC = () => {
               toastOptions={{
                 duration: 3000,
                 style: {
-                  background: '#ffffff',
-                  color: '#374151',
-                  border: '1px solid #e5e7eb',
+                  background: '#fffdf9',
+                  color: '#25221f',
+                  border: '1px solid #d9d0c4',
                   borderRadius: '0.5rem',
                   padding: '12px 16px',
                   fontSize: '14px',

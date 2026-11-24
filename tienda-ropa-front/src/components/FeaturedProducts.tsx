@@ -96,24 +96,15 @@ const FeaturedProducts: React.FC = () => {
     return (
         <section className="py-20 bg-white">
             <div className="max-w-7xl mx-auto px-6">
-                <div className="text-center mb-16">
-                    <h2 className="text-5xl font-bold text-gray-800 mb-6">
-                        Productos
-                        <span className="block bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
-                            Recientes
-                        </span>
-                    </h2>
-                    <div className="w-32 h-2 bg-gradient-to-r from-blue-600 to-purple-600 mx-auto mb-8 rounded-full"></div>
-                    <p className="text-xl text-gray-600 max-w-2xl mx-auto">
-                        Descubre nuestros últimos productos añadidos a la colección
-                    </p>
+                <div className="mb-8 border-b border-line pb-5">
+                    <h2 className="font-display text-4xl font-normal tracking-tight text-ink sm:text-5xl">Últimas incorporaciones</h2>
                 </div>
 
                 <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-8 mb-12">
                     {products.map((product, index) => (
                         <div
                             key={product.id}
-                            className="group bg-white rounded-3xl shadow-xl hover:shadow-2xl transition-all duration-500 overflow-hidden border border-gray-100 hover:border-blue-200 transform hover:-translate-y-2"
+                            className="group overflow-hidden border border-line bg-paper transition-colors hover:border-brand-400"
                             style={{ animationDelay: `${index * 0.1}s` }}
                         >
                             {/* Imagen del producto */}
@@ -129,7 +120,7 @@ const FeaturedProducts: React.FC = () => {
                                 />
 
                                 {/* Badge de Nuevo */}
-                                <div className="absolute top-4 left-4 bg-gradient-to-r from-green-500 to-emerald-500 text-white px-3 py-1 rounded-full text-sm font-bold shadow-lg flex items-center gap-1">
+                                <div className="absolute top-4 left-4 bg-paper text-ink px-3 py-1 text-xs font-semibold border border-line flex items-center gap-1">
                                     <span className="w-2 h-2 bg-white rounded-full animate-pulse"></span>
                                     Nuevo
                                 </div>

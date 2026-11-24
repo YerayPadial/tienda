@@ -1,5 +1,5 @@
 import { Link, useNavigate } from 'react-router-dom'
-import { FaSignOutAlt, FaUser, FaShoppingBag, FaHome, FaBars, FaTimes } from 'react-icons/fa'
+import { FaSignOutAlt, FaUser, FaShoppingBag, FaBars, FaTimes } from 'react-icons/fa'
 import { useUser } from '../context/UserContext'
 import CartIcon from './CartIcon'
 import { useState } from 'react'
@@ -27,31 +27,21 @@ const Header: React.FC = () => {
   }
 
   return (
-    <header className="bg-white shadow-xl border-b border-gray-200 sticky top-0 z-50 backdrop-blur-sm bg-white/95">
+    <header className="sticky top-0 z-50 border-b border-line bg-paper">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
 
-        <div className="flex items-center justify-between h-20">
+        <div className="flex h-16 items-center justify-between gap-3 lg:h-[4.5rem]">
           {/* Logo mejorado */}
           <Link
             to="/"
-            className="flex items-center gap-3 text-2xl font-bold text-gray-800 hover:text-blue-600 transition-all duration-300 group"
+            className="font-display text-2xl tracking-tight text-ink transition-colors hover:text-brand-500 sm:text-3xl"
             onClick={closeMenu}
           >
-            <div className="w-12 h-12 bg-gradient-to-br from-blue-600 via-purple-600 to-pink-500 rounded-xl flex items-center justify-center shadow-lg group-hover:shadow-xl transition-shadow duration-300 group-hover:scale-105 transform">
-              <FaHome className="text-white text-xl" />
-            </div>
-            <div className="hidden sm:block">
-              <span className="bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
-                Tienda San Juan
-              </span>
-              <div className="text-xs text-gray-500 font-normal -mt-1">
-                Moda & Estilo
-              </div>
-            </div>
+            Tienda San Juan
           </Link>
 
           {/* Navegación Desktop mejorada */}
-          <nav className="hidden md:flex items-center gap-8">
+          <nav className="hidden items-center gap-5 md:flex">
             <Link
               to="/productos"
               className="flex items-center gap-2 px-4 py-2 text-gray-700 hover:text-blue-600 hover:bg-blue-50 rounded-xl transition-all duration-300 font-medium group"
@@ -93,7 +83,7 @@ const Header: React.FC = () => {
 
                 <Link
                   to="/registro"
-                  className="px-6 py-2 bg-gradient-to-r from-blue-600 to-purple-600 text-white hover:from-blue-700 hover:to-purple-700 rounded-xl transition-all duration-300 font-medium shadow-lg hover:shadow-xl transform hover:scale-105"
+                  className="shop-button shop-button-primary min-h-10 px-4 py-2"
                 >
                   Crear cuenta
                 </Link>
@@ -116,7 +106,7 @@ const Header: React.FC = () => {
 
         {/* Menú móvil mejorado */}
         {isMenuOpen && (
-          <div className="md:hidden border-t border-gray-200 bg-white/95 backdrop-blur-sm">
+          <div className="border-t border-line bg-paper md:hidden">
             <div className="py-6 space-y-3">
               {/* Productos */}
               <Link
